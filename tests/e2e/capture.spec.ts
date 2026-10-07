@@ -4,7 +4,7 @@ import { test, expect } from './fixtures';
 const composer = (page: Page) => page.getByRole('combobox', { name: 'Note' });
 const entry = (page: Page, text: string) => page.getByRole('article', { name: text });
 
-test.describe('quick capture (flows 1 and 2)', () => {
+test.describe('quick capture', () => {
   test('loads focused, saves from the keyboard alone in under 5 seconds, sending only the body', async ({
     page,
   }) => {
@@ -24,7 +24,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
 
     expect(Object.keys(bodies[0] ?? {}).sort()).toEqual(['body', 'id']);
     expect(bodies[0]?.body).toBe('x');
-    // The composer is empty again and still focused (flow 2).
+    // The composer is empty again and still focused.
     await expect(composer(page)).toHaveValue('');
     await expect(composer(page)).toBeFocused();
   });
@@ -95,7 +95,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
   });
 });
 
-test.describe('structure while capturing (flow 3)', () => {
+test.describe('structure while capturing', () => {
   test('#abc then Enter creates the tag as a chip and removes the trigger text', async ({
     page,
   }) => {

@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures';
 
-test.describe('first launch (flow 1)', () => {
+test.describe('first launch', () => {
   test(
     'opens an empty shell: no wizard, no sample data',
     { tag: '@smoke' },
