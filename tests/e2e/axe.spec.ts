@@ -23,6 +23,8 @@ const ROUTES = [
   '/dev/kit',
   '/nowhere',
 ];
+/** Routes that open a modal sheet. The sheet hides the page behind it, so its title is the heading. */
+const SHEET_ROUTES = new Set(['/farm/abc']);
 const WIDTHS = [360, 768, 1280];
 const THEMES = ['light', 'dark'] as const;
 
@@ -44,7 +46,8 @@ for (const theme of THEMES) {
       await page.setViewportSize({ width, height: 800 });
       for (const route of ROUTES) {
         await page.goto(route);
-        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        if (SHEET_ROUTES.has(route)) await expect(page.getByRole('dialog')).toBeVisible();
+        else await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         expect(await violations(page), `${route} (${theme}, ${width}px)`).toEqual([]);
       }

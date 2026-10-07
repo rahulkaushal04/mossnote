@@ -37,8 +37,8 @@ Then go through this list:
 - It has tests at the lowest layer that proves it: unit, integration, component, or end to end for things a person can see. A bug fix starts with a test that fails.
 - Anything a person can use works with the keyboard alone and passes the axe accessibility scans in both the light and dark theme.
 - A new dependency needs a short written reason in the pull request: why you need it and what else you looked at.
-- A schema change comes with a migration, and the migration is tested forward from the last release. Generate it with `npm run db:generate` and do not edit generated files by hand.
-- The README is updated if behaviour a user can see has changed. Leave `CHANGELOG.md` alone, the maintainer writes release notes.
+- A schema change comes with a migration, and the migration is tested forward from the previous schema. Generate it with `npm run db:generate` and do not edit generated files by hand.
+- The README is updated if behaviour a user can see has changed. Leave `CHANGELOG.md` alone, the maintainer keeps it.
 
 ## Commit messages
 

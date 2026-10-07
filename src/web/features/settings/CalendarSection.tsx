@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../../lib/zodConfig';
 import { DEFAULT_CALENDAR, LIMITS, type Calendar } from '@shared/constants';
 import { calendarSchema } from '@shared/schemas/calendar';
 import { CloseIcon } from '../../components/ui/icons';

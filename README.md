@@ -4,8 +4,6 @@ A private journal for one player and one game, kept on your own computer.
 
 You write down what you find out, in your own words. Mossnote only remembers it for you. It ships with no information about any game, so it can never spoil anything.
 
-> **Status:** not released yet. The work is on a development branch. Notes, people, farm entries, maps, game templates, search, export, import, backups and Recently deleted all work. What is left before `v0.1.0` is listed in the [status table](#where-it-stands).
-
 ## What it promises
 
 - **No spoilers.** There are no names, items, places or mechanics anywhere in the app. A new journal is empty. The only default that looks like a game is an editable calendar of four seasons with 28 days each.
@@ -131,17 +129,17 @@ src/server   Hono API, SQLite, migrations, snapshots. Imports shared only
 src/web      React app. Imports shared, plus the AppType type from server/app
 ```
 
-## Where it stands
+## What is in it
 
-| Area               | State                                                                                                                                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Foundations        | Done. Shell, server, database, backups, tooling, CI                                                                                                                                                   |
-| Capture and review | Done. Notes, composer, Today, Day and Journal, game date, delete with undo                                                                                                                            |
-| Structure          | Done. Discoveries, questions, `@` and `[[` links, people, farm entries, tag manager                                                                                                                   |
-| Search             | Done. Full-text search with typo tolerance, command palette, shortcuts                                                                                                                                |
-| Maps and templates | Done. Maps, markers, Places, "On maps", game templates, section rename, hide and reorder, quick actions                                                                                               |
-| Map editor         | Done. Objects, layers, smart drawing, snapping, connectors, markers, exploring mode, history, exports                                                                                                 |
-| Safety and release | Features done (export, import, settings, Recently deleted). Still to do before `v0.1.0`: the remaining end-to-end tests, performance checks on a large journal, a release workflow, and a full CI run |
+| Area               | What it covers                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| Foundations        | Shell, server, database, backups, tooling, CI                                                     |
+| Capture and review | Notes, composer, Today, Day and Journal, game date, delete with undo                              |
+| Structure          | Discoveries, questions, `@` and `[[` links, people, farm entries, tag manager                     |
+| Search             | Full-text search with typo tolerance, command palette, shortcuts                                  |
+| Maps and templates | Maps, markers, Places, "On maps", game templates, section rename, hide and reorder, quick actions |
+| Map editor         | Objects, layers, smart drawing, snapping, connectors, markers, exploring mode, history, exports   |
+| Safety             | Export, import, settings, snapshots, Recently deleted                                             |
 
 ## What it will not do
 

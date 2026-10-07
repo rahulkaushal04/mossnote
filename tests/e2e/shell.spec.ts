@@ -59,8 +59,9 @@ test.describe('keyboard', () => {
   test('the first Tab stop is the skip link, and it moves focus to the main content', async ({
     page,
   }) => {
-    await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+    // Today puts focus in the note box on load, so start on a page that does not.
+    await page.goto('/journal');
+    await expect(page.getByRole('heading', { level: 1, name: 'Journal' })).toBeVisible();
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to content' });
     await expect(skip).toBeFocused();
@@ -77,8 +78,8 @@ test.describe('keyboard', () => {
   });
 
   test('focus is visible with a 2px outline', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+    await page.goto('/journal');
+    await expect(page.getByRole('heading', { level: 1, name: 'Journal' })).toBeVisible();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
     const outline = await page.getByRole('link', { name: 'Skip to content' }).evaluate((el) => {

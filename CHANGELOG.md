@@ -1,41 +1,57 @@
 # Changelog
 
-All notable changes to this project are documented here. The format is based on
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
-[Semantic Versioning](https://semver.org/).
+All notable changes to this project are written down here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## 2026-10-07
 
-### Changed
-
-- Refactor, no behaviour change: the map service is split into `services/maps/` (rows, maps, pins, versions, projects, queries); the map engine's `shapes` and `doc` into folders; `Canvas`, `MapEditor` and `Inspector` into `canvas/`, `editor/` and `inspector/` modules with one function per gesture; every map module has a header, and thresholds are named constants.
+First entry. This is where the project starts.
 
 ### Added
 
-- Map editor rebuilt as a lightweight drawing tool: layers; paths, boxes, circles, areas, connectors, text, cards, callouts and sticky notes; smart drawing that recognises and tidies rough shapes; snapping to ends, edges, alignment, angles and the grid; rulers, guides, grid, minimap, compass and a measure tool; select, move, resize, rotate, group, align, distribute, copy, paste and duplicate with a quick bar and a right-click menu; markers with types, icons, status, tags, fields and links; exploring mode; autosave in one request; automatic and named versions with restore; map duplication; export as PNG, SVG, PDF and an editable project file (`.mossmap.json`).
-- Marker types (a setting), map project files, `POST /api/maps/:id/changes`, versions and duplicate endpoints; migration `0003_map_objects` adds marker properties and `map_versions`.
-- Maps: sketch with freehand drawing, pins, labels, areas and arrows in six colours, pan and zoom, undo and redo; pins link to a note, person or farm entry, which list them under "On maps"; a Places list; maps appear in search, Recently deleted, export and import.
-- Game templates: a Default and a Stardew Valley template (wording and structure only), a `layout` setting, section rename, hide and reorder, composer quick actions, and one-click suggested tags, all in Settings → Game and sections.
-- Foundations: one npm package with `shared`, `server` and `web` source roots and ESLint import boundaries.
-- Hono server on loopback with a Host, Origin and header guard, security headers and a per-response style nonce, health and settings routes, and the unified JSON error shape.
-- SQLite schema with Drizzle migrations and a hand-written full-text search migration; WAL mode, foreign keys, PID lock file, integrity check, and snapshots with retention.
-- Game date helpers (`encode`, `decode`, `isValid`, `advance`, `format`, `parse`) and an editable calendar, with conflict checks when it changes.
-- Web app shell with a theme (light, dark, system), bundled fonts, routes, empty states, toasts and dialogs.
-- Tests: unit, integration, component, and Playwright end-to-end with axe scans, a no-network check and a run under the full CSP. CI on Node 22 and 24, plus a WebKit smoke test on macOS.
-- Capture and review: notes API (idempotent create, soft delete and restore, conflict detection), composer with drafts that survive a refresh and outages, Today, Day and Journal views with URL filters and keyset pagination, inline editing with autosave, delete with undo.
-- Structure: discoveries and questions, people and farm entries, `@`, `[[`, `#` and `/` pickers, backlinks, tag manager (rename, pin, merge, delete), field-label suggestions.
-- Search: full-text search (SQLite FTS5) with typo tolerance, search parser (`#tag`, `@person`, quoted phrases), command palette, search results page, keyboard shortcuts and a shortcuts dialog.
-- Safety: JSON and Markdown export, validated import in one transaction with a pre-import snapshot, manual and automatic snapshots, Recently deleted with a 30-day purge, complete Settings.
-- Playwright end-to-end specs for capture and notes, with the shared fixture that resets the journal between tests.
+**Journal**
 
-### Fixed
+- Notes with a composer that saves on Cmd/Ctrl+Enter, keeps drafts through a refresh or an outage, and stamps each note with the current game date.
+- Today, Day and Journal views with filters for discoveries, questions, tags, people, date ranges and undated notes. Notes can be edited in place, and a delete can be undone.
+- Discoveries and questions. A question can be left open, marked solved or ignored, and given an answer.
+- People and farm entries, each page built from the notes that mention it. `@person`, `[[farm entry]]`, `#tag` and `/` pickers create records as you type.
+- A tag manager (rename, pin, merge, delete) and suggestions for field labels.
+- An editable game calendar, with checks when a change would affect existing dates.
 
-- Undoing a map drawing now restores the earlier drawing (it used to record the new one).
-- The Data settings list put a button inside a definition list, an accessibility error; the "No date" control on undated notes had an invalid ARIA attribute.
-- `npm run check:network` failed on a message string inside the bundled validation library; that host is now on the built-output allow list (it is never fetched).
-- Delete, restore and other bodiless requests were refused by the guard because the client omitted `Content-Type`.
-- A draft could be lost during an outage; it is now kept until the server confirms the save.
-- Snapshot numbering could reuse a sequence and make an import fail with a 500.
-- "Set date" in the note menu opened a picker that the closing menu immediately dismissed.
-- Typing a day number in the date picker was ignored while a season option had focus.
-- Lists of people and farm entries were capped at 100 items; the limit is now 500.
+**Maps**
+
+- A map editor built on SVG: freehand paths, boxes, circles, areas, connectors, text, cards, callouts, sticky notes and markers, on named layers.
+- Smart drawing that turns rough strokes into clean shapes, with an offer to keep the original.
+- Snapping to points, edges, alignment lines, angles and the grid, which Alt pauses. Guides, grid, rulers, minimap, compass and a measure tool.
+- Select, move, resize, rotate, group, lock, hide, rename, align, distribute, copy, paste and duplicate, with a quick bar, a right-click menu and keyboard shortcuts.
+- Markers with an icon, status, tags and fields, and a link to a note, a person or a farm entry. The linked page lists them under "On maps". Marker types are your own to define.
+- Exploring mode, for switching between the game and the map.
+- Autosave in a single request, undo and redo, and version history with automatic and named versions.
+- Duplicate a map. Export to PNG, SVG, PDF or an editable project file (`.mossmap.json`) that can be opened again.
+- A Places list across all maps.
+
+**Game templates**
+
+- A default template and one for Stardew Valley. A template holds wording and structure only, never game information.
+- Rename, hide and reorder sections, quick actions above the note box, and one-click suggested tags, all under Settings.
+
+**Search**
+
+- Full-text search on SQLite FTS5 with typo tolerance, `#tag`, `@person` and quoted phrases, a command palette on Cmd/Ctrl+K, a results page, and a shortcuts dialog. Maps and markers match by plain text.
+
+**Safety**
+
+- JSON and Markdown export. Import that validates the file, runs in one transaction and takes a snapshot first.
+- Automatic and manual snapshots, an integrity check on every start, and Recently deleted with a 30-day purge.
+- Settings for theme, reading size, calendar, game, sections and data.
+
+**Under the hood**
+
+- One npm package with `shared`, `server` and `web` source folders, and ESLint rules that enforce who may import whom.
+- A Hono server on loopback only, with Host and Origin checks, a required header on writes, strict security headers and a per-response style nonce, and one JSON error shape.
+- SQLite with Drizzle migrations, a hand-written full-text search migration, WAL mode, foreign keys, a PID lock file and snapshot retention.
+- A web app shell with light, dark and system themes, bundled fonts, empty states, toasts and dialogs.
+- No outgoing network connections. A check fails the build if the source or the output contains a non-local URL.
+- Tests: unit, integration and component tests, and Playwright end-to-end tests with axe accessibility scans in both themes and a run under the full Content-Security-Policy.
+- GitHub Actions on Node 22 and 24, a WebKit smoke test on macOS, Dependabot, issue forms and a pull request template.
+- README, CONTRIBUTING, SECURITY and a Code of Conduct.

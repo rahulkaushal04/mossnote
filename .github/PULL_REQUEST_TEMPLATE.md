@@ -13,7 +13,7 @@
 - [ ] `npm run check` passes
 - [ ] For user-facing changes: it works with the keyboard only, and the axe scans pass in light and dark
 - [ ] Nothing in code, tests, fixtures, copy, docs or screenshots comes from a real game (no names, items, places, mechanics, text or images)
-- [ ] If the schema changed, there is a migration and it runs forward from the last release
+- [ ] If the schema changed, there is a migration and it runs forward from the previous schema
 - [ ] I updated the README if something a user can see changed. I left `CHANGELOG.md` for the maintainer
 - [ ] Any screenshots use made-up data
 

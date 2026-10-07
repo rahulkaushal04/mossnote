@@ -34,8 +34,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Mossnote version or commit
-      description: The version in package.json, or the output of `git rev-parse --short HEAD`.
+      label: Commit
+      description: The output of `git rev-parse --short HEAD`.
     validations:
       required: true
   - type: input

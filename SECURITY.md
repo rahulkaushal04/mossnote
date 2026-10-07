@@ -11,13 +11,13 @@ A useful report has:
 - what the problem is and which part of the app it touches
 - steps to reproduce it, or a small proof of concept
 - what an attacker could do with it
-- the version or commit you tested, and your operating system and Node version
+- the commit you tested, and your operating system and Node version
 
 This is a volunteer project. I will aim to reply within a week and to fix serious problems first, but I cannot promise a timetable. If you want credit when the fix is published, say so in your report.
 
-## Which versions get fixes
+## Which code gets fixes
 
-There is no release yet. Until `v0.1.0`, fixes go to the main development branch. After that, only the latest release is supported.
+Fixes go to `main`. Run the latest `main` to get them.
 
 ## What Mossnote is, and what it is not
 
