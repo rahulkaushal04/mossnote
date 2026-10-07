@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 
-/** Accessibility of the map and game-settings screens (AC-G-4): maps, the editor, the pin sheet, game settings. */
+/** Accessibility of the map and game-settings screens: maps, the editor, the pin sheet, game settings. */
 async function violations(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
@@ -67,7 +67,7 @@ for (const theme of ['light', 'dark'] as const) {
   }
 }
 
-test.describe('the map editor (AC-MAP-22)', () => {
+test.describe('the map editor', () => {
   for (const theme of ['light', 'dark'] as const) {
     test(`has no serious violations with objects, panels and menus open: ${theme}`, async ({
       page,

@@ -18,7 +18,7 @@ function usage(tag: Tag): string {
   return parts.length > 0 ? parts.join(' · ') : 'Not used';
 }
 
-/** Settings → Tags: rename inline, pin, merge, delete (spec section 5.6). */
+/** Settings → Tags: rename inline, pin, merge, delete. */
 export function TagsSection() {
   const tags = useTags();
   const actions = useTagMutations();

@@ -21,7 +21,7 @@ const patch = (id: string, body: Record<string, unknown>) =>
   t.call('PATCH', `/api/people/${id}`, body);
 
 describe('create', () => {
-  it('AC-PPL-1 and AC-PPL-2: a name is enough, and a fresh journal has no one', async () => {
+  it('a name is enough, and a fresh journal has no one', async () => {
     expect((await list()).items).toEqual([]);
     const person = await api.person({ name: 'Example Person' });
     expect(person).toMatchObject({
@@ -72,7 +72,7 @@ describe('create', () => {
   });
 });
 
-describe('progress (AC-PPL-4)', () => {
+describe('progress', () => {
   it('the maximum is the user’s own number from 1 to 99, and progress stays within it', async () => {
     const person = await api.person({ name: 'A', progressMax: 5, progress: 3 });
     expect(person).toMatchObject({ progress: 3, progressMax: 5 });
@@ -160,7 +160,7 @@ describe('custom fields', () => {
     );
   });
 
-  it('AC-PPL-3: labels already used on other people autocomplete', async () => {
+  it('labels already used on other people autocomplete', async () => {
     await api.person({
       name: 'A',
       customFields: [
@@ -263,7 +263,7 @@ describe('list limits', () => {
 });
 
 describe('delete, restore and backlinks', () => {
-  it('AC-LNK-3 and AC-PPL-5: "Notes about" lists linking notes, newest first, without deleted ones', async () => {
+  it('"Notes about" lists linking notes, newest first, without deleted ones', async () => {
     const person = await api.person({ name: 'Example Person' });
     const a = await api.note({ body: 'older', links: [{ type: 'person', id: person.id }] });
     const b = await api.note({ body: 'newer', links: [{ type: 'person', id: person.id }] });
@@ -275,7 +275,7 @@ describe('delete, restore and backlinks', () => {
     expect(after.items.map((n) => n.id)).toEqual([a.id]);
   });
 
-  it('AC-PPL-6: delete then undo restores the person and their note links', async () => {
+  it('delete then undo restores the person and their note links', async () => {
     const person = await api.person({ name: 'Example Person', tags: ['idea'] });
     const note = await api.note({ body: 'about them', links: [{ type: 'person', id: person.id }] });
     expect((await t.call('DELETE', `/api/people/${person.id}`)).status).toBe(204);

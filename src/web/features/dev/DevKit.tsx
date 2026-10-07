@@ -20,7 +20,7 @@ const TOKENS: [name: string, swatch: string][] = [
 ];
 
 /**
- * Hidden `/dev/kit` route for visual review of the primitives (spec section 13). It is compiled
+ * Hidden `/dev/kit` route for visual review of the primitives. It is compiled
  * into development and `--mode e2e` builds only, never into `npm run build`.
  */
 export default function DevKit() {

@@ -40,7 +40,7 @@ export function LinkChip({ link, onRemove }: { link: LinkRef; onRemove?: () => v
   );
 }
 
-/** Tags are quiet `#name` text, each a link that filters (spec section 5.6). */
+/** Tags are quiet `#name` text, each a link that filters. */
 export function TagList({
   tags,
   to = (tag) => `/journal?tag=${encodeURIComponent(tag)}`,

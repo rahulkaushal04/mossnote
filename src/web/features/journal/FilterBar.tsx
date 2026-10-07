@@ -95,7 +95,7 @@ export function TagPicker({
   );
 }
 
-/** The Journal's filter row (spec section 5.5). Wraps on wide screens, scrolls sideways on narrow. */
+/** The Journal's filter row. Wraps on wide screens, scrolls sideways on narrow. */
 export function FilterBar({
   filters,
   onChange,

@@ -1,6 +1,6 @@
 import { ERROR_STATUS, type ApiErrorBody, type ErrorCode } from '@shared/errors';
 
-/** A typed error that the error middleware turns into the JSON error shape (spec section 11). */
+/** A typed error that the error middleware turns into the JSON error shape. */
 export class AppError extends Error {
   readonly code: ErrorCode;
   readonly fields: Record<string, string> | undefined;

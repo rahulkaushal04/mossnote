@@ -2,7 +2,7 @@ import type { CustomField } from '@shared/types';
 import { conflict } from '../errors';
 import type { Ctx } from './ctx';
 
-/** `custom_fields` is TEXT holding a JSON array of `{label, value}` (spec section 9). */
+/** `custom_fields` is TEXT holding a JSON array of `{label, value}`. */
 export function parseFields(json: string): CustomField[] {
   try {
     const parsed: unknown = JSON.parse(json);

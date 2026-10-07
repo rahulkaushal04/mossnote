@@ -64,7 +64,7 @@ describe('advance: rollovers', () => {
     expect(advance(k(1, 0, 28), cal, 1)).toBe(k(1, 1, 1));
     expect(advance(k(1, 2, 28), cal, 1)).toBe(k(1, 3, 1));
   });
-  it('AC-CAL-1: last day of the last season gives day 1 of season 0 next year', () => {
+  it('last day of the last season gives day 1 of season 0 next year', () => {
     expect(advance(k(1, 3, 28), cal, 1)).toBe(k(2, 0, 1));
     expect(advance(k(41, 3, 28), cal, 1)).toBe(k(42, 0, 1));
   });
@@ -135,7 +135,7 @@ describe('advance: calendar edits', () => {
     expect(format(key, cal)).toBe('Spring 3');
     expect(format(key, renamed)).toBe('Thaw 3');
   });
-  it('AC-CAL-3: labels follow the calendar for every date', () => {
+  it('labels follow the calendar for every date', () => {
     const renamed: Calendar = { seasons: cal.seasons.map((s) => ({ ...s, name: `${s.name}x` })) };
     expect(format(k(2, 3, 9), renamed, { withYear: true })).toBe('Winterx 9 · Year 2');
   });

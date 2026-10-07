@@ -6,7 +6,7 @@ export function safeUrl(url: string): string {
 }
 
 /**
- * The rendered Markdown subset (spec section 5.2): paragraphs with preserved line breaks,
+ * The rendered Markdown subset: paragraphs with preserved line breaks,
  * **bold**, *italic*, inline code, lists, block quotes and http(s) links. Headings, tables,
  * images, code blocks and raw HTML are shown as plain text. Nothing is injected as HTML.
  */

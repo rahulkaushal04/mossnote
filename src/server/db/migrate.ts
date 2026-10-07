@@ -53,7 +53,7 @@ function readApplied(database: Database): AppliedRow[] {
 }
 
 /**
- * Apply pending migrations (spec section 18).
+ * Apply pending migrations.
  * - Refuses a database that contains a migration this build does not know.
  * - Takes a `pre-migration` snapshot first, but not for a brand new database (nothing to protect).
  * - Runs all pending migrations in one transaction; on failure nothing is applied.

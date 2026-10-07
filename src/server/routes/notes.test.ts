@@ -19,7 +19,7 @@ afterEach(() => {
 const k = (year: number, season: number, day: number) => encode({ year, season, day });
 
 describe('create (POST /api/notes)', () => {
-  it('AC-CAP-1: a body alone is enough, and nothing else is required', async () => {
+  it('a body alone is enough, and nothing else is required', async () => {
     const note = await api.note({ body: 'x' });
     expect(note).toMatchObject({
       title: null,
@@ -34,7 +34,7 @@ describe('create (POST /api/notes)', () => {
     expect(note.createdAt).toBe(note.updatedAt);
   });
 
-  it('AC-CAP-3: stores the game date the client sends, and none otherwise', async () => {
+  it('stores the game date the client sends, and none otherwise', async () => {
     expect((await api.note({ body: 'a', gameDate: k(1, 0, 3) })).gameDate).toBe(10_003);
     expect((await api.note({ body: 'b' })).gameDate).toBeNull();
   });
@@ -51,7 +51,7 @@ describe('create (POST /api/notes)', () => {
     expect(t.database.sqlite.prepare('SELECT count(*) AS n FROM notes').get()).toEqual({ n: 1 });
   });
 
-  it('AC-CAP-5: refuses whitespace-only content, title or body', async () => {
+  it('refuses whitespace-only content, title or body', async () => {
     for (const body of [{ body: '   ' }, { body: '' }, {}, { title: '  ', body: '\n\t' }]) {
       const error = await api.error(await t.call('POST', '/api/notes', body), 400);
       expect(error.code).toBe('validation_failed');
@@ -112,7 +112,7 @@ describe('create (POST /api/notes)', () => {
 });
 
 describe('tags on notes', () => {
-  it('AC-TAG-1: #Idea and #idea are one tag, shown with the first-used casing', async () => {
+  it('#Idea and #idea are one tag, shown with the first-used casing', async () => {
     const a = await api.note({ body: 'a', tags: ['Idea'] });
     const b = await api.note({ body: 'b', tags: ['#idea'] });
     expect(a.tags).toEqual(['Idea']);
@@ -144,7 +144,7 @@ describe('tags on notes', () => {
 });
 
 describe('links on notes', () => {
-  it('stores person, farm entry and note links with labels (AC-LNK-1)', async () => {
+  it('stores person, farm entry and note links with labels', async () => {
     const person = await api.person({ name: 'Example Person' });
     const entry = await api.planting({ label: 'Example entry' });
     const target = await api.note({ title: 'Target note', body: 'x' });
@@ -168,7 +168,7 @@ describe('links on notes', () => {
     expect(t.database.sqlite.prepare('SELECT count(*) AS n FROM links').get()).toEqual({ n: 4 });
   });
 
-  it('AC-LNK-5: refuses a self link, a missing target, and an over-long list', async () => {
+  it('refuses a self link, a missing target, and an over-long list', async () => {
     const note = await api.note({ body: 'x' });
     for (const links of [
       [{ type: 'note', id: note.id }],
@@ -198,7 +198,7 @@ describe('links on notes', () => {
     expect((await api.patchNote(note.id, { links: [] })).links).toEqual([]);
   });
 
-  it('AC-LNK-2: renaming a person changes the label on every chip', async () => {
+  it('renaming a person changes the label on every chip', async () => {
     const person = await api.person({ name: 'Old Name' });
     const n1 = await api.note({ body: 'a', links: [{ type: 'person', id: person.id }] });
     const n2 = await api.note({ body: 'b', links: [{ type: 'person', id: person.id }] });
@@ -206,7 +206,7 @@ describe('links on notes', () => {
     for (const n of [n1, n2]) expect((await api.getNote(n.id)).links[0]?.label).toBe('New Name');
   });
 
-  it('AC-LNK-4: deleting a person hides chips; undo restores them', async () => {
+  it('deleting a person hides chips; undo restores them', async () => {
     const person = await api.person({ name: 'Example Person' });
     const note = await api.note({ body: 'a', links: [{ type: 'person', id: person.id }] });
     await t.call('DELETE', `/api/people/${person.id}`);
@@ -240,7 +240,7 @@ describe('read (GET /api/notes/:id)', () => {
 });
 
 describe('update (PATCH /api/notes/:id)', () => {
-  it('AC-NOTE-1: updatedAt advances, createdAt never changes', async () => {
+  it('updatedAt advances, createdAt never changes', async () => {
     const note = await api.note({ body: 'before' });
     const after = await api.patchNote(note.id, { body: 'after' });
     expect(after.body).toBe('after');
@@ -263,7 +263,7 @@ describe('update (PATCH /api/notes/:id)', () => {
     expect(cleared).toMatchObject({ title: null, gameDate: null, body: 'B2' });
   });
 
-  it('AC-NOTE-4: emptying both title and body is refused and leaves the note unchanged', async () => {
+  it('emptying both title and body is refused and leaves the note unchanged', async () => {
     const note = await api.note({ title: 'T', body: 'B' });
     const error = await api.error(
       await t.call('PATCH', `/api/notes/${note.id}`, { title: null, body: '  ' }),
@@ -273,7 +273,7 @@ describe('update (PATCH /api/notes/:id)', () => {
     expect(await api.getNote(note.id)).toMatchObject({ title: 'T', body: 'B' });
   });
 
-  it('AC-NOTE-5: a stale edit returns 409 with the current note and changes nothing', async () => {
+  it('a stale edit returns 409 with the current note and changes nothing', async () => {
     const note = await api.note({ body: 'v1' });
     const newer = await api.patchNote(note.id, { body: 'v2' });
     const error = await api.error(
@@ -310,7 +310,7 @@ describe('update (PATCH /api/notes/:id)', () => {
 });
 
 describe('questions and discoveries', () => {
-  it('AC-DSC-1: the discovery flag persists and toggles', async () => {
+  it('the discovery flag persists and toggles', async () => {
     const note = await api.note({ body: 'x' });
     expect((await api.patchNote(note.id, { isDiscovery: true })).isDiscovery).toBe(true);
     expect((await api.getNote(note.id)).isDiscovery).toBe(true);
@@ -322,7 +322,7 @@ describe('questions and discoveries', () => {
     expect(note).toMatchObject({ isDiscovery: true, question: { state: 'open' } });
   });
 
-  it('AC-QST-2: solving stores the resolution, the solved date (default: the current date) and time', async () => {
+  it('solving stores the resolution, the solved date (default: the current date) and time', async () => {
     await t.call('PATCH', '/api/settings', { currentGameDate: k(1, 2, 9) });
     const note = await api.note({ body: 'why?', question: { state: 'open' } });
     const solved = await api.patchNote(note.id, {
@@ -348,7 +348,7 @@ describe('questions and discoveries', () => {
     });
   });
 
-  it('AC-QST-3: reopening keeps the resolution text and clears the solved fields', async () => {
+  it('reopening keeps the resolution text and clears the solved fields', async () => {
     const note = await api.note({ body: 'why?', question: { state: 'open' } });
     await api.patchNote(note.id, { question: { state: 'solved', resolution: 'Because.' } });
     const reopened = await api.patchNote(note.id, { question: { state: 'open' } });
@@ -405,7 +405,7 @@ describe('questions and discoveries', () => {
 });
 
 describe('delete and restore', () => {
-  it('AC-DEL-1: delete is soft, hidden from lists, and undo restores tags and links', async () => {
+  it('delete is soft, hidden from lists, and undo restores tags and links', async () => {
     const person = await api.person({ name: 'Example Person' });
     const note = await api.note({
       body: 'keep me',
@@ -472,12 +472,12 @@ describe('list and filters (GET /api/notes)', () => {
     expect(ids(await api.notes())).toEqual(['d', 'c', 'b', 'a', 'u2', 'u1']);
   });
 
-  it('AC-JRN-5: ascending reverses day order and order within a day; undated stay last', async () => {
+  it('ascending reverses day order and order within a day; undated stay last', async () => {
     await seed();
     expect(ids(await api.notes('?order=asc'))).toEqual(['a', 'b', 'c', 'd', 'u1', 'u2']);
   });
 
-  it('filters by flag, state and tag, and combines them with AND (AC-JRN-2)', async () => {
+  it('filters by flag, state and tag, and combines them with AND', async () => {
     await seed();
     expect(ids(await api.notes('?flag=discovery'))).toEqual(['d', 'b']);
     expect(ids(await api.notes('?flag=question'))).toEqual(['d', 'c', 'u2']);

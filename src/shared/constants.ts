@@ -1,4 +1,4 @@
-/** Limits and defaults shared by server and client (spec sections 5.3, 9, 19). */
+/** Limits and defaults shared by server and client. */
 
 export const LIMITS = {
   noteBody: 50_000,
@@ -87,7 +87,7 @@ export interface Calendar {
 }
 
 /**
- * The only game-adjacent default that ships (spec section 5.3): four seasons of 28 days,
+ * The only game-adjacent default that ships: four seasons of 28 days,
  * editable by the user. Nothing else is pre-filled anywhere.
  */
 export const DEFAULT_CALENDAR: Calendar = {

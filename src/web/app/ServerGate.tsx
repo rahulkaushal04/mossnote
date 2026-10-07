@@ -5,7 +5,7 @@ import { queryKeys } from '../lib/queryKeys';
 
 const RETRY_MS = 5000;
 
-/** Full-page message when the API cannot be reached (spec section 8.12). */
+/** Full-page message when the API cannot be reached. */
 export function Unreachable({ onRetry }: { onRetry: () => void }) {
   useEffect(() => {
     document.title = "Can't reach your journal · Mossnote";

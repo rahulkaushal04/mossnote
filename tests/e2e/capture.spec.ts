@@ -5,7 +5,7 @@ const composer = (page: Page) => page.getByRole('combobox', { name: 'Note' });
 const entry = (page: Page, text: string) => page.getByRole('article', { name: text });
 
 test.describe('quick capture (flows 1 and 2)', () => {
-  test('AC-CAP-1 and AC-G-11: loads focused, saves from the keyboard alone in under 5 seconds, sending only the body', async ({
+  test('loads focused, saves from the keyboard alone in under 5 seconds, sending only the body', async ({
     page,
   }) => {
     const bodies: Record<string, unknown>[] = [];
@@ -36,7 +36,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
     await expect(page.getByRole('button', { name: 'Set date' })).toBeVisible();
   });
 
-  test('AC-DAY-5: the hint can be dismissed and stays dismissed', async ({ page }) => {
+  test('the hint can be dismissed and stays dismissed', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Dismiss' }).click();
     await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeHidden();
@@ -45,9 +45,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
     await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeHidden();
   });
 
-  test('AC-CAP-2: a draft survives a reload exactly, and is gone after saving', async ({
-    page,
-  }) => {
+  test('a draft survives a reload exactly, and is gone after saving', async ({ page }) => {
     await page.goto('/');
     await composer(page).fill('half written thought');
     await page.getByRole('button', { name: 'Discovery' }).click();
@@ -70,10 +68,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
     ).toEqual([]);
   });
 
-  test('AC-CAP-5: whitespace-only text cannot be saved, and no error is shown', async ({
-    page,
-    seed,
-  }) => {
+  test('whitespace-only text cannot be saved, and no error is shown', async ({ page, seed }) => {
     await page.goto('/');
     await composer(page).fill('   \n  ');
     await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
@@ -101,7 +96,7 @@ test.describe('quick capture (flows 1 and 2)', () => {
 });
 
 test.describe('structure while capturing (flow 3)', () => {
-  test('AC-CAP-4: #abc then Enter creates the tag as a chip and removes the trigger text', async ({
+  test('#abc then Enter creates the tag as a chip and removes the trigger text', async ({
     page,
   }) => {
     await page.goto('/');
@@ -116,10 +111,7 @@ test.describe('structure while capturing (flow 3)', () => {
     await expect(page.getByRole('article').getByText('#abc')).toBeVisible();
   });
 
-  test('AC-CAP-4 and AC-TAG-6: Esc closes the picker and creates nothing', async ({
-    page,
-    seed,
-  }) => {
+  test('Esc closes the picker and creates nothing', async ({ page, seed }) => {
     await page.goto('/');
     await composer(page).click();
     await page.keyboard.type('#abc');
@@ -166,7 +158,7 @@ test.describe('structure while capturing (flow 3)', () => {
     await expect(page.getByRole('listbox')).toHaveCount(0);
   });
 
-  test('AC-CAP-7 and AC-LNK-1: @ with no match offers Create person, makes exactly one, and links it', async ({
+  test('@ with no match offers Create person, makes exactly one, and links it', async ({
     page,
     seed,
   }) => {
@@ -204,7 +196,7 @@ test.describe('structure while capturing (flow 3)', () => {
     );
   });
 
-  test('AC-LNK-6: an email address never opens the people picker', async ({ page }) => {
+  test('an email address never opens the people picker', async ({ page }) => {
     await page.goto('/');
     await composer(page).click();
     await page.keyboard.type('write to someone@example.com');
@@ -262,7 +254,7 @@ test.describe('structure while capturing (flow 3)', () => {
   });
 });
 
-test.describe('failing saves (AC-CAP-6)', () => {
+test.describe('failing saves', () => {
   test.describe.configure({ mode: 'serial' });
 
   test('with the server stopped the page says so and keeps the draft; after restart the text is back and saves once', async ({

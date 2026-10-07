@@ -10,7 +10,7 @@ import { FilterBar } from './FilterBar';
 import { useJournalFilters } from './useJournalFilters';
 import { useTerms } from '../settings/useLayout';
 
-/** Copy for a filtered list that is empty (spec section 21). */
+/** Copy for a filtered list that is empty. */
 function emptyCopy(flag: string, state: string): string | null {
   if (flag === 'discovery')
     return 'No discoveries marked yet. Mark a note with ✦ and it will appear here.';

@@ -13,7 +13,7 @@ const MAX_PERSON_QUERY = 40;
 const MAX_LINK_QUERY = 60;
 
 /**
- * Find the trigger the caret is inside (spec section 5.1, trigger grammar), or null.
+ * Find the trigger the caret is inside (trigger grammar), or null.
  * - `#` and `@` work at line start or after whitespace (so email addresses are untouched);
  *   a tag query has no spaces, a person query may have up to two (a name of up to three words).
  * - `[[` works anywhere and ends at `]` or the end of the line.
@@ -73,7 +73,7 @@ export interface Command {
   name: string;
 }
 
-/** The `/` command menu (spec section 5.1). */
+/** The `/` command menu. */
 export const COMMANDS: readonly Command[] = [
   { id: 'title', label: 'Title', name: 'title' },
   { id: 'date', label: 'Date', name: 'date' },

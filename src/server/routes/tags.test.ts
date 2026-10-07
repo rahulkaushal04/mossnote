@@ -67,7 +67,7 @@ describe('list and create', () => {
 });
 
 describe('rename and pin', () => {
-  it('AC-TAG-2: renaming updates every note, person and farm entry, and the search index', async () => {
+  it('renaming updates every note, person and farm entry, and the search index', async () => {
     const note = await api.note({ body: 'x', tags: ['idea'] });
     const person = await api.person({ name: 'P', tags: ['idea'] });
     const entry = await api.planting({ label: 'E', tags: ['idea'] });
@@ -103,7 +103,7 @@ describe('rename and pin', () => {
     expect((await api.tags()).map((x) => x.name)).toEqual(['one', 'two']);
   });
 
-  it('AC-TAG-5: pin and unpin', async () => {
+  it('pin and unpin', async () => {
     await api.note({ body: 'x', tags: ['a', 'b'] });
     const b = await find('b');
     expect((await api.json<Tag>(await patch(b.id, { pinned: true }))).pinned).toBe(true);
@@ -119,7 +119,7 @@ describe('rename and pin', () => {
 });
 
 describe('merge', () => {
-  it('AC-TAG-3: yields the union of records with no duplicate associations', async () => {
+  it('yields the union of records with no duplicate associations', async () => {
     const both = await api.note({ body: 'both', tags: ['src', 'dst'] });
     const onlySrc = await api.note({ body: 'src only', tags: ['src'] });
     const onlyDst = await api.note({ body: 'dst only', tags: ['dst'] });
@@ -149,7 +149,7 @@ describe('merge', () => {
 });
 
 describe('delete', () => {
-  it('AC-TAG-4: removes only the join rows and leaves every record intact', async () => {
+  it('removes only the join rows and leaves every record intact', async () => {
     const note = await api.note({ body: 'keep', tags: ['gone'] });
     const person = await api.person({ name: 'P', tags: ['gone'] });
     const tag = await find('gone');

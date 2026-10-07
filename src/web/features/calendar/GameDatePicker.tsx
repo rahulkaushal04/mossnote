@@ -257,8 +257,8 @@ export function DatePickerBody({
 }
 
 /**
- * Pick an in-game date: a popover on wide screens, a bottom sheet on narrow ones (spec section 23).
- * Keyboard operable throughout (AC-CAL-6).
+ * Pick an in-game date: a popover on wide screens, a bottom sheet on narrow ones.
+ * Keyboard operable throughout.
  */
 export function GameDatePicker(props: GameDatePickerProps) {
   const narrow = useIsNarrow();

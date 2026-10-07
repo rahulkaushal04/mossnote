@@ -23,7 +23,7 @@ const entryName = (note: Note): string => {
 };
 
 /**
- * One note as an entry, not a card (spec section 8.2): a gutter for the flag marks, an optional
+ * One note as an entry, not a card: a gutter for the flag marks, an optional
  * serif title, the body, and a quiet metadata line. Clicking the body, or pressing `e` while the
  * entry is focused, edits it in place.
  */

@@ -36,7 +36,7 @@ interface LinkRow {
   body: string | null;
 }
 
-// Live targets only: a soft-deleted target hides its chip (spec section 5.7).
+// Live targets only: a soft-deleted target hides its chip.
 const LINKS_FOR = `
   SELECT l.source_note_id AS source, 'note' AS type, n.id AS id, n.title AS label, n.body AS body
     FROM links l JOIN notes n ON n.id = l.target_note_id
@@ -73,7 +73,7 @@ const CURRENT = `
   UNION ALL SELECT 'planting', target_planting_id FROM links WHERE source_note_id = ? AND target_planting_id IS NOT NULL`;
 
 /**
- * Replace a note's outgoing links (spec sections 5.7 and 19): at most 50, unique, targets exist
+ * Replace a note's outgoing links: at most 50, unique, targets exist
  * and are not deleted, a note cannot link to itself. Existing links that stay keep their rows.
  */
 export function setLinks(ctx: Ctx, noteId: string, inputs: readonly LinkInput[]): void {

@@ -31,7 +31,7 @@ const NAMES: Record<TagKind, string> = {
 
 /**
  * Normalise tag names, create any that do not exist, and return their ids in order. Invalid
- * names and too many tags are field errors (spec sections 5.6 and 19).
+ * names and too many tags are field errors.
  */
 export function resolveTagIds(ctx: Ctx, kind: TagKind, names: readonly string[]): string[] {
   const { tags, errors } = normalizeTags(names);

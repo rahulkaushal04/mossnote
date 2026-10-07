@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const src = (dir: string) => fileURLToPath(new URL(`./src/${dir}`, import.meta.url));
 
-/** Keeps the hidden /dev/kit route out of real production builds (spec section 13). */
+/** Keeps the hidden /dev/kit route out of real production builds. */
 const devKit = (include: boolean): Plugin => ({
   name: 'moss-dev-kit',
   config: () => ({ define: { __MOSS_DEV_KIT__: JSON.stringify(include) } }),

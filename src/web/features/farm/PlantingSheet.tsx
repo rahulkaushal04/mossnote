@@ -250,7 +250,7 @@ function Details({ entry }: { entry: Planting }) {
 
 /**
  * `/farm/:id`: a 420px sheet over the list on wide screens, a full page on narrow ones. It is a
- * route, so it can be bookmarked and closed with Back or Esc (spec section 7).
+ * route, so it can be bookmarked and closed with Back or Esc.
  */
 export function PlantingSheet() {
   const terms = useTerms();

@@ -28,7 +28,7 @@ const parts = (key: number | null): ExportedDate | null => {
   return { year, season, day };
 };
 
-/** The one place that adds `seasonName`, as in the section 17 example (notes' game dates). */
+/** The one place that adds `seasonName`, in the export format (notes' game dates). */
 const noteDate = (key: number | null, calendar: Calendar): NoteDate | null => {
   const d = parts(key);
   return d ? { ...d, seasonName: calendar.seasons[d.season]?.name ?? '' } : null;
@@ -56,7 +56,7 @@ export function liveRecords(ctx: Ctx): { notes: Note[]; people: Person[]; planti
 }
 
 /**
- * The canonical JSON export (spec section 17): IDs preserved, game dates as `{year, season, day}`,
+ * The canonical JSON export: IDs preserved, game dates as `{year, season, day}`,
  * records reference tags by name, soft-deleted records and links to them are dropped, arrays are
  * sorted by creation time then id so exports are deterministic.
  */
@@ -208,7 +208,7 @@ export function buildExport(ctx: Ctx): ExportFile {
   };
 }
 
-/** Two-space indent, LF line endings, trailing newline (spec section 17). */
+/** Two-space indent, LF line endings, trailing newline. */
 export const serializeExport = (file: ExportFile): string => `${JSON.stringify(file, null, 2)}\n`;
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -251,7 +251,7 @@ function noteBlock(n: Note, withMarks = true): string {
 /**
  * One file, written to read like a log: the journal oldest first (and oldest first within a day),
  * then undated notes, questions, people and farm entries. Empty sections are omitted and bodies
- * are verbatim (spec section 17).
+ * are verbatim.
  */
 export function buildMarkdown(ctx: Ctx): string {
   const calendar = readCalendar(ctx);

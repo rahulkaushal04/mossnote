@@ -4,5 +4,5 @@
  */
 export const FTS_COLUMNS = ['kind', 'ref_id', 'title', 'body', 'tags', 'extra'] as const;
 
-/** Weights for `bm25(search_fts, ...)`: kind, ref_id, title, body, tags, extra (spec section 16). */
+/** Weights for `bm25(search_fts, ...)`: kind, ref_id, title, body, tags, extra. */
 export const BM25_WEIGHTS = [0, 0, 10, 1, 4, 2] as const;

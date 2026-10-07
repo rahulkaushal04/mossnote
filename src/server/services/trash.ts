@@ -87,7 +87,7 @@ const HARD_DELETE_ALL: Record<TrashKind, string> = {
 
 export const RETENTION_DAYS = 30;
 
-/** Purge records deleted more than 30 days ago (run at server start, spec section 18). */
+/** Purge records deleted more than 30 days ago (run at server start). */
 export function purgeOldTrash(ctx: Pick<Ctx, 'sqlite' | 'clock'>, days = RETENTION_DAYS): number {
   const cutoff = ctx.clock.now() - days * 24 * 3_600_000;
   const run = ctx.sqlite.transaction(() => {

@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-/** A handful of inline SVGs; there is no icon library (spec section 27). */
+/** A handful of inline SVGs; there is no icon library. */
 const base = (props: SVGProps<SVGSVGElement>): SVGProps<SVGSVGElement> => ({
   width: '1em',
   height: '1em',

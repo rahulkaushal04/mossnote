@@ -11,7 +11,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 
 /**
- * Tables for spec section 9. Column names are camelCase here and snake_case in SQL (the Drizzle
+ * Journal tables. Column names are camelCase here and snake_case in SQL (the Drizzle
  * `casing: 'snake_case'` option is set in db/client.ts and drizzle.config.ts).
  * No game-specific column, enum or default exists, and no seed data is ever inserted.
  */

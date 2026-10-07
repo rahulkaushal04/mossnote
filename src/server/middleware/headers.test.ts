@@ -28,7 +28,7 @@ afterAll(() => {
 
 const get = (p: string) => t.raw('GET', p, { headers: { host: TEST_HOST } });
 
-describe('response headers (spec section 25)', () => {
+describe('response headers', () => {
   it('matches the specified Content-Security-Policy exactly', () => {
     expect(CSP).toBe(
       "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",

@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * Fonts are bundled, never fetched (spec sections 1 and 24). Latin subset only: Latin plus Latin
+ * Fonts are bundled, never fetched. Latin subset only: Latin plus Latin
  * Extended together exceed the 150 KB budget. Characters outside the subset use the system stack.
  */
 @font-face {
@@ -38,7 +38,7 @@
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Semantic tokens (spec section 24). Components use these and never raw colour values. */
+/* Semantic tokens. Components use these and never raw colour values. */
 :root {
   --paper: #faf6ee;
   --surface: #f2ece0;
@@ -160,7 +160,7 @@
     font-size: var(--reading-size);
     line-height: 1.65;
   }
-  /* Touch targets: at least 24px everywhere, 44px on coarse pointers (spec section 22). */
+  /* Touch targets: at least 24px everywhere, 44px on coarse pointers. */
   .tap {
     min-height: 1.5rem;
     min-width: 1.5rem;

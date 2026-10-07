@@ -14,7 +14,7 @@ async function drag(page: Page, from: [number, number], to: [number, number]) {
 }
 
 test.describe('maps', () => {
-  test('AC-MAP-1 to 4: sketch, pin, write a note on the spot, and find it from both sides', async ({
+  test('sketch, pin, write a note on the spot, and find it from both sides', async ({
     page,
     seed,
   }) => {
@@ -58,10 +58,7 @@ test.describe('maps', () => {
     await expect(canvas(page).locator('[data-kind="pin"]')).toHaveCount(1);
   });
 
-  test('AC-MAP-5 and 6: search finds a pin, and a deleted map can be restored', async ({
-    page,
-    seed,
-  }) => {
+  test('search finds a pin, and a deleted map can be restored', async ({ page, seed }) => {
     const map = await seed.post<{ id: string }>('/api/maps', { name: 'Riverside' });
     await seed.post(`/api/maps/${map.id}/pins`, { x: 0, y: 0, label: 'Strange gate' });
     await page.goto('/search?q=gate');
@@ -75,7 +72,7 @@ test.describe('maps', () => {
     await expect(page.getByRole('link', { name: 'Riverside' })).toBeVisible();
   });
 
-  test('AC-MAP-8: every drawing action has a button, and zoom buttons change the view', async ({
+  test('every drawing action has a button, and zoom buttons change the view', async ({
     page,
     seed,
   }) => {
@@ -114,9 +111,7 @@ test.describe('maps', () => {
 });
 
 test.describe('game templates and sections', () => {
-  test('AC-TPL-3 and 4: choose a game, rename and hide a section, use a quick action', async ({
-    page,
-  }) => {
+  test('choose a game, rename and hide a section, use a quick action', async ({ page }) => {
     await page.goto('/settings#game');
     await page.getByRole('radio', { name: 'Stardew Valley' }).click();
     await expect(page.getByRole('radio', { name: 'Stardew Valley' })).toBeChecked();

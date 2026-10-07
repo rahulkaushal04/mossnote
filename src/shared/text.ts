@@ -1,5 +1,5 @@
 /**
- * The only two normalisations applied to stored text (spec section 19): CRLF becomes LF, and NUL
+ * The only two normalisations applied to stored text: CRLF becomes LF, and NUL
  * characters are removed. Nothing is HTML-sanitised on write.
  */
 export function cleanText(value: string): string {

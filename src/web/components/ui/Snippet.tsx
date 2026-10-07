@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 
 /**
  * Render a search snippet. The server marks matches with U+0001 (start) and U+0002 (end); they
- * become `<mark>` elements. User text is never injected as HTML (spec section 16).
+ * become `<mark>` elements. User text is never injected as HTML.
  */
 export function Snippet({ text }: { text: string }) {
   const parts: { text: string; mark: boolean }[] = [];

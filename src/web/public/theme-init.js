@@ -1,4 +1,4 @@
-// Runs before first paint (spec section 24). Keep it tiny and dependency-free.
+// Runs before first paint. Keep it tiny and dependency-free.
 (function () {
   var root = document.documentElement;
   var theme = 'system';

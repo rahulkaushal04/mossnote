@@ -35,7 +35,7 @@ test.describe('first launch (flow 1)', () => {
     },
   );
 
-  test('each destination shows its section 21 copy', async ({ page }) => {
+  test('each destination shows its empty-state copy', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation', { name: 'Primary' });
     await nav.getByRole('link', { name: 'Journal' }).click();
@@ -90,7 +90,7 @@ test.describe('keyboard', () => {
   });
 });
 
-test.describe('responsive layout (spec section 23)', () => {
+test.describe('responsive layout', () => {
   const ROUTES = [
     '/',
     '/journal',
@@ -185,7 +185,7 @@ test.describe('touch targets on coarse pointers', () => {
   });
 });
 
-test.describe('theme (spec section 24)', () => {
+test.describe('theme', () => {
   test('a stored theme is applied before first paint, with no flash', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('moss:theme', 'dark');

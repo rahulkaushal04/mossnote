@@ -12,7 +12,7 @@ import { useCreatePerson, usePeople } from './hooks';
 import { PipsInline } from './ProgressPips';
 import { useTerms } from '../settings/useLayout';
 
-/** `/people`: a plain list with one input to add someone by name (spec section 5.10). */
+/** `/people`: a plain list with one input to add someone by name. */
 export function PeoplePage() {
   const terms = useTerms();
   const [params, setParams] = useSearchParams();

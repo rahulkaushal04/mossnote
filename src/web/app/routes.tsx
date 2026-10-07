@@ -18,7 +18,7 @@ import { RouteError } from './RouteError';
 import { ServerGate } from './ServerGate';
 import { Shell } from './Shell';
 
-// Settings and search results are code-split (spec section 12).
+// Settings and search results are code-split.
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage'));
 const SearchPage = lazy(() => import('../features/search/SearchPage'));
 // The map editor is the largest screen; it loads when a map is opened.
@@ -58,7 +58,7 @@ function Root() {
   );
 }
 
-/** Route table from spec section 7. */
+/** Route table. */
 export const routes: RouteObject[] = [
   {
     element: <Root />,

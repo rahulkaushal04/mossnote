@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 /**
- * No network at runtime (spec sections 1 and 25, AC-G-2): every request that is not to the local
+ * No network at runtime: every request that is not to the local
  * server is blocked and recorded, and the test fails if any was attempted.
  */
 const ROUTES = [

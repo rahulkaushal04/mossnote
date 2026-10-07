@@ -6,7 +6,7 @@ import { useNewNote } from './NewNote';
 import { useOpenSetDate } from './SetDate';
 
 /**
- * The global shortcuts (spec section 15). `mod+K` works everywhere, including text fields; every
+ * The global shortcuts. `mod+K` works everywhere, including text fields; every
  * single-key shortcut is inactive while typing, in dialogs and menus, with a modifier held, and
  * when the user turned single-key shortcuts off. Each one also exists as a palette command.
  */

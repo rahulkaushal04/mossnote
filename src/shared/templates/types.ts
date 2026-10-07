@@ -13,7 +13,7 @@ export interface SectionTerms {
 
 /**
  * One tap in the composer that applies a flag or a tag to the note being written. Only
- * structure and vocabulary: a template never carries facts about a game (spec section 3).
+ * structure and vocabulary: a template never carries facts about a game.
  */
 export interface QuickAction {
   id: string;

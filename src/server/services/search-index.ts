@@ -6,7 +6,7 @@ import type { Ctx } from './ctx';
 
 export type IndexKind = 'note' | 'person' | 'planting';
 
-/** Game date as searchable words, for example `Spring 3 Year 1` (spec section 9). */
+/** Game date as searchable words, for example `Spring 3 Year 1`. */
 export function dateWords(key: number | null, calendar: Calendar): string {
   if (key === null) return '';
   const { year, season, day } = decode(key);
@@ -135,7 +135,7 @@ function insertRows(ctx: Ctx, kind: IndexKind, id: string | null, calendar: Cale
 }
 
 /**
- * Rebuild the index row for one record, in the caller's transaction (spec section 9). A deleted
+ * Rebuild the index row for one record, in the caller's transaction. A deleted
  * or missing record simply loses its row.
  */
 export function reindex(ctx: Ctx, kind: IndexKind, id: string): void {

@@ -13,7 +13,7 @@ export function tagKey(name: string): string {
 }
 
 /**
- * `normalizeTag` (spec section 5.6): trim, strip leading `#`, whitespace becomes `-`, NFC,
+ * `normalizeTag`: trim, strip leading `#`, whitespace becomes `-`, NFC,
  * 1 to 40 characters, none of `, # @ [ ]` or control characters, and at least one letter or number.
  */
 export function normalizeTag(input: string): TagResult {
@@ -56,7 +56,7 @@ export function normalizeTags(inputs: readonly string[]): {
 }
 
 /**
- * Pull a trailing line made only of `#tokens` out of a body (spec section 5.1). Returns the
+ * Pull a trailing line made only of `#tokens` out of a body. Returns the
  * body without that line and the tag names found. Only the last non-empty line counts.
  */
 export function extractTrailingTags(body: string): { body: string; tags: string[] } {

@@ -22,7 +22,7 @@ export function useCalendar(): CalendarApi {
   return value;
 }
 
-/** Exposes memoised date helpers bound to the user's calendar (spec section 12). */
+/** Exposes memoised date helpers bound to the user's calendar. */
 export function CalendarProvider({ children }: { children: ReactNode }) {
   const { data, isPending, error } = useSettings();
 

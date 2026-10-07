@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouteError } from 'react-router';
 
-/** Route-level error boundary (spec section 8.12). Nothing is ever sent anywhere. */
+/** Route-level error boundary. Nothing is ever sent anywhere. */
 export function RouteError() {
   const error = useRouteError();
   const [copied, setCopied] = useState(false);

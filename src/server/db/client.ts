@@ -12,7 +12,7 @@ export interface Database {
 }
 
 /**
- * Open the journal with the pragmas from spec section 9, set on every open.
+ * Open the journal with the journal pragmas, set on every open.
  * Pass `:memory:` for tests. The database file is restricted to the owner (mode 0600) where
  * the platform supports it.
  */

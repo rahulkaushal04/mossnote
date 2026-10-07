@@ -118,7 +118,7 @@ const importFile = (file: unknown, a: Api = api, dry = false) =>
   a.t.call('POST', `/api/data/import${dry ? '?dryRun=1' : ''}`, file);
 
 describe('JSON export', () => {
-  it('has the section 17 shape: ids, tags by name, dates as year/season/day, sorted, deterministic', async () => {
+  it('has the export shape: ids, tags by name, dates as year/season/day, sorted, deterministic', async () => {
     const { person } = await seedRichJournal();
     const file = await exportJson();
     expect(file).toMatchObject({ format: 'mossnote', formatVersion: 1, journalName: 'journal' });
@@ -175,7 +175,7 @@ describe('JSON export', () => {
     expect(text.split('\n')[1]).toMatch(/^ {2}"format"/);
   });
 
-  it('AC-DEL-2: excludes soft-deleted records, and drops links to them', async () => {
+  it('excludes soft-deleted records, and drops links to them', async () => {
     const person = await api.person({ name: 'Gone' });
     const kept = await api.note({ body: 'kept', links: [{ type: 'person', id: person.id }] });
     const deleted = await api.note({ body: 'deleted' });
@@ -195,7 +195,7 @@ describe('JSON export', () => {
   });
 });
 
-describe('round trip (AC-DAT-1, AC-CAL-5, AC-G-10)', () => {
+describe('round trip', () => {
   it('export, import into an empty journal, export again: identical apart from exportedAt', async () => {
     await seedRichJournal();
     const original = await exportJson();
@@ -210,7 +210,7 @@ describe('round trip (AC-DAT-1, AC-CAL-5, AC-G-10)', () => {
     other.close();
   });
 
-  it('keeps every game date and the calendar exactly (AC-CAL-5)', async () => {
+  it('keeps every game date and the calendar exactly', async () => {
     await seedRichJournal();
     const original = await exportJson();
     const other = await makeTestApp();
@@ -253,7 +253,7 @@ describe('round trip (AC-DAT-1, AC-CAL-5, AC-G-10)', () => {
   });
 });
 
-describe('import validation (AC-DAT-2, AC-DAT-3)', () => {
+describe('import validation', () => {
   const snapshotOf = () =>
     JSON.stringify(t.database.sqlite.prepare('SELECT count(*) AS n FROM notes').get());
   const valid = async () => {
@@ -292,7 +292,7 @@ describe('import validation (AC-DAT-2, AC-DAT-3)', () => {
     expect((await errors({ format: 'mossnote', formatVersion: 0 }))[0]?.path).toBe('(file)');
   });
 
-  it('AC-DAT-3: refuses a newer format version before any change', async () => {
+  it('refuses a newer format version before any change', async () => {
     const file = { ...(await valid()), formatVersion: 2 };
     const list = await errors(file);
     expect(list).toEqual([
@@ -437,7 +437,7 @@ describe('import validation (AC-DAT-2, AC-DAT-3)', () => {
   });
 });
 
-describe('import is all or nothing (AC-DAT-4)', () => {
+describe('import is all or nothing', () => {
   it('takes a pre-import snapshot first', async () => {
     const file = await (async () => {
       await seedRichJournal();
@@ -488,7 +488,7 @@ describe('import is all or nothing (AC-DAT-4)', () => {
   });
 });
 
-describe('Markdown export (AC-DAT-5)', () => {
+describe('Markdown export', () => {
   it('contains every live note, person and farm entry in a readable layout', async () => {
     const { person } = await seedRichJournal();
     const gone = await api.note({ body: 'must not appear' });
@@ -575,7 +575,7 @@ describe('storage facts and backups', () => {
   });
 });
 
-describe('recently deleted (AC-DEL-1 to AC-DEL-4)', () => {
+describe('recently deleted', () => {
   const trash = async (kind = '') =>
     (
       await api.json<{ items: { kind: string; id: string; label: string; deletedAt: string }[] }>(
@@ -623,7 +623,7 @@ describe('recently deleted (AC-DEL-1 to AC-DEL-4)', () => {
     await api.error(await t.call('POST', `/api/trash/note/${note.id}/restore`), 404);
   });
 
-  it('AC-DEL-3: delete forever removes the row and its join and link rows', async () => {
+  it('delete forever removes the row and its join and link rows', async () => {
     const person = await api.person({ name: 'P', tags: ['t'] });
     const note = await api.note({
       body: 'n',
@@ -663,7 +663,7 @@ describe('recently deleted (AC-DEL-1 to AC-DEL-4)', () => {
     expect((await api.notes()).items.map((n) => n.id)).toEqual([keep.id]);
   });
 
-  it('AC-DEL-4: records deleted more than 30 days ago are purged, newer ones are kept', async () => {
+  it('records deleted more than 30 days ago are purged, newer ones are kept', async () => {
     const { purgeOldTrash } = await import('../services/trash');
     const old = await api.note({ body: 'old' });
     const recent = await api.note({ body: 'recent' });
@@ -675,7 +675,7 @@ describe('recently deleted (AC-DEL-1 to AC-DEL-4)', () => {
     expect((await trash()).map((i) => i.id)).toEqual([recent.id]);
   });
 
-  it('AC-DEL-2: deleted records are absent from lists, search, counts and exports', async () => {
+  it('deleted records are absent from lists, search, counts and exports', async () => {
     const note = await api.note({ body: 'zebra', tags: ['t'] });
     await t.call('DELETE', `/api/notes/${note.id}`);
     expect((await api.notes()).items).toEqual([]);

@@ -2,7 +2,7 @@ import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { NetworkError } from './api';
 import { queryKeys } from './queryKeys';
 
-/** Defaults from spec section 12. GETs retry once, mutations never retry automatically. */
+/** Query defaults. GETs retry once, mutations never retry automatically. */
 export function createQueryClient(): QueryClient {
   const client: QueryClient = new QueryClient({
     queryCache: new QueryCache({

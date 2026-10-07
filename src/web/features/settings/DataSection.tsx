@@ -15,7 +15,7 @@ interface Pending {
   summary: ImportSummary;
 }
 
-/** Settings → Data & backup (spec section 5.13). */
+/** Settings → Data & backup. */
 export function DataSection() {
   const client = useQueryClient();
   const info = useQuery({ queryKey: queryKeys.dataInfo, queryFn: api.dataInfo });

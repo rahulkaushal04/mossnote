@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 // ---------------------------------------------------------------------------
-// Import boundaries (spec section 14). `no-restricted-imports` replaces rather
+// Import boundaries. `no-restricted-imports` replaces rather
 // than merges per file, so every scope below spells out its complete rule set.
 // ---------------------------------------------------------------------------
 
@@ -52,11 +52,11 @@ const NO_STRING_SQL = [
 const NO_DANGEROUS_HTML = [
   {
     selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
-    message: 'dangerouslySetInnerHTML is banned (spec section 25).',
+    message: 'dangerouslySetInnerHTML is banned.',
   },
   {
     selector: "Property[key.name='dangerouslySetInnerHTML']",
-    message: 'dangerouslySetInnerHTML is banned (spec section 25).',
+    message: 'dangerouslySetInnerHTML is banned.',
   },
 ];
 

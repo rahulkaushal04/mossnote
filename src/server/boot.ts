@@ -57,7 +57,7 @@ export interface OpenJournalOptions {
 }
 
 /**
- * The startup sequence (spec sections 14 and 18): create the data folder, take the lock, open the
+ * The startup sequence: create the data folder, take the lock, open the
  * database, check integrity, migrate (with a pre-migration snapshot for existing journals),
  * create the default settings rows, and take the daily automatic snapshot when due.
  */
@@ -93,7 +93,7 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
 
     ensureSettings(database, config.journal, clock);
 
-    // Records deleted more than 30 days ago are removed for good (spec section 18).
+    // Records deleted more than 30 days ago are removed for good.
     const purged = purgeOldTrash({ sqlite: database.sqlite, clock });
     if (purged > 0) logger.info('purged old deleted records', { count: purged });
 
@@ -126,7 +126,7 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
   }
 }
 
-/** Terminal text for a startup failure (spec section 20). Lines are printed in order. */
+/** Terminal text for a startup failure. Lines are printed in order. */
 export function describeStartupError(error: unknown, config: Config): string[] {
   const url = `http://${config.host.includes(':') ? `[${config.host}]` : config.host}:${config.port}`;
   if (error instanceof ConfigError) return [error.message];

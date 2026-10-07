@@ -10,7 +10,7 @@ export interface GuardOptions {
 export const CLIENT_HEADER = 'x-moss-client';
 export const CLIENT_VALUE = 'web';
 
-/** Host values accepted on every request (spec section 25), lowercase. */
+/** Host values accepted on every request, lowercase. */
 export function allowedHosts({ port, dev }: GuardOptions): Set<string> {
   const hosts = [`127.0.0.1:${port}`, `localhost:${port}`, `[::1]:${port}`];
   if (dev) hosts.push('localhost:5173', '127.0.0.1:5173');
@@ -20,7 +20,7 @@ export function allowedHosts({ port, dev }: GuardOptions): Set<string> {
 const forbidden = (message: string) => new AppError('forbidden', message);
 
 /**
- * The request guard (spec section 25):
+ * The request guard:
  *  1. The Host header must be on the allow-list, on every request including GET and HEAD
  *     (blocks DNS rebinding).
  *  2. OPTIONS is always refused: the server sends no CORS headers, so preflights must fail.

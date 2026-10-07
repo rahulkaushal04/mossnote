@@ -1,4 +1,4 @@
-/** The shortcut list shown by `?` and in Settings (spec section 15). `mod` is ⌘ or Ctrl. */
+/** The shortcut list shown by `?` and in Settings. `mod` is ⌘ or Ctrl. */
 export interface Shortcut {
   keys: string;
   scope: string;

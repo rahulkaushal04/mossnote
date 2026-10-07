@@ -19,7 +19,7 @@ export interface Snapshot {
 
 const REASONS: readonly BackupReason[] = ['auto', 'pre-migration', 'pre-import', 'manual'];
 
-/** Snapshots kept per reason (spec section 18). `auto` comes from MOSS_BACKUP_KEEP; manual is never pruned. */
+/** Snapshots kept per reason. `auto` comes from MOSS_BACKUP_KEEP; manual is never pruned. */
 export function retentionFor(reason: BackupReason, autoKeep: number): number | null {
   switch (reason) {
     case 'auto':

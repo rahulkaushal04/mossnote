@@ -49,7 +49,7 @@ export async function migratedMemoryDatabase(): Promise<Database> {
   return database;
 }
 
-/** Tables that must be empty in a fresh journal (spec section 1, spoiler-free contract). */
+/** Tables that must be empty in a fresh journal (spoiler-free contract). */
 export const USER_TABLES = [
   'notes',
   'people',

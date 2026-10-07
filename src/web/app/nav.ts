@@ -7,7 +7,7 @@ export interface NavItem {
   isActive: (pathname: string) => boolean;
 }
 
-/** Where each section lives. Names and order come from the layout (spec section 7). */
+/** Where each section lives. Names and order come from the layout. */
 export const SECTION_ROUTES: Record<SectionId, Omit<NavItem, 'label'>> = {
   today: { to: '/', isActive: (p) => p === '/' || p.startsWith('/day/') },
   journal: { to: '/journal', isActive: (p) => p === '/journal' || p.startsWith('/notes/') },

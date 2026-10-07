@@ -29,7 +29,7 @@ export type Validated =
   | { ok: false; errors: ImportSummary['errors'] };
 
 /**
- * Validate an uploaded file with the same limits as the API (spec section 17, rules 1 to 3).
+ * Validate an uploaded file with the same limits as the API.
  * Unknown fields are ignored with a warning; nothing is written.
  */
 export function validateImport(raw: unknown): Validated {
@@ -240,7 +240,7 @@ export interface ImportResult {
 }
 
 /**
- * Replace the journal with the contents of a file (spec section 17, rule 5): validate, take a
+ * Replace the journal with the contents of a file: validate, take a
  * `pre-import` snapshot, then replace everything in one transaction and rebuild the index. Any
  * failure rolls back and leaves the previous journal untouched.
  */

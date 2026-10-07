@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
- * Static no-network check (spec sections 1 and 25): scans source and the built web app for URLs
+ * Static no-network check: scans source and the built web app for URLs
  * that could reach beyond localhost. The runtime guarantee is the end-to-end test that blocks
  * every non-localhost request; this catches a CDN link, remote font or analytics snippet
  * before it ever runs.

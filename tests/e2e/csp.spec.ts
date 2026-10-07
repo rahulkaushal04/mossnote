@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 
 /**
- * The built app must run under the full production CSP (spec section 25, AC-G-9), including the
+ * The built app must run under the full production CSP, including the
  * Radix primitives and the Tailwind output. Any `securitypolicyviolation` fails the test.
  */
 const EXPECTED_CSP =

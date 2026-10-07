@@ -23,7 +23,7 @@ const patch = (id: string, body: Record<string, unknown>) =>
   t.call('PATCH', `/api/plantings/${id}`, body);
 
 describe('create', () => {
-  it('AC-FRM-6: a fresh journal has no entries, and a label is enough', async () => {
+  it('a fresh journal has no entries, and a label is enough', async () => {
     expect((await list()).items).toEqual([]);
     const entry = await api.planting({ label: 'Example entry' });
     expect(entry).toMatchObject({
@@ -62,7 +62,7 @@ describe('create', () => {
 });
 
 describe('dates and counts', () => {
-  it('AC-FRM-3: a harvest date before the planted date is rejected with an inline message', async () => {
+  it('a harvest date before the planted date is rejected with an inline message', async () => {
     const error = await api.error(
       await t.call('POST', '/api/plantings', {
         label: 'A',
@@ -105,7 +105,7 @@ describe('dates and counts', () => {
     }
   });
 
-  it('AC-FRM-4: counts accept blanks and reject negative or non-integer values', async () => {
+  it('counts accept blanks and reject negative or non-integer values', async () => {
     const ok = await api.planting({ label: 'A', plantedCount: 0, harvestedCount: 999_999 });
     expect(ok).toMatchObject({ plantedCount: 0, harvestedCount: 999_999 });
     expect(
@@ -119,7 +119,7 @@ describe('dates and counts', () => {
 });
 
 describe('list and status groups', () => {
-  it('AC-FRM-2: Growing, Done and Noted follow the dates, newest planted first', async () => {
+  it('Growing, Done and Noted follow the dates, newest planted first', async () => {
     await api.planting({ label: 'noted' });
     await api.planting({ label: 'growing old', plantedOn: k(1, 0, 1) });
     const recent = await api.planting({ label: 'growing recent', plantedOn: k(1, 2, 1) });

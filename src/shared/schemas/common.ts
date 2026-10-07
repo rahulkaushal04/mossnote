@@ -4,7 +4,7 @@ import { cleanText, formatCount } from '../text';
 
 export const ulidSchema = z.string().regex(ULID_PATTERN, 'That id is not valid.');
 
-/** Text with CRLF and NUL normalised and a length limit that reports the count (spec section 19). */
+/** Text with CRLF and NUL normalised and a length limit that reports the count. */
 export function boundedText(max: number) {
   return z
     .string()
@@ -81,6 +81,6 @@ export const queryFlag = z
   .transform((v) => v === '1' || v === 'true');
 
 export const limitSchema = z.coerce.number().int().min(1).max(100).default(50);
-/** People and farm lists are small; they page only beyond 500 (spec section 8.7). */
+/** People and farm lists are small; they page only beyond 500. */
 export const smallListLimit = z.coerce.number().int().min(1).max(500).default(500);
 export const intFromQuery = z.coerce.number().int();

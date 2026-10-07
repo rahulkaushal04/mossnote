@@ -22,7 +22,7 @@ const run = async (q: string, extra = ''): Promise<SearchResponse> =>
 const noteBodies = async (q: string) => (await run(q)).groups.notes.map((h) => h.id);
 
 describe('matching', () => {
-  it('AC-SRC-1: a prefix of the last word finds the whole word', async () => {
+  it('a prefix of the last word finds the whole word', async () => {
     const n = await api.note({ body: 'The old harbour at dusk' });
     expect(await noteBodies('harb')).toEqual([n.id]);
     expect(await noteBodies('the harb')).toEqual([n.id]);
@@ -39,7 +39,7 @@ describe('matching', () => {
     expect(await noteBodies('harb')).toEqual([n.id]);
   });
 
-  it('AC-SRC-2: tolerates a typo of one edit in a word of 4 to 7 characters', async () => {
+  it('tolerates a typo of one edit in a word of 4 to 7 characters', async () => {
     const n = await api.note({ body: 'The old harbour at dusk' });
     for (const typo of ['harbuor', 'harbor', 'harbur', 'harbourr', 'hharbour']) {
       expect(await noteBodies(typo), typo).toEqual([n.id]);
@@ -157,7 +157,7 @@ describe('matching', () => {
   });
 });
 
-describe('structured filters (AC-SRC-3)', () => {
+describe('structured filters', () => {
   async function seed() {
     const person = await api.person({ name: 'Sam Example' });
     return {
@@ -274,7 +274,7 @@ describe('results', () => {
     expect(hit?.snippet?.length).toBeLessThan(200);
   });
 
-  it('AC-SRC-6: stored HTML is returned as text, only our markers wrap matches', async () => {
+  it('stored HTML is returned as text, only our markers wrap matches', async () => {
     await api.note({ body: '<script>alert(1)</script> lantern <b>bold</b>' });
     const [hit] = (await run('lantern')).groups.notes;
     expect(hit?.snippet).toContain('<script>');
@@ -327,7 +327,7 @@ describe('results', () => {
   });
 });
 
-describe('the index follows every change (AC-SRC-5 and AC-G-7)', () => {
+describe('the index follows every change', () => {
   it('edits replace the old words', async () => {
     const n = await api.note({ body: 'alpha content' });
     await api.patchNote(n.id, { body: 'omega content' });

@@ -28,7 +28,7 @@ export const useNewNote = (): NewNoteApi => {
   return value;
 };
 
-/** Owns the quick-capture dialog (draft scope `quick`) and the `n` behaviour (spec section 5.1). */
+/** Owns the quick-capture dialog (draft scope `quick`) and the `n` behaviour. */
 export function NewNoteProvider({ children }: { children: ReactNode }) {
   const calendar = useCalendar();
   const [open, setOpen] = useState(false);

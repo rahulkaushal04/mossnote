@@ -1,7 +1,7 @@
 /**
  * Damerau-Levenshtein distance (adjacent transpositions count as one edit) with an early exit:
  * returns `max + 1` as soon as the distance is certain to exceed `max`. Used for typo tolerance
- * (spec section 16); a scan of 30,000 vocabulary terms must stay under about 10 ms.
+ *; a scan of 30,000 vocabulary terms must stay under about 10 ms.
  */
 export function boundedDistance(a: string, b: string, max: number): number {
   if (a === b) return 0;

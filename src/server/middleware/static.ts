@@ -22,7 +22,7 @@ const TYPES: Record<string, string> = {
 };
 
 /**
- * Serves the built web app with SPA fallback to index.html for non-/api paths (spec section 14).
+ * Serves the built web app with SPA fallback to index.html for non-/api paths.
  * Hashed files under /assets/ are immutable; everything else is revalidated. A request for a
  * missing file with an extension is a 404, not index.html.
  */

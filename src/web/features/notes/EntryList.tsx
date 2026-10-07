@@ -5,7 +5,7 @@ import type { Note } from '@shared/types';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { NoteEntry } from './NoteEntry';
 
-/** Small capitals followed by a hairline: the one decorative gesture (spec sections 8.2, 24). */
+/** Small capitals followed by a hairline: the one decorative gesture. */
 function DayHeader({ children, to }: { children: string; to?: string }) {
   const label = (
     <span className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
@@ -35,7 +35,7 @@ function YearHeader({ year }: { year: number }) {
 }
 
 /**
- * Notes grouped by in-game day with headers, in the order given (spec section 8.2). Notes
+ * Notes grouped by in-game day with headers, in the order given. Notes
  * without a game date form a final "Not dated" group. With `groupBy="none"` it is a plain list.
  */
 export function EntryList({

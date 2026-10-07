@@ -12,7 +12,7 @@ import { readCalendar } from './search-index';
 
 export type SearchKind = 'note' | 'person' | 'planting' | 'tag' | 'map';
 
-/** Quote a term for FTS5 so user input can never act as an operator (spec section 16). */
+/** Quote a term for FTS5 so user input can never act as an operator. */
 export function quote(term: string): string {
   return `"${term.replaceAll('"', '""')}"`;
 }
@@ -243,7 +243,7 @@ export interface SearchParams {
 }
 
 /**
- * Full search (spec section 16): parse, build a quoted FTS5 expression with typo tolerance,
+ * Full search: parse, build a quoted FTS5 expression with typo tolerance,
  * apply structured filters, rank with bm25 (title 10, body 1, tags 4, extra 2), group by kind.
  */
 export function search(ctx: Ctx, params: SearchParams): SearchResponse {

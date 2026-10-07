@@ -5,7 +5,7 @@ export const TooltipProvider = RadixTooltip.Provider;
 
 /**
  * Wraps one focusable element with a tooltip that says what it does and, when it has one, its
- * shortcut (spec section 15). Pass the same `keys` as `aria-keyshortcuts` on the element.
+ * shortcut. Pass the same `keys` as `aria-keyshortcuts` on the element.
  */
 export function Tip({
   label,

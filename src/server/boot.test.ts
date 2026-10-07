@@ -154,7 +154,7 @@ describe('openJournal', () => {
   });
 });
 
-describe('describeStartupError (spec section 20)', () => {
+describe('describeStartupError', () => {
   it('prints the lock message with the PID and URL', () => {
     expect(describeStartupError(new AlreadyRunningError(4321), config)).toEqual([
       'Mossnote is already running (PID 4321) at http://127.0.0.1:4317.',

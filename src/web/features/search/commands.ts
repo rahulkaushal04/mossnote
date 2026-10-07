@@ -14,7 +14,7 @@ export interface PaletteCommand {
 
 /**
  * Every shortcut action is also a palette command, so nothing depends on a keyboard layout
- * (spec section 15). `openDatePicker` focuses the Today header chip's picker.
+ *. `openDatePicker` focuses the Today header chip's picker.
  */
 export function useCommands(options: { openDate: () => void }): PaletteCommand[] {
   const navigate = useNavigate();

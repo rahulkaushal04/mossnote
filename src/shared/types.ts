@@ -1,4 +1,4 @@
-/** Response shapes from spec section 11. Timestamps are ISO 8601 UTC strings. */
+/** Response shapes of the JSON API. Timestamps are ISO 8601 UTC strings. */
 import type { MapScene, PinProps } from './schemas/map';
 
 export type LinkType = 'note' | 'person' | 'planting';

@@ -10,7 +10,7 @@ import { useSettings, useUpdateSettings } from '../settings/useSettings';
 import { DayNotes } from './DayNotes';
 import { TodaySections } from './TodaySections';
 
-/** The real-date fallback hint: dismissible, and it stays dismissed (AC-DAY-5). */
+/** The real-date fallback hint: dismissible, and it stays dismissed. */
 function SetDateHint() {
   const settings = useSettings();
   const update = useUpdateSettings();

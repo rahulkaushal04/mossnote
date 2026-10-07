@@ -16,7 +16,7 @@ const toRows = (calendar: Calendar): Row[] =>
   calendar.seasons.map((s) => ({ name: s.name, days: String(s.days) }));
 
 /**
- * Settings → Game calendar (spec section 5.3): season names and day counts. Renaming only changes
+ * Settings → Game calendar: season names and day counts. Renaming only changes
  * labels. A change that would strand stored dates is refused with a count and nothing changes.
  */
 export function CalendarSection() {

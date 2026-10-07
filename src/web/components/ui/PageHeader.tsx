@@ -19,7 +19,7 @@ export const HeaderActionsContext = createContext<ReactNode>(null);
 export const RouteFocusContext = createContext<RefObject<boolean>>({ current: true });
 
 /**
- * The page's single h1 inside a sticky header (spec sections 8.1 and 22). It sets the document
+ * The page's single h1 inside a sticky header. It sets the document
  * title and, on route changes (not on first load), moves focus to the heading.
  */
 export function PageHeader({ title, documentTitle }: { title: string; documentTitle?: string }) {

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { tinykeys } from 'tinykeys';
 import { singleKeysEnabled } from './theme';
 
-/** True when focus is somewhere a single-key shortcut must not fire (spec section 15). */
+/** True when focus is somewhere a single-key shortcut must not fire. */
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return (
@@ -19,7 +19,7 @@ export const overlayOpen = (): boolean =>
 export type KeyHandler = (event: KeyboardEvent) => void;
 
 /**
- * Wrap a single-key shortcut with the rules from spec section 15: inactive in inputs, while a
+ * Wrap a single-key shortcut with these rules: inactive in inputs, while a
  * dialog or menu is open, when Ctrl, Cmd or Alt is held, and when the user turned single-key
  * shortcuts off. Shift is allowed only for characters that need it (`?`).
  */

@@ -104,7 +104,7 @@ function Tips() {
   );
 }
 
-/** `/search?q=`: the full results, with removable chips for recognised tokens (spec section 8.10). */
+/** `/search?q=`: the full results, with removable chips for recognised tokens. */
 export default function SearchPage() {
   const terms = useTerms();
   const [params, setParams] = useSearchParams();

@@ -1,5 +1,5 @@
 /**
- * A row of pips the user clicks to set (spec section 5.10). A radio-group style control: arrow
+ * A row of pips the user clicks to set. A radio-group style control: arrow
  * keys move, Space or Enter sets, and choosing the current value again clears it to zero.
  */
 export function ProgressPips({

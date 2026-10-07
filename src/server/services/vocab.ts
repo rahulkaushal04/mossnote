@@ -1,6 +1,6 @@
 import type { Sqlite } from '../db/client';
 
-/** Refresh the vocabulary after this many index writes (spec section 16). */
+/** Refresh the vocabulary after this many index writes. */
 export const VOCAB_REFRESH_WRITES = 50;
 
 /**

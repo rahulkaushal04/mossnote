@@ -7,7 +7,7 @@ import { ALL_DATA_KEYS, queryKeys } from '../../lib/queryKeys';
 export const useSettings = () =>
   useQuery({ queryKey: queryKeys.settings, queryFn: api.getSettings });
 
-/** Settings changes wait for the server (spec section 12), then refresh the cached settings. */
+/** Settings changes wait for the server, then refresh the cached settings. */
 export function useUpdateSettings() {
   const client = useQueryClient();
   return useMutation({

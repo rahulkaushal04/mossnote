@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from 'hono';
 import type { Env } from '../env';
 
 /**
- * Production Content-Security-Policy (spec section 25). HTML documents add a per-response nonce to
+ * Production Content-Security-Policy. HTML documents add a per-response nonce to
  * `style-src` only: Radix's scroll lock injects a <style> element at runtime, which a bare
  * `style-src 'self'` blocks. Scripts never get a nonce, so inline scripts stay forbidden. Every
  * other response (API, assets) uses the policy without a nonce.
@@ -22,11 +22,11 @@ export function buildCsp(nonce?: string): string {
   ].join('; ');
 }
 
-/** The policy without a nonce: exactly the header block in spec section 25. */
+/** The policy without a nonce: exactly the production header block. */
 export const CSP = buildCsp();
 
 /**
- * Response headers from spec section 25. The CSP is relaxed (omitted) only in development, where
+ * Security response headers. The CSP is relaxed (omitted) only in development, where
  * Vite's dev server needs inline scripts and websockets.
  */
 export function securityHeaders(options: { dev: boolean }): MiddlewareHandler<Env> {

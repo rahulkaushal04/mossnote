@@ -55,7 +55,7 @@ describe('empty app shell', () => {
     expect(document.getElementById('main')).toBeTruthy();
   });
 
-  it('shows the section 21 copy on each destination', async () => {
+  it('shows the empty-state copy on each destination', async () => {
     const copy: [string, string][] = [
       ['/journal', 'Your journal starts with your first note.'],
       ['/people', 'No people yet. Add someone above, or type @ in a note.'],
@@ -111,7 +111,7 @@ describe('empty app shell', () => {
   });
 });
 
-describe('routes (spec section 7)', () => {
+describe('routes', () => {
   it('redirects /tags/:name to the journal filter', async () => {
     const { router } = renderApp('/tags/idea');
     await screen.findByRole('heading', { level: 1, name: 'Journal' });
@@ -238,7 +238,7 @@ describe('Settings, Appearance', () => {
   });
 });
 
-describe('server unreachable (spec section 8.12)', () => {
+describe('server unreachable', () => {
   it('shows the full-page message with the start command and Retry', async () => {
     vi.spyOn(api, 'getHealth').mockRejectedValue(new NetworkError());
     renderApp('/journal');
@@ -283,7 +283,7 @@ describe('server unreachable (spec section 8.12)', () => {
   });
 });
 
-describe('route error boundary (spec section 8.12)', () => {
+describe('route error boundary', () => {
   it('shows a calm message with Reload and Copy details', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     // A server error (not a network error) while loading settings reaches the route boundary.

@@ -154,7 +154,7 @@ test.describe('loopback only', () => {
   });
 });
 
-test.describe('startup failures (spec section 20)', () => {
+test.describe('startup failures', () => {
   test('a second instance for the same journal says it is already running', async ({ server }) => {
     const result = await runServerOnce({
       MOSS_DATA_DIR: server.dataDir,

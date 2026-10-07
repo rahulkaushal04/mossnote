@@ -10,7 +10,7 @@ import { diffDraft, hasContent, noteToDraft } from './noteDraft';
 const AUTOSAVE_MS = 800;
 
 /**
- * A note edited where it is shown (spec section 5.2). Autosaves 800 ms after the last change and
+ * A note edited where it is shown. Autosaves 800 ms after the last change and
  * when focus leaves; there is no Save button. Esc, `mod+Enter`, Done, or clicking outside ends it.
  * A stale save (409) shows a banner and never overwrites the newer version silently.
  */
@@ -57,7 +57,7 @@ export function EditableNote({
     const current = overwrite ?? base.current;
     const d = latest.current;
     if (!hasContent(d)) {
-      // Emptying a note reverts it: the stored note is unchanged (AC-NOTE-4).
+      // Emptying a note reverts it: the stored note is unchanged.
       setDraft(noteToDraft(base.current));
       latest.current = noteToDraft(base.current);
       setEmpty(true);
@@ -91,7 +91,7 @@ export function EditableNote({
   };
 
   const change = (next: NoteDraft) => {
-    // Removing ? from a solved question with an answer asks first (spec section 5.8).
+    // Removing ? from a solved question with an answer asks first.
     if (latest.current.isQuestion && !next.isQuestion && base.current.question?.resolution) {
       setConfirmUnflag(next);
       return;

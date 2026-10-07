@@ -6,7 +6,7 @@ import { useUpdateNoteOptimistic } from './hooks';
 
 /**
  * Under a question: Mark solved with an optional answer in the user's own words, or the solved
- * state with Reopen (spec section 5.8). The app never suggests or looks up an answer.
+ * state with Reopen. The app never suggests or looks up an answer.
  */
 export function QuestionControls({ note }: { note: Note }) {
   const calendar = useCalendar();

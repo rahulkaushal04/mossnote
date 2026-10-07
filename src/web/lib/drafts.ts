@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readStorage, writeStorage } from './storage';
 
-/** Storage key for an unsaved draft: `moss:draft:<scope>` (spec section 5.1). */
+/** Storage key for an unsaved draft: `moss:draft:<scope>`. */
 export const draftKey = (scope: string): string => `moss:draft:${scope}`;
 
 export function readDraft<T>(scope: string, valid: (value: unknown) => value is T): T | null {

@@ -149,7 +149,7 @@ function afterCursor(cursor: NoteCursor, order: 'asc' | 'desc'): SQL {
 
 /**
  * Notes sorted by game date, then creation time, then id, undated last in both directions, with
- * keyset pagination (spec section 11).
+ * keyset pagination.
  */
 export function listNotes(ctx: Ctx, query: NoteListQuery): Page<Note> {
   const conds = filterConditions(query);
@@ -223,7 +223,7 @@ interface QuestionColumns {
 }
 
 /**
- * Resolve the question columns for a create or patch (spec section 5.8): reopening keeps the
+ * Resolve the question columns for a create or patch: reopening keeps the
  * resolution text, solving records the solved date (default: the current date) and time, and
  * `null` removes the question entirely.
  */
@@ -278,7 +278,7 @@ export interface CreateResult {
 
 /**
  * Create a note. The client generates the id, so a retry after a network failure returns the
- * existing note instead of making a duplicate (spec section 11).
+ * existing note instead of making a duplicate.
  */
 export function createNote(ctx: Ctx, input: NoteCreate): CreateResult {
   return inTx(ctx, () => {
@@ -323,7 +323,7 @@ export function createNote(ctx: Ctx, input: NoteCreate): CreateResult {
 }
 
 /**
- * Partial update (spec section 11): an absent field is unchanged, `null` clears a nullable one,
+ * Partial update: an absent field is unchanged, `null` clears a nullable one,
  * and `tags` and `links` replace the whole set. `expectedUpdatedAt` guards against a stale edit.
  */
 export function patchNote(ctx: Ctx, id: string, patch: NotePatch): Note {

@@ -28,7 +28,7 @@ const AFTER_NOTE_CHANGE: readonly (readonly unknown[])[] = [
 export const refreshNotes = (client: QueryClient) =>
   invalidateEverywhere(client, AFTER_NOTE_CHANGE);
 
-/** One page at a time; "Load more" and near-the-end loading fetch the next (spec section 5.5). */
+/** One page at a time; "Load more" and near-the-end loading fetch the next. */
 export function useNotes(filters: NoteFilters) {
   return useInfiniteQuery({
     queryKey: queryKeys.notes(filters),
@@ -86,7 +86,7 @@ export function draftToNote(input: CreateInput, now: Date): Note {
 }
 
 /**
- * Create a note. The note appears in every matching list at once (optimistic, spec section 12);
+ * Create a note. The note appears in every matching list at once (optimistic);
  * the client-generated id makes a retry after a failure safe.
  */
 export function useCreateNote() {
@@ -120,7 +120,7 @@ export function useUpdateNote() {
   });
 }
 
-/** Toggle ✦ or ?, optimistic and undoable (spec section 5.9). */
+/** Toggle ✦ or ?, optimistic and undoable. */
 export function useUpdateNoteOptimistic() {
   const client = useQueryClient();
   const toast = useToast();

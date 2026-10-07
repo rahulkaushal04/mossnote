@@ -21,7 +21,7 @@ import {
 } from './draft';
 
 export interface ComposerProps {
-  /** Draft scope: `home`, `day:<key>` or `quick` (spec section 5.1). */
+  /** Draft scope: `home`, `day:<key>` or `quick`. */
   scope: string;
   /** The date new notes are stamped with: the current game date, or the viewed day. */
   defaultGameDate: number | null;
@@ -33,7 +33,7 @@ export interface ComposerProps {
 }
 
 /**
- * Quick capture (spec section 5.1): a text box that saves with one shortcut and stays put. The
+ * Quick capture: a text box that saves with one shortcut and stays put. The
  * draft survives a refresh, the note appears in the list at once, and a failed save keeps the
  * text, shows an error, and retries with the same id so nothing is duplicated.
  */

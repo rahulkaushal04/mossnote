@@ -32,7 +32,7 @@ function isDiskFull(error: unknown): boolean {
 }
 
 /**
- * Central error mapping (spec section 20). Anything that is not an AppError becomes 500
+ * Central error mapping. Anything that is not an AppError becomes 500
  * `internal` with a short request id. Messages never contain user text and never include stack
  * traces; the log line carries metadata only.
  */

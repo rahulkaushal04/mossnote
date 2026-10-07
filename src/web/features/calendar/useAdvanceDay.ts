@@ -4,7 +4,7 @@ import { useCalendar } from './CalendarProvider';
 import { useSetCurrentDate } from './useCurrentDate';
 
 /**
- * Move the current game date by one day and offer Undo for 6 seconds (spec section 5.3).
+ * Move the current game date by one day and offer Undo for 6 seconds.
  * Returns null helpers' availability so buttons and shortcuts can disable themselves.
  */
 export function useAdvanceDay() {

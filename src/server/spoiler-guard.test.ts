@@ -14,7 +14,7 @@ import {
 } from './testing/helpers';
 
 /**
- * Spoiler guard (spec sections 1 and 26, AC-G-1): a fresh journal, created by the real startup
+ * Spoiler guard: a fresh journal, created by the real startup
  * sequence, contains no user records, and its only settings are the calendar and journal metadata.
  */
 let dir: string;
@@ -59,7 +59,7 @@ describe('fresh database', () => {
     for (const key of keys) expect(SETTING_KEYS).toContain(key);
   });
 
-  it('has exactly the default calendar and no other pre-filled text (AC-SET-3)', () => {
+  it('has exactly the default calendar and no other pre-filled text', () => {
     const row = journal.database.sqlite
       .prepare("SELECT value FROM settings WHERE key = 'calendar'")
       .get() as { value: string };

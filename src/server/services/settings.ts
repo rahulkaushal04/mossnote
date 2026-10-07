@@ -39,7 +39,7 @@ function writeRaw(database: Database, key: string, value: unknown, now: number):
 }
 
 /**
- * Create the rows a fresh journal holds: `calendar` and `meta`, nothing else (spec section 9).
+ * Create the rows a fresh journal holds: `calendar` and `meta`, nothing else.
  * Existing rows are never touched, so this is safe to call on every start.
  */
 export function ensureSettings(database: Database, journalName: string, clock: Clock): void {
@@ -170,7 +170,7 @@ function mergePrefs(database: Database, patch: Partial<Prefs>): Prefs {
 }
 
 /**
- * Apply a settings patch in one transaction (spec sections 5.3, 11 and 19).
+ * Apply a settings patch in one transaction.
  * A calendar that would invalidate stored dates, or the current game date, is refused with
  * 409 `conflict` and counts; nothing is rewritten.
  */

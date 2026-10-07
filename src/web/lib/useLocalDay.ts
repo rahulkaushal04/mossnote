@@ -3,7 +3,7 @@ import { localDayKey } from './format';
 
 /**
  * The user's local calendar day, refreshed when the tab regains focus, so a tab left open past
- * midnight shows the new day (spec section 5.4).
+ * midnight shows the new day.
  */
 export function useLocalDay(): { key: string; start: number; end: number } {
   const [now, setNow] = useState(() => Date.now());

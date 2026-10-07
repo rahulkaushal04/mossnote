@@ -43,7 +43,7 @@ export function Dialog({
   className = '',
 }: DialogProps) {
   // The dialog is controlled, so Radix does not know which element opened it. Remember the
-  // focused element as the dialog opens and give focus back to it on close (spec section 22).
+  // focused element as the dialog opens and give focus back to it on close.
   const opener = useRef<HTMLElement | null>(null);
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>

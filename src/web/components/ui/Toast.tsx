@@ -15,7 +15,7 @@ export interface ToastOptions {
   /** Label for the single action, for example "Undo". */
   actionLabel?: string;
   onAction?: () => void;
-  /** Milliseconds before it disappears. Default 8000 (spec section 5.15). */
+  /** Milliseconds before it disappears. Default 8000. */
   duration?: number;
   /** `alert` for blocking errors, `status` (default) for everything else. */
   tone?: 'status' | 'alert';

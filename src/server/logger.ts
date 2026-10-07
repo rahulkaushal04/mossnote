@@ -11,7 +11,7 @@ export interface Logger {
 
 /**
  * One line per event on stdout. Only metadata (route, status, duration, request id) belongs in
- * `fields`: logs never contain note, person or farm text (spec section 20).
+ * `fields`: logs never contain note, person or farm text.
  */
 export function createLogger(
   level: LogLevel,

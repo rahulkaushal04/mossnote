@@ -2,7 +2,7 @@ import { LIMITS, type Calendar } from './constants';
 
 /**
  * In-game dates are one integer key: `year*10000 + seasonIndex*100 + day`
- * (year 1 to 99,999; season index 0 to 99; day 1 to 99). Spec section 5.3.
+ * (year 1 to 99,999; season index 0 to 99; day 1 to 99).
  */
 
 export interface GameDateParts {

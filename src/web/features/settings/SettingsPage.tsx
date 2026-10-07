@@ -115,7 +115,7 @@ function Appearance() {
   );
 }
 
-/** `/settings`: one scrolling page with anchored sections, no tabs (spec section 8.11). */
+/** `/settings`: one scrolling page with anchored sections, no tabs. */
 export default function SettingsPage() {
   const { hash } = useLocation();
   useEffect(() => {

@@ -63,7 +63,7 @@ function HitItem({ hit, onOpen }: { hit: SearchHit; onOpen: () => void }) {
 }
 
 /**
- * Search and commands (spec section 5.12). `mod+K` anywhere. With nothing typed it lists commands
+ * Search and commands. `mod+K` anywhere. With nothing typed it lists commands
  * and the five most recently edited notes; typing shows grouped results, up to five per group.
  */
 export function CommandPalette({

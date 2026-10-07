@@ -1,4 +1,4 @@
--- Full-text index (spec sections 9 and 16). Drizzle does not model virtual tables, so this is a
+-- Full-text index. Drizzle does not model virtual tables, so this is a
 -- hand-written migration. Rows are maintained by the application in the same transaction as every
 -- data write (reindex / unindex); there are no triggers.
 -- Columns, in order: kind, ref_id, title, body, tags, extra. The bm25 weights used by search,

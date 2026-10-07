@@ -124,7 +124,7 @@ function yearAt(words: Token[], at: number): { year: number; width: number } | n
 }
 
 /**
- * Find a game-date filter among plain words (spec section 16): a season name, or a prefix of at
+ * Find a game-date filter among plain words: a season name, or a prefix of at
  * least 3 letters, with an optional day and an optional `y2` or `year 2`. A bare number is text.
  */
 function extractDate(
@@ -175,7 +175,7 @@ function extractDate(
 }
 
 /**
- * Deterministic query parser (spec section 16), shared by the server (matching) and the client
+ * Deterministic query parser, shared by the server (matching) and the client
  * (filter chips). Words must all match; quotes make a phrase; `-word` excludes; `#tag`,
  * `@Name`, `is:`, `in:` and game-date tokens are filters. Unknown `word:` prefixes are text.
  */

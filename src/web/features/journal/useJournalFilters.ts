@@ -15,7 +15,7 @@ export interface JournalFilters {
 
 /**
  * Filters and sort order live in the URL, for example
- * `/journal?flag=question&state=open&tag=idea&order=asc` (spec section 5.5), so a reload or a
+ * `/journal?flag=question&state=open&tag=idea&order=asc`, so a reload or a
  * bookmark reproduces the same view. Changes use `replace`, so Back leaves the page.
  */
 export function useJournalFilters() {

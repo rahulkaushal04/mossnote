@@ -25,7 +25,7 @@ const sameSet = (a: readonly string[], b: readonly string[]) =>
 
 /**
  * Only the fields that changed, so an edit never overwrites an unrelated change made elsewhere
- * (spec section 11). Returns null when nothing changed.
+ *. Returns null when nothing changed.
  */
 export function diffDraft(note: Note, draft: NoteDraft): NotePatch | null {
   const patch: NotePatch = {};

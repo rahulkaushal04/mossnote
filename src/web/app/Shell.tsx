@@ -42,7 +42,7 @@ function SearchButton() {
   );
 }
 
-/** Pinned tags act as user-defined sections (spec section 5.6). Absent when none are pinned. */
+/** Pinned tags act as user-defined sections. Absent when none are pinned. */
 function Pinned({ className }: { className: string }) {
   const tags = useTags();
   const pinned = (tags.data ?? []).filter((t) => t.pinned).slice(0, 8);
@@ -66,7 +66,7 @@ function Pinned({ className }: { className: string }) {
 }
 
 /**
- * App shell (spec section 8.1): a left rail at 900px and wider, a top bar plus bottom tab bar
+ * App shell: a left rail at 900px and wider, a top bar plus bottom tab bar
  * below that. The content column is centred and capped at 44rem.
  */
 export function Shell() {

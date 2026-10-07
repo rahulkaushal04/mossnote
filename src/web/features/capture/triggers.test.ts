@@ -31,7 +31,7 @@ describe('@ people', () => {
     expect(at('@Na')).toEqual({ kind: 'person', start: 0, end: 3, query: 'Na' });
     expect(at('Met @Sa')).toMatchObject({ kind: 'person', start: 4, query: 'Sa' });
   });
-  it('AC-LNK-6: an email address never opens it', () => {
+  it('an email address never opens it', () => {
     expect(at('write to someone@example.com')).toBeNull();
     expect(at('a@b')).toBeNull();
     expect(at('mail me@')).toBeNull();

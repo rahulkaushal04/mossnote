@@ -5,7 +5,7 @@ import { openDatabase } from '../src/server/db/client';
 import { acquireLock, AlreadyRunningError } from '../src/server/lock';
 
 /**
- * `npm run db:vacuum`: maintenance vacuum (spec section 18; there is no automatic vacuum).
+ * `npm run db:vacuum`: maintenance vacuum (there is no automatic vacuum).
  * Takes the journal's lock first, so it refuses to run while the app is running.
  */
 export function vacuumJournal(

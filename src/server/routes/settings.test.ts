@@ -91,7 +91,7 @@ describe('PATCH currentGameDate', () => {
 });
 
 describe('PATCH calendar', () => {
-  it('AC-CAL-3: renaming a season changes labels and leaves stored keys alone', async () => {
+  it('renaming a season changes labels and leaves stored keys alone', async () => {
     addNote('n1', k(1, 0, 3));
     const renamed = structuredClone(DEFAULT_CALENDAR);
     renamed.seasons[0] = { name: 'Thaw', days: 28 };
@@ -114,7 +114,7 @@ describe('PATCH calendar', () => {
     expect((await get()).calendar).toEqual(calendar);
   });
 
-  it('AC-CAL-4: refuses to cut days below one in use, stating the count and changing nothing', async () => {
+  it('refuses to cut days below one in use, stating the count and changing nothing', async () => {
     addNote('n1', k(1, 0, 20));
     addNote('n2', k(2, 0, 20));
     addNote('n3', k(1, 0, 5));
@@ -297,7 +297,7 @@ describe('PATCH prefs and request shape', () => {
 });
 
 describe('error shape', () => {
-  it('uses the section 11 error shape for unknown routes', async () => {
+  it('uses the JSON error shape for unknown routes', async () => {
     const res = await t.call('GET', '/api/nope');
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: { code: 'not_found', message: 'Not found.' } });

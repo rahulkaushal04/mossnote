@@ -5,7 +5,7 @@ import { invalidateEverywhere } from '../../lib/broadcast';
 import { queryKeys } from '../../lib/queryKeys';
 
 /**
- * Change the current game date. Optimistic (spec section 12): the cached settings update at once
+ * Change the current game date. Optimistic: the cached settings update at once
  * and roll back if the server refuses.
  */
 export function useSetCurrentDate() {

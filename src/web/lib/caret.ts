@@ -37,7 +37,7 @@ export interface CaretPosition {
 
 /**
  * Where the caret is inside a textarea, relative to the textarea's top-left corner. Uses a hidden
- * mirrored element, not a dependency (spec section 13): copy the textarea's text metrics, lay out
+ * mirrored element, not a dependency: copy the textarea's text metrics, lay out
  * the text up to the caret, and measure a marker span placed at the caret.
  */
 export function caretPosition(textarea: HTMLTextAreaElement, offset: number): CaretPosition {

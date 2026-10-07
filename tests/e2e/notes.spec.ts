@@ -7,7 +7,7 @@ const editor = (page: Page) => page.getByRole('combobox', { name: 'Note' });
 const article = (page: Page, name: string | RegExp) => page.getByRole('article', { name });
 
 test.describe('reading and editing a note', () => {
-  test('AC-NOTE-1: an edit autosaves, persists across a reload, and only updatedAt moves', async ({
+  test('an edit autosaves, persists across a reload, and only updatedAt moves', async ({
     page,
     seed,
   }) => {
@@ -51,10 +51,7 @@ test.describe('reading and editing a note', () => {
     await expect(editor(page)).toHaveCount(0);
   });
 
-  test('AC-NOTE-2: raw HTML and script text are shown literally and never run', async ({
-    page,
-    seed,
-  }) => {
+  test('raw HTML and script text are shown literally and never run', async ({ page, seed }) => {
     await seed.note({
       body: '<script>window.__pwned = true</script> <img src=x onerror="window.__pwned = true"> <b>not bold</b>',
       gameDate: k(1, 0, 1),
@@ -105,7 +102,7 @@ test.describe('reading and editing a note', () => {
     await expect(entry).toContainText('unsafe');
   });
 
-  test('AC-NOTE-4: emptying a note reverts it, shows the message, and leaves the stored note unchanged', async ({
+  test('emptying a note reverts it, shows the message, and leaves the stored note unchanged', async ({
     page,
     seed,
   }) => {
@@ -120,7 +117,7 @@ test.describe('reading and editing a note', () => {
     expect((await seed.notes()).items[0]?.body).toBe('do not lose me');
   });
 
-  test('AC-NOTE-5: a stale edit shows the conflict banner and never overwrites silently', async ({
+  test('a stale edit shows the conflict banner and never overwrites silently', async ({
     page,
     seed,
   }) => {
@@ -197,7 +194,7 @@ test.describe('reading and editing a note', () => {
 });
 
 test.describe('the … menu, flags, delete and undo', () => {
-  test('AC-DSC-1 and AC-DSC-4: the discovery flag toggles from the menu, persists, and has an accessible name', async ({
+  test('the discovery flag toggles from the menu, persists, and has an accessible name', async ({
     page,
     seed,
   }) => {
@@ -213,7 +210,7 @@ test.describe('the … menu, flags, delete and undo', () => {
     await expect(page.getByRole('img', { name: 'Discovery' })).toHaveCount(0);
   });
 
-  test('flow 10 and AC-DEL-1: delete, Undo from the toast, and the note returns with its tags', async ({
+  test('delete, Undo from the toast, and the note returns with its tags', async ({
     page,
     seed,
   }) => {
@@ -228,7 +225,7 @@ test.describe('the … menu, flags, delete and undo', () => {
     await expect(article(page, 'oops').getByText('#keep')).toBeVisible();
   });
 
-  test('AC-DEL-5: u undoes while the toast is visible; after it expires the note is still in Recently deleted', async ({
+  test('u undoes while the toast is visible; after it expires the note is still in Recently deleted', async ({
     page,
     seed,
   }) => {

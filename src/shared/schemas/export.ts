@@ -8,7 +8,7 @@ import { customFieldsSchema, ulidSchema } from './common';
 import { layoutSchema } from './layout';
 import { mapColorSchema, markerTypesSchema, pinPropsSchema, readScene } from './map';
 
-/** The newest export format this build can read (spec section 17). */
+/** The newest export format this build can read. */
 export const CURRENT_FORMAT_VERSION = 1;
 
 const exportedDate = z
@@ -165,7 +165,7 @@ export const toParts = (d: ExportedDate): GameDateParts => ({
 export const toKey = (d: ExportedDate): number => encode(toParts(d));
 
 /**
- * The checks that need the whole file (spec section 17, rule 3): unique ids per kind, every link
+ * The checks that need the whole file: unique ids per kind, every link
  * target present, tags declared, dates valid in the file's own calendar, progress within its
  * maximum, harvest not before planting.
  */
@@ -295,7 +295,7 @@ export function formatPath(path: readonly PropertyKey[]): string {
 export type MigrationResult = { ok: true; data: unknown } | { ok: false; message: string };
 
 /**
- * Bring an export of any supported version up to the current one (spec section 17). Version 1 is
+ * Bring an export of any supported version up to the current one. Version 1 is
  * the only version, so nothing needs converting yet; a newer file is refused before any change.
  */
 export function migrateExport(raw: unknown): MigrationResult {

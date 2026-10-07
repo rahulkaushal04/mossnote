@@ -1,7 +1,7 @@
 import { Dialog } from './Dialog';
 
 /**
- * Confirmations are reserved for irreversible actions (spec section 2): delete forever, deleting
+ * Confirmations are reserved for irreversible actions: delete forever, deleting
  * a tag, replacing the journal on import, removing a ? flag from a solved question.
  */
 export function ConfirmDialog({

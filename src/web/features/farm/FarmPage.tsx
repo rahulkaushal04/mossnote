@@ -27,7 +27,7 @@ function Group({ title, items }: { title: string; items: Planting[] }) {
   );
 }
 
-/** `/farm`: add an entry by name, then Growing, Done and Noted (spec section 5.11). */
+/** `/farm`: add an entry by name, then Growing, Done and Noted. */
 export function FarmPage() {
   const terms = useTerms();
   const [params, setParams] = useSearchParams();

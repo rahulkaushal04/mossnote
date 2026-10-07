@@ -2,7 +2,7 @@ import { Dialog } from '../components/ui/Dialog';
 import { modLabel } from '../lib/hotkeys';
 import { formatKeys, SHORTCUTS } from '../lib/shortcuts';
 
-/** The shortcut list, opened with `?` (spec section 15). */
+/** The shortcut list, opened with `?`. */
 export function ShortcutsList() {
   const mod = modLabel();
   return (

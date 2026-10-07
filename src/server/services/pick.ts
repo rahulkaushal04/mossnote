@@ -110,7 +110,7 @@ function pickNamed(ctx: Ctx, kind: 'tag' | 'person', p: PickParams): PickItem[] 
 }
 
 /**
- * Suggestions for the `#`, `@`, `[[` and `/link` pickers (spec section 16). Tags and people match
+ * Suggestions for the `#`, `@`, `[[` and `/link` pickers. Tags and people match
  * a prefix first, then a substring, ordered by recent use; notes and farm entries use FTS prefix
  * queries; an empty query returns the most recently updated items.
  */

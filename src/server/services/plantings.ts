@@ -55,7 +55,7 @@ const one = (ctx: Ctx, id: string): Planting => first(toPlantings(ctx, [loadRow(
 
 export const getPlanting = (ctx: Ctx, id: string): Planting => one(ctx, id);
 
-// Growing: planted and not harvested. Done: harvested. Noted: neither date (spec section 10).
+// Growing: planted and not harvested. Done: harvested. Noted: neither date.
 const LIST = `
   SELECT p.* FROM plantings p WHERE p.deleted_at IS NULL
     AND (? IS NULL OR (? = 'growing' AND p.planted_on IS NOT NULL AND p.harvested_on IS NULL)

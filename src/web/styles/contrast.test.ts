@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Contrast check for the section 24 tokens (spec section 22): text at least 4.5:1, interface
+ * Contrast check for the design tokens: text at least 4.5:1, interface
  * components and graphics at least 3:1, in both themes. The tokens are read from index.css, so
  * this test checks the values that actually ship.
  */

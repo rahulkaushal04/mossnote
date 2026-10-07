@@ -87,8 +87,8 @@ export const withLink = (d: NoteDraft, link: ChipLink): NoteDraft =>
 
 /**
  * The request body for a new note. A trailing line made only of `#tokens` becomes tags and is
- * removed from the body (spec section 5.1). Only fields that carry something are sent, so a plain
- * note's request has just `body` (AC-CAP-1).
+ * removed from the body. Only fields that carry something are sent, so a plain
+ * note's request has just `body`.
  */
 export function toCreateInput(
   draft: NoteDraft,

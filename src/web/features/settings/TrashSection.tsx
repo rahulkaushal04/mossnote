@@ -15,7 +15,7 @@ const KIND: Record<TrashItem['kind'], string> = {
 };
 const ACTION = 'tap rounded-control px-2 text-sm underline';
 
-/** Settings → Recently deleted (spec section 5.15). Records are purged 30 days after deletion. */
+/** Settings → Recently deleted. Records are purged 30 days after deletion. */
 export function TrashSection() {
   const client = useQueryClient();
   const trash = useQuery({ queryKey: queryKeys.trash, queryFn: api.trash });

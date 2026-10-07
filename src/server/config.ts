@@ -44,10 +44,10 @@ function parseInteger(name: string, raw: string, min: number, max: number): numb
 
 function defaultDataDir(env: NodeJS.ProcessEnv): string {
   if (process.platform === 'win32') {
-    // Spec section 18: %APPDATA%\Mossnote\ (env-paths would pick the local, non-roaming folder).
+    // %APPDATA%\Mossnote\ (env-paths would pick the local, non-roaming folder).
     return path.join(env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming'), 'Mossnote');
   }
-  // Spec section 18: macOS "Mossnote", Linux "mossnote".
+  // macOS "Mossnote", Linux "mossnote".
   const name = process.platform === 'linux' ? 'mossnote' : 'Mossnote';
   return envPaths(name, { suffix: '' }).data;
 }

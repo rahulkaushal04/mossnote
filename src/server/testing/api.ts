@@ -49,7 +49,7 @@ export class Api {
     return this.json<Tag[]>(await this.t.call('GET', '/api/tags'));
   }
 
-  /** Index rows must equal the live records exactly (AC-G-7). */
+  /** Index rows must equal the live records exactly. */
   expectIndexConsistent(): void {
     const sqlite = this.t.database.sqlite;
     const ids = (sql: string) =>
@@ -65,7 +65,7 @@ export class Api {
     }
   }
 
-  /** Records with no parent: join and link rows must never point at a missing row (AC-G-7). */
+  /** Records with no parent: join and link rows must never point at a missing row. */
   expectNoOrphans(): void {
     const sqlite = this.t.database.sqlite;
     expect(sqlite.pragma('foreign_key_check')).toEqual([]);

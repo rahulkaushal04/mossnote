@@ -1,4 +1,4 @@
-/** Query keys (spec section 12). `health` and `fieldLabels` are additions. */
+/** Query keys. `health` and `fieldLabels` are additions. */
 export const queryKeys = {
   health: ['health'] as const,
   settings: ['settings'] as const,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/** True once `pending` has lasted `ms`, so quick loads never flash a skeleton (spec section 8). */
+/** True once `pending` has lasted `ms`, so quick loads never flash a skeleton. */
 export function useDelayed(pending: boolean, ms = 150): boolean {
   const [late, setLate] = useState(false);
   useEffect(() => {

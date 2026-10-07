@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 
 /**
- * Accessibility (spec section 22, AC-G-4): every route, in both themes, at 360, 768 and 1280px,
+ * Accessibility: every route, in both themes, at 360, 768 and 1280px,
  * with zero serious or critical axe violations.
  */
 const ROUTES = [

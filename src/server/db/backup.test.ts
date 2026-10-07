@@ -143,7 +143,7 @@ describe('bursts of snapshots in one minute', () => {
   });
 });
 
-describe('retention (spec section 18)', () => {
+describe('retention', () => {
   it('has the documented limits', () => {
     expect(retentionFor('auto', 14)).toBe(14);
     expect(retentionFor('auto', 5)).toBe(5);

@@ -53,7 +53,7 @@ async function openNewMap(page: Page, seed: Seed, name = 'Test map') {
 
 const kinds = (page: Page, kind: string) => canvas(page).locator(`[data-kind="${kind}"]`);
 
-test.describe('smart drawing (AC-MAP-15)', () => {
+test.describe('smart drawing', () => {
   test('a rough circle, rectangle, line and arrow become clean objects', async ({ page, seed }) => {
     const id = await openNewMap(page, seed);
     await page.keyboard.press('b');
@@ -142,7 +142,7 @@ test.describe('smart drawing (AC-MAP-15)', () => {
   });
 });
 
-test.describe('selecting and editing objects (AC-MAP-16)', () => {
+test.describe('selecting and editing objects', () => {
   test('draw a box, select it, move it, resize it, undo and redo', async ({ page, seed }) => {
     const id = await openNewMap(page, seed);
     await page.keyboard.press('r');
@@ -275,7 +275,7 @@ test.describe('selecting and editing objects (AC-MAP-16)', () => {
   });
 });
 
-test.describe('layers (AC-MAP-17)', () => {
+test.describe('layers', () => {
   test('add, rename, hide, lock and reorder layers; objects follow their layer', async ({
     page,
     seed,
@@ -316,7 +316,7 @@ test.describe('layers (AC-MAP-17)', () => {
   });
 });
 
-test.describe('markers (AC-MAP-18)', () => {
+test.describe('markers', () => {
   test('a marker gets a name, type, icon, status, tags, fields and a link', async ({
     page,
     seed,
@@ -378,7 +378,7 @@ test.describe('markers (AC-MAP-18)', () => {
   });
 });
 
-test.describe('exploring (AC-MAP-19)', () => {
+test.describe('exploring', () => {
   test('marker, path from it, and a note: the loop works with taps and keys', async ({
     page,
     seed,
@@ -410,7 +410,7 @@ test.describe('exploring (AC-MAP-19)', () => {
   });
 });
 
-test.describe('history, copies and files (AC-MAP-20)', () => {
+test.describe('history, copies and files', () => {
   test('save a version, experiment, restore it, and duplicate before experimenting', async ({
     page,
     seed,
@@ -509,7 +509,7 @@ test.describe('history, copies and files (AC-MAP-20)', () => {
   });
 });
 
-test.describe('canvas aids (AC-MAP-21)', () => {
+test.describe('canvas aids', () => {
   test('grid, rulers and a guide, the compass, and the overview map', async ({ page, seed }) => {
     const id = await openNewMap(page, seed);
     await page.keyboard.press('Shift+G');
@@ -567,7 +567,7 @@ test.describe('canvas aids (AC-MAP-21)', () => {
   });
 });
 
-test.describe('more tools (AC-MAP-16)', () => {
+test.describe('more tools', () => {
   test('an area is made by clicking corners and double-clicking; corners can be dragged', async ({
     page,
     seed,

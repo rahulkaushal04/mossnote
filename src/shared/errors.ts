@@ -1,4 +1,4 @@
-/** Error codes and shapes for the JSON API (spec section 11, plus `storage_full` from section 20). */
+/** Error codes and shapes for the JSON API (including `storage_full`). */
 
 export const ERROR_STATUS = {
   validation_failed: 400,

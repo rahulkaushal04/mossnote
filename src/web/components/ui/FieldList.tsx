@@ -7,7 +7,7 @@ import { queryKeys } from '../../lib/queryKeys';
 import { CloseIcon } from './icons';
 
 /**
- * Label and value rows (spec section 5.10), not a schema builder: no types, no templates.
+ * Label and value rows, not a schema builder: no types, no templates.
  * Labels autocomplete from labels already used on other records of the same kind.
  */
 export function FieldList({

@@ -156,5 +156,5 @@ test-results
 .DS_Store
 *.tsbuildinfo
 
-# Local reference docs and the specification (kept on this machine only)
+# Local reference docs (kept on this machine only)
 local_docs_reference/

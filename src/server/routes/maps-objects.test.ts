@@ -42,7 +42,7 @@ const changes = async (id: string, body: Record<string, unknown>) => {
   return api.json<{ updatedAt: string }>(await t.call('POST', `/api/maps/${id}/changes`, body));
 };
 
-describe('objects and layers (AC-MAP-9, AC-MAP-10)', () => {
+describe('objects and layers', () => {
   it('stores every object kind with names, locks, groups, notes and styles', async () => {
     const map = await makeMap();
     const shapes = [
@@ -174,7 +174,7 @@ describe('objects and layers (AC-MAP-9, AC-MAP-10)', () => {
   });
 });
 
-describe('pins as markers (AC-MAP-11)', () => {
+describe('pins as markers', () => {
   it('stores type, icon, status, tags, fields, layer and a hex colour', async () => {
     const map = await makeMap();
     const props = {
@@ -271,7 +271,7 @@ describe('one request saves sketch and pins together', () => {
   });
 });
 
-describe('versions (AC-MAP-12)', () => {
+describe('versions', () => {
   const versions = async (id: string) =>
     (await api.json<{ items: MapVersionInfo[] }>(await t.call('GET', `/api/maps/${id}/versions`)))
       .items;
@@ -366,7 +366,7 @@ describe('versions (AC-MAP-12)', () => {
   });
 });
 
-describe('duplicate and project files (AC-MAP-13)', () => {
+describe('duplicate and project files', () => {
   it('duplicates a map with new pin ids and connectors that follow them', async () => {
     const map = await makeMap({ name: 'Town' });
     const pin = newId();
@@ -426,7 +426,7 @@ describe('duplicate and project files (AC-MAP-13)', () => {
   });
 });
 
-describe('marker types (AC-MAP-14)', () => {
+describe('marker types', () => {
   const types = [
     { id: 'a', name: 'Important', icon: 'star', color: 'amber' },
     { id: 'b', name: 'Mine', icon: 'dot', color: '#445566' },

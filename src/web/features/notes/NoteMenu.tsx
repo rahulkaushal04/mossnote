@@ -5,7 +5,7 @@ import { EllipsisIcon } from '../../components/ui/icons';
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../../components/ui/Menu';
 import { useDeleteNote, useUpdateNoteOptimistic } from './hooks';
 
-/** The “…” menu (spec section 5.2): title, date, flags, link, delete. */
+/** The “…” menu: title, date, flags, link, delete. */
 export function NoteMenu({
   note,
   onEdit,

@@ -46,7 +46,7 @@ const TOGGLE =
 
 /**
  * The shared text area, chips, flags and trigger handling used by the composer and by inline
- * editing (spec section 13). The text area is an ARIA combobox: `#`, `@`, `[[` and `/` open a
+ * editing. The text area is an ARIA combobox: `#`, `@`, `[[` and `/` open a
  * caret-anchored picker as the user types.
  */
 export function CaptureEditor({

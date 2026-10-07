@@ -34,7 +34,7 @@ export class NetworkError extends Error {
   }
 }
 
-/** The server answered with the JSON error shape from spec section 11. */
+/** The server answered with the JSON error shape. */
 export class ApiError extends Error {
   readonly code: ErrorCode;
   readonly status: number;
@@ -52,11 +52,11 @@ export class ApiError extends Error {
 }
 
 /**
- * The only module that knows about HTTP (spec sections 12 and 14). Every request carries the
+ * The only module that knows about HTTP. Every request carries the
  * `X-Moss-Client` header the server's guard requires. A desktop wrapper replaces this file.
  */
 const client = hc<AppType>('/', {
-  // Every non-GET request needs both headers (spec sections 11 and 25), including the ones with
+  // Every non-GET request needs both headers, including the ones with
   // no body (delete, restore, back up now).
   headers: { 'X-Moss-Client': 'web', 'Content-Type': 'application/json' },
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
