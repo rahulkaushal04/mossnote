@@ -1,0 +1,8 @@
+dist
+.tsbuild
+.dev-data
+node_modules
+package-lock.json
+drizzle
+playwright-report
+test-results

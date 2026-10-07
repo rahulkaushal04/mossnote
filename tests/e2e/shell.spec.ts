@@ -1,0 +1,250 @@
+import { test, expect } from './fixtures';
+
+test.describe('first launch (flow 1)', () => {
+  test(
+    'opens an empty shell: no wizard, no sample data',
+    { tag: '@smoke' },
+    async ({ page, request, server }) => {
+      await page.goto('/');
+      await expect(page).toHaveTitle('Today · Mossnote');
+      await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+      await expect(page.getByText('Nothing written today.')).toBeVisible();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      const nav = page.getByRole('navigation', { name: 'Primary' });
+      await expect(nav.getByRole('link')).toHaveText([
+        'Today',
+        'Journal',
+        'People',
+        'Farm',
+        'Maps',
+        'Settings',
+      ]);
+
+      // The journal is empty and the only settings are the calendar defaults.
+      const settings = (await (await request.get(`${server.url}/api/settings`)).json()) as {
+        calendar: { seasons: { name: string; days: number }[] };
+        currentGameDate: number | null;
+      };
+      expect(settings.currentGameDate).toBeNull();
+      expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual([
+        'Spring 28',
+        'Summer 28',
+        'Fall 28',
+        'Winter 28',
+      ]);
+    },
+  );
+
+  test('each destination shows its section 21 copy', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await nav.getByRole('link', { name: 'Journal' }).click();
+    await expect(page.getByText('Your journal starts with your first note.')).toBeVisible();
+    await nav.getByRole('link', { name: 'People' }).click();
+    await expect(
+      page.getByText('No people yet. Add someone above, or type @ in a note.'),
+    ).toBeVisible();
+    await nav.getByRole('link', { name: 'Farm' }).click();
+    await expect(
+      page.getByText('Nothing here yet. Add an entry when you plant something.'),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Farm', exact: true }).first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+});
+
+test.describe('keyboard', () => {
+  test('the first Tab stop is the skip link, and it moves focus to the main content', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+    await page.keyboard.press('Tab');
+    const skip = page.getByRole('link', { name: 'Skip to content' });
+    await expect(skip).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#main')).toBeFocused();
+  });
+
+  test('focus moves to the page heading after navigating by keyboard', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await nav.getByRole('link', { name: 'Journal' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('heading', { level: 1, name: 'Journal' })).toBeFocused();
+  });
+
+  test('focus is visible with a 2px outline', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+    const outline = await page.getByRole('link', { name: 'Skip to content' }).evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { width: style.outlineWidth, style: style.outlineStyle, offset: style.outlineOffset };
+    });
+    expect(outline).toEqual({ width: '2px', style: 'solid', offset: '2px' });
+  });
+});
+
+test.describe('responsive layout (spec section 23)', () => {
+  const ROUTES = [
+    '/',
+    '/journal',
+    '/people',
+    '/farm',
+    '/settings',
+    '/search?q=lantern',
+    '/dev/kit',
+    '/nowhere',
+  ];
+  const WIDTHS = [320, 360, 768, 899, 900, 1280, 1920];
+
+  for (const width of WIDTHS) {
+    test(`no horizontal page scroll at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      for (const route of ROUTES) {
+        await page.goto(route);
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        expect(overflow, `${route} at ${width}px`).toBeLessThanOrEqual(0);
+      }
+    });
+  }
+
+  test('rail at 900px and wider, tab bar below, never both', async ({ page }) => {
+    for (const [width, rail] of [
+      [360, false],
+      [899, false],
+      [900, true],
+      [1280, true],
+    ] as const) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('/');
+      const nav = page.getByRole('navigation', { name: 'Primary' });
+      await expect(nav, `${width}px`).toHaveCount(1);
+      const box = await nav.boundingBox();
+      if (rail) {
+        expect(box?.x).toBe(0);
+        expect(box?.width).toBe(208);
+      } else {
+        expect(box?.width).toBe(width);
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(800, 0);
+      }
+    }
+  });
+
+  test('the content column never exceeds 44rem', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 900 });
+    await page.goto('/');
+    const width = await page
+      .getByRole('main')
+      .evaluate((el) => el.parentElement?.getBoundingClientRect().width);
+    expect(width).toBeLessThanOrEqual(704);
+  });
+
+  test('narrow screens reach Settings from the top bar', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Settings' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+  });
+
+  test('200% zoom stays usable (equivalent to a 640px wide viewport)', async ({ page }) => {
+    await page.setViewportSize({ width: 640, height: 400 });
+    await page.goto('/settings');
+    await expect(page.getByRole('radio', { name: 'Dark' })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe('touch targets on coarse pointers', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 393, height: 851 } });
+
+  test('navigation and controls are at least 44 by 44', async ({ page }) => {
+    await page.goto('/');
+    for (const link of await page
+      .getByRole('navigation', { name: 'Primary' })
+      .getByRole('link')
+      .all()) {
+      const box = await link.boundingBox();
+      expect(box?.height, (await link.textContent()) ?? '').toBeGreaterThanOrEqual(44);
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+    }
+    await page.goto('/settings');
+    for (const label of await page.locator('label.tap').all()) {
+      const box = await label.boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+    }
+  });
+});
+
+test.describe('theme (spec section 24)', () => {
+  test('a stored theme is applied before first paint, with no flash', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('moss:theme', 'dark');
+      const seen: string[] = [];
+      (window as unknown as { __themes: string[] }).__themes = seen;
+      new MutationObserver(() => {
+        seen.push(document.documentElement.getAttribute('data-theme') ?? '');
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    const seen = await page.evaluate(() => (window as unknown as { __themes: string[] }).__themes);
+    // The blocking script set it once; React never flipped it to light and back.
+    expect(seen.every((t) => t === 'dark')).toBe(true);
+    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(bg).toBe('rgb(28, 26, 23)');
+  });
+
+  test('System follows the operating system, live', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
+  test('an explicit choice persists across reloads and beats the system', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/settings');
+    await page.getByRole('radio', { name: 'Dark' }).check();
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('radio', { name: 'Dark' })).toBeChecked();
+    await page.getByRole('radio', { name: 'System' }).check();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
+  test('colour-scheme follows the theme so form controls and scrollbars match', async ({
+    page,
+  }) => {
+    await page.goto('/settings');
+    await page.getByRole('radio', { name: 'Dark' }).check();
+    expect(await page.locator('html').evaluate((el) => getComputedStyle(el).colorScheme)).toBe(
+      'dark',
+    );
+    await page.getByRole('radio', { name: 'Light' }).check();
+    expect(await page.locator('html').evaluate((el) => getComputedStyle(el).colorScheme)).toBe(
+      'light',
+    );
+  });
+
+  test('uses the bundled fonts, not remote ones', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
+    await page.evaluate(async () => document.fonts.ready);
+    const families = await page.evaluate(() =>
+      [...document.fonts].map((f) => `${f.family.replaceAll('"', '')} ${f.status}`),
+    );
+    expect(families).toContain('Source Sans 3 Variable loaded');
+  });
+});
