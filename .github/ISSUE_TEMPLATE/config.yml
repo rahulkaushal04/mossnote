@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/rahulkaushal04/mossnote/security/advisories/new
+    about: Please do not open a public issue for a vulnerability. Use a private report.
+  - name: Ask a question
+    url: https://github.com/rahulkaushal04/mossnote/blob/main/.github/SUPPORT.md
+    about: Read this first if you are stuck or unsure how something works.

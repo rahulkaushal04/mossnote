@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest a change or an addition
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Mossnote has a small scope on purpose. Please read the "What it will not do" list in the README before you open this. Ideas that match it will be closed, not postponed.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve
+      description: Describe the situation, not the solution. What were you doing and what got in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like to see
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Other things you thought about
+      description: Including how you work around it today.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: This does not add information about any game (names, items, places, mechanics, images)
+          required: true
+        - label: I read the "What it will not do" list in the README and this is not on it
+          required: true

@@ -1,0 +1,7 @@
+# Every change is reviewed by the maintainer unless a more specific rule says otherwise.
+*                      @rahulkaushal04
+
+# These files define what the project promises, so changes to them get a second look.
+/SECURITY.md           @rahulkaushal04
+/.github/              @rahulkaushal04
+/drizzle/              @rahulkaushal04

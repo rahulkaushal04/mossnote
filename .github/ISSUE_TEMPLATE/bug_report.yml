@@ -1,0 +1,73 @@
+name: Bug report
+description: Something does not work the way it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. A good report is short and lets me see the problem on my own machine.
+
+        Please do not paste real journal text, and do not attach your database. If you need to show data, make some up.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include any error message you saw, word for word.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce it
+      description: The smallest set of steps that triggers it, starting from a fresh journal if you can.
+      placeholder: |
+        1. Open Maps and create a map
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit
+      description: The output of `git rev-parse --short HEAD`.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15, Ubuntu 24.04, Windows 11
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: The output of `node --version`.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server log or console output
+      description: Optional. The server log never contains note text, but check before you paste.
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I have not pasted private journal content or any game-specific text
+          required: true

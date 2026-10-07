@@ -1,0 +1,874 @@
+{
+  "id": "576e02ac-93d9-4dfb-a88c-88a281835d56",
+  "prevId": "78d73d0e-8a57-4095-b9bb-17bba8ab16b6",
+  "version": "6",
+  "dialect": "sqlite",
+  "tables": {
+    "links": {
+      "name": "links",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source_note_id": {
+          "name": "source_note_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_note_id": {
+          "name": "target_note_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "target_person_id": {
+          "name": "target_person_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "target_planting_id": {
+          "name": "target_planting_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "links_note_unique": {
+          "name": "links_note_unique",
+          "columns": [
+            "source_note_id",
+            "target_note_id"
+          ],
+          "where": "\"links\".\"target_note_id\" IS NOT NULL",
+          "isUnique": true
+        },
+        "links_person_unique": {
+          "name": "links_person_unique",
+          "columns": [
+            "source_note_id",
+            "target_person_id"
+          ],
+          "where": "\"links\".\"target_person_id\" IS NOT NULL",
+          "isUnique": true
+        },
+        "links_planting_unique": {
+          "name": "links_planting_unique",
+          "columns": [
+            "source_note_id",
+            "target_planting_id"
+          ],
+          "where": "\"links\".\"target_planting_id\" IS NOT NULL",
+          "isUnique": true
+        },
+        "links_target_note_idx": {
+          "name": "links_target_note_idx",
+          "columns": [
+            "target_note_id"
+          ],
+          "isUnique": false
+        },
+        "links_target_person_idx": {
+          "name": "links_target_person_idx",
+          "columns": [
+            "target_person_id"
+          ],
+          "isUnique": false
+        },
+        "links_target_planting_idx": {
+          "name": "links_target_planting_idx",
+          "columns": [
+            "target_planting_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "links_source_note_id_notes_id_fk": {
+          "name": "links_source_note_id_notes_id_fk",
+          "tableFrom": "links",
+          "columnsFrom": [
+            "source_note_id"
+          ],
+          "tableTo": "notes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "links_target_note_id_notes_id_fk": {
+          "name": "links_target_note_id_notes_id_fk",
+          "tableFrom": "links",
+          "columnsFrom": [
+            "target_note_id"
+          ],
+          "tableTo": "notes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "links_target_person_id_people_id_fk": {
+          "name": "links_target_person_id_people_id_fk",
+          "tableFrom": "links",
+          "columnsFrom": [
+            "target_person_id"
+          ],
+          "tableTo": "people",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "links_target_planting_id_plantings_id_fk": {
+          "name": "links_target_planting_id_plantings_id_fk",
+          "tableFrom": "links",
+          "columnsFrom": [
+            "target_planting_id"
+          ],
+          "tableTo": "plantings",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "links_exactly_one_target": {
+          "name": "links_exactly_one_target",
+          "value": "(\"links\".\"target_note_id\" IS NOT NULL) + (\"links\".\"target_person_id\" IS NOT NULL) + (\"links\".\"target_planting_id\" IS NOT NULL) = 1"
+        },
+        "links_not_self": {
+          "name": "links_not_self",
+          "value": "\"links\".\"source_note_id\" <> \"links\".\"target_note_id\""
+        }
+      }
+    },
+    "note_tags": {
+      "name": "note_tags",
+      "columns": {
+        "note_id": {
+          "name": "note_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "note_tags_tag_idx": {
+          "name": "note_tags_tag_idx",
+          "columns": [
+            "tag_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "note_tags_note_id_notes_id_fk": {
+          "name": "note_tags_note_id_notes_id_fk",
+          "tableFrom": "note_tags",
+          "columnsFrom": [
+            "note_id"
+          ],
+          "tableTo": "notes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "note_tags_tag_id_tags_id_fk": {
+          "name": "note_tags_tag_id_tags_id_fk",
+          "tableFrom": "note_tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "tableTo": "tags",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "note_tags_note_id_tag_id_pk": {
+          "columns": [
+            "note_id",
+            "tag_id"
+          ],
+          "name": "note_tags_note_id_tag_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "notes": {
+      "name": "notes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "game_date": {
+          "name": "game_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_discovery": {
+          "name": "is_discovery",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "question_state": {
+          "name": "question_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "resolution": {
+          "name": "resolution",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "solved_game_date": {
+          "name": "solved_game_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "solved_at": {
+          "name": "solved_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "notes_timeline_idx": {
+          "name": "notes_timeline_idx",
+          "columns": [
+            "deleted_at",
+            "game_date",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "notes_discovery_idx": {
+          "name": "notes_discovery_idx",
+          "columns": [
+            "created_at"
+          ],
+          "where": "\"notes\".\"is_discovery\" = 1 AND \"notes\".\"deleted_at\" IS NULL",
+          "isUnique": false
+        },
+        "notes_question_idx": {
+          "name": "notes_question_idx",
+          "columns": [
+            "question_state",
+            "created_at"
+          ],
+          "where": "\"notes\".\"question_state\" IS NOT NULL AND \"notes\".\"deleted_at\" IS NULL",
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "notes_has_content": {
+          "name": "notes_has_content",
+          "value": "trim(coalesce(\"notes\".\"title\", '')) <> '' OR trim(\"notes\".\"body\") <> ''"
+        },
+        "notes_title_length": {
+          "name": "notes_title_length",
+          "value": "\"notes\".\"title\" IS NULL OR length(\"notes\".\"title\") <= 200"
+        },
+        "notes_body_length": {
+          "name": "notes_body_length",
+          "value": "length(\"notes\".\"body\") <= 50000"
+        },
+        "notes_is_discovery_bool": {
+          "name": "notes_is_discovery_bool",
+          "value": "\"notes\".\"is_discovery\" IN (0, 1)"
+        },
+        "notes_question_state_valid": {
+          "name": "notes_question_state_valid",
+          "value": "\"notes\".\"question_state\" IS NULL OR \"notes\".\"question_state\" IN ('open', 'solved')"
+        },
+        "notes_resolution_needs_question": {
+          "name": "notes_resolution_needs_question",
+          "value": "\"notes\".\"resolution\" IS NULL OR \"notes\".\"question_state\" IS NOT NULL"
+        },
+        "notes_resolution_length": {
+          "name": "notes_resolution_length",
+          "value": "\"notes\".\"resolution\" IS NULL OR length(\"notes\".\"resolution\") <= 2000"
+        },
+        "notes_solved_fields_need_solved": {
+          "name": "notes_solved_fields_need_solved",
+          "value": "(\"notes\".\"solved_game_date\" IS NULL AND \"notes\".\"solved_at\" IS NULL) OR \"notes\".\"question_state\" = 'solved'"
+        }
+      }
+    },
+    "people": {
+      "name": "people",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "progress": {
+          "name": "progress",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "progress_max": {
+          "name": "progress_max",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "custom_fields": {
+          "name": "custom_fields",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "people_name_idx": {
+          "name": "people_name_idx",
+          "columns": [
+            "\"name\" COLLATE NOCASE"
+          ],
+          "where": "\"people\".\"deleted_at\" IS NULL",
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "people_name_valid": {
+          "name": "people_name_valid",
+          "value": "length(\"people\".\"name\") BETWEEN 1 AND 80 AND trim(\"people\".\"name\") <> ''"
+        },
+        "people_notes_length": {
+          "name": "people_notes_length",
+          "value": "length(\"people\".\"notes\") <= 20000"
+        },
+        "people_progress_max_range": {
+          "name": "people_progress_max_range",
+          "value": "\"people\".\"progress_max\" IS NULL OR \"people\".\"progress_max\" BETWEEN 1 AND 99"
+        },
+        "people_progress_valid": {
+          "name": "people_progress_valid",
+          "value": "\"people\".\"progress\" IS NULL OR (\"people\".\"progress_max\" IS NOT NULL AND \"people\".\"progress\" BETWEEN 0 AND \"people\".\"progress_max\")"
+        }
+      }
+    },
+    "person_tags": {
+      "name": "person_tags",
+      "columns": {
+        "person_id": {
+          "name": "person_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "person_tags_tag_idx": {
+          "name": "person_tags_tag_idx",
+          "columns": [
+            "tag_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "person_tags_person_id_people_id_fk": {
+          "name": "person_tags_person_id_people_id_fk",
+          "tableFrom": "person_tags",
+          "columnsFrom": [
+            "person_id"
+          ],
+          "tableTo": "people",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "person_tags_tag_id_tags_id_fk": {
+          "name": "person_tags_tag_id_tags_id_fk",
+          "tableFrom": "person_tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "tableTo": "tags",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "person_tags_person_id_tag_id_pk": {
+          "columns": [
+            "person_id",
+            "tag_id"
+          ],
+          "name": "person_tags_person_id_tag_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "planting_tags": {
+      "name": "planting_tags",
+      "columns": {
+        "planting_id": {
+          "name": "planting_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "planting_tags_tag_idx": {
+          "name": "planting_tags_tag_idx",
+          "columns": [
+            "tag_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "planting_tags_planting_id_plantings_id_fk": {
+          "name": "planting_tags_planting_id_plantings_id_fk",
+          "tableFrom": "planting_tags",
+          "columnsFrom": [
+            "planting_id"
+          ],
+          "tableTo": "plantings",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "planting_tags_tag_id_tags_id_fk": {
+          "name": "planting_tags_tag_id_tags_id_fk",
+          "tableFrom": "planting_tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "tableTo": "tags",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "planting_tags_planting_id_tag_id_pk": {
+          "columns": [
+            "planting_id",
+            "tag_id"
+          ],
+          "name": "planting_tags_planting_id_tag_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "plantings": {
+      "name": "plantings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "planted_on": {
+          "name": "planted_on",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "harvested_on": {
+          "name": "harvested_on",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "planted_count": {
+          "name": "planted_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "harvested_count": {
+          "name": "harvested_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "custom_fields": {
+          "name": "custom_fields",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'[]'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "plantings_planted_idx": {
+          "name": "plantings_planted_idx",
+          "columns": [
+            "deleted_at",
+            "planted_on"
+          ],
+          "isUnique": false
+        },
+        "plantings_label_idx": {
+          "name": "plantings_label_idx",
+          "columns": [
+            "\"label\" COLLATE NOCASE"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "plantings_label_valid": {
+          "name": "plantings_label_valid",
+          "value": "length(\"plantings\".\"label\") BETWEEN 1 AND 80 AND trim(\"plantings\".\"label\") <> ''"
+        },
+        "plantings_notes_length": {
+          "name": "plantings_notes_length",
+          "value": "length(\"plantings\".\"notes\") <= 20000"
+        },
+        "plantings_planted_count_range": {
+          "name": "plantings_planted_count_range",
+          "value": "\"plantings\".\"planted_count\" IS NULL OR \"plantings\".\"planted_count\" BETWEEN 0 AND 999999"
+        },
+        "plantings_harvested_count_range": {
+          "name": "plantings_harvested_count_range",
+          "value": "\"plantings\".\"harvested_count\" IS NULL OR \"plantings\".\"harvested_count\" BETWEEN 0 AND 999999"
+        },
+        "plantings_harvest_not_before_planting": {
+          "name": "plantings_harvest_not_before_planting",
+          "value": "\"plantings\".\"planted_on\" IS NULL OR \"plantings\".\"harvested_on\" IS NULL OR \"plantings\".\"harvested_on\" >= \"plantings\".\"planted_on\""
+        }
+      }
+    },
+    "settings": {
+      "name": "settings",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "tags": {
+      "name": "tags",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_key": {
+          "name": "name_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pinned": {
+          "name": "pinned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "tags_name_key_unique": {
+          "name": "tags_name_key_unique",
+          "columns": [
+            "name_key"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "tags_name_length": {
+          "name": "tags_name_length",
+          "value": "length(\"tags\".\"name\") BETWEEN 1 AND 40"
+        },
+        "tags_pinned_bool": {
+          "name": "tags_pinned_bool",
+          "value": "\"tags\".\"pinned\" IN (0, 1)"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "internal": {
+    "indexes": {
+      "people_name_idx": {
+        "columns": {
+          "\"name\" COLLATE NOCASE": {
+            "isExpression": true
+          }
+        }
+      },
+      "plantings_label_idx": {
+        "columns": {
+          "\"label\" COLLATE NOCASE": {
+            "isExpression": true
+          }
+        }
+      }
+    }
+  }
+}
