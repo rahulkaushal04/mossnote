@@ -6,6 +6,8 @@ import { api, ApiError } from '../../lib/api';
 import { formatBytes, formatDateTime, plural } from '../../lib/format';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { ALL_DATA_KEYS, queryKeys } from '../../lib/queryKeys';
+import { BackupsList } from './BackupsList';
+import { useTerms, useUsesSection } from './useLayout';
 
 const MAX_IMPORT = 50 * 1024 * 1024;
 const SHOWN_ERRORS = 20;
@@ -18,7 +20,10 @@ interface Pending {
 /** Settings → Data & backup. */
 export function DataSection() {
   const client = useQueryClient();
+  const terms = useTerms();
+  const usesFarm = useUsesSection('farm');
   const info = useQuery({ queryKey: queryKeys.dataInfo, queryFn: api.dataInfo });
+  const [folderMessage, setFolderMessage] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
@@ -34,7 +39,7 @@ export function DataSection() {
     api
       .backupNow()
       .then((made) => {
-        setBackupMessage(`Backed up as ${made.name}.`);
+        setBackupMessage(`Saved a snapshot: ${made.name}.`);
         return invalidateEverywhere(client, [queryKeys.dataInfo, queryKeys.backups]);
       })
       .catch(() => {
@@ -100,6 +105,10 @@ export function DataSection() {
     <div className="flex flex-col gap-4">
       {data ? (
         <dl className="m-0 flex flex-col gap-1">
+          <div className="flex gap-2">
+            <dt className="font-semibold">Journal</dt>
+            <dd className="m-0">{data.journal.name}</dd>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <dt className="font-semibold">Data folder</dt>
             <dd className="m-0 flex flex-wrap items-center gap-2">
@@ -120,27 +129,58 @@ export function DataSection() {
               >
                 {copied ? 'Copied' : 'Copy'}
               </button>
+              <button
+                type="button"
+                className="btn tap text-sm"
+                onClick={() => {
+                  setFolderMessage(null);
+                  api.openDataFolder().catch(() => {
+                    setFolderMessage(
+                      "Couldn't open the folder from here. Copy the path and open it yourself.",
+                    );
+                  });
+                }}
+              >
+                Open folder
+              </button>
             </dd>
           </div>
-          <div className="flex gap-2">
-            <dt className="font-semibold">Database size</dt>
-            <dd className="m-0">{formatBytes(data.databaseBytes)}</dd>
+          <div className="flex flex-wrap gap-2">
+            <dt className="font-semibold">This journal&apos;s file</dt>
+            <dd className="m-0 break-all">
+              {data.databasePath} ({formatBytes(data.databaseBytes)})
+            </dd>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <dt className="font-semibold">Backups</dt>
+            <dd className="m-0">
+              {plural(data.backupCount, 'snapshot')} ({formatBytes(data.backupBytes)}) in{' '}
+              <span className="break-all">{data.backupsDir}</span>
+            </dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Records</dt>
             <dd className="m-0">
-              {plural(data.counts.notes, 'note')} · {plural(data.counts.people, 'person', 'people')}{' '}
-              · {plural(data.counts.plantings, 'farm entry', 'farm entries')} ·{' '}
-              {plural(data.counts.maps, 'map')} · {plural(data.counts.tags, 'tag')}
+              {plural(data.counts.notes, 'note')} ·{' '}
+              {plural(data.counts.people, terms.people.one, terms.people.many)}
+              {usesFarm
+                ? ` · ${plural(data.counts.plantings, terms.farm.one, terms.farm.many)}`
+                : ''}{' '}
+              · {plural(data.counts.maps, 'map')} · {plural(data.counts.tags, 'tag')}
             </dd>
           </div>
           <div className="flex gap-2">
-            <dt className="font-semibold">Last automatic backup</dt>
+            <dt className="font-semibold">Last snapshot</dt>
             <dd className="m-0">
               {data.lastBackupAt ? formatDateTime(data.lastBackupAt) : 'None yet'}
             </dd>
           </div>
         </dl>
+      ) : null}
+      {folderMessage ? (
+        <p role="alert" className="text-danger">
+          {folderMessage}
+        </p>
       ) : null}
 
       <div className="flex flex-wrap gap-2">
@@ -176,6 +216,8 @@ export function DataSection() {
         {backupMessage}
       </p>
 
+      <BackupsList />
+
       {problems.length > 0 ? (
         <div role="alert" className="rounded-control border border-danger p-3">
           <p className="font-semibold">This file can&apos;t be imported. Nothing was changed.</p>
@@ -201,9 +243,13 @@ export function DataSection() {
       {pending && counts ? (
         <div className="rounded-control border border-rule p-3">
           <p>
-            Contains {plural(counts.notes, 'note')}, {plural(counts.people, 'person', 'people')},{' '}
-            {plural(counts.plantings, 'farm entry', 'farm entries')}, {plural(counts.maps, 'map')},{' '}
-            {plural(counts.tags, 'tag')}. Importing replaces your current journal.
+            Contains {plural(counts.notes, 'note')},{' '}
+            {plural(counts.people, terms.people.one, terms.people.many)},{' '}
+            {counts.plantings > 0
+              ? `${plural(counts.plantings, terms.farm.one, terms.farm.many)}, `
+              : ''}
+            {plural(counts.maps, 'map')}, {plural(counts.tags, 'tag')}. Importing replaces the
+            contents of &ldquo;{data?.journal.name ?? 'this journal'}&rdquo; only.
           </p>
           {pending.summary.warnings.length > 0 ? (
             <ul className="m-0 mt-1 list-none p-0 text-sm text-ink-muted">
@@ -241,13 +287,13 @@ function ReplaceButton({ onConfirm }: { onConfirm: () => void }) {
           setOpen(true);
         }}
       >
-        Replace my journal
+        Replace this journal
       </button>
       <ConfirmDialog
         open={open}
         onOpenChange={setOpen}
         title="Replace your journal?"
-        message="Your current journal is saved as a snapshot first, then replaced by this file."
+        message="This journal is saved as a snapshot first, then replaced by this file. Your other journals are not touched."
         confirmLabel="Replace"
         danger
         onConfirm={onConfirm}

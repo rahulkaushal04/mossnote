@@ -12,6 +12,7 @@ import { Dialog } from '../../components/ui/Dialog';
 import { api } from '../../lib/api';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { refreshNotes } from '../notes/hooks';
+import { useTerms, useUsesSection } from '../settings/useLayout';
 import { ColorPicker } from './ColorPicker';
 import { ICON_LABELS, MarkerGlyph } from './render/MarkerGlyph';
 import { pinLook } from './render/colors';
@@ -26,6 +27,8 @@ const FIELD = 'tap w-full rounded-control border border-ink-muted bg-paper px-3'
  */
 export function LinkPicker({ onLink }: { onLink: (target: LinkRef) => void }) {
   const calendar = useCalendar();
+  const terms = useTerms();
+  const usesFarm = useUsesSection('farm');
   const client = useQueryClient();
   const [text, setText] = useState('');
   const q = text.trim();
@@ -57,7 +60,10 @@ export function LinkPicker({ onLink }: { onLink: (target: LinkRef) => void }) {
   return (
     <div className="flex flex-col gap-2">
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-semibold">Link to a note, person or farm entry</span>
+        <span className="font-semibold">
+          Link to a note, {terms.people.one}
+          {usesFarm ? ` or ${terms.farm.one}` : ''}
+        </span>
         <input
           value={text}
           placeholder="Search, or type a new note"

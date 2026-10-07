@@ -8,6 +8,8 @@ export const healthRoutes = (ctx: Ctx) =>
     c.json({
       ok: true as const,
       version: ctx.config.version,
-      schemaVersion: schemaVersion(ctx.sqlite),
+      schemaVersion: ctx.attached ? schemaVersion(ctx.sqlite) : 0,
+      /** The id of the open journal, or null on a first run. */
+      journal: ctx.attached ? ctx.config.journal : null,
     }),
   );

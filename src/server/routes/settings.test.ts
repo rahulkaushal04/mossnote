@@ -292,7 +292,7 @@ describe('PATCH prefs and request shape', () => {
     const keys = (
       t.database.sqlite.prepare('SELECT key FROM settings ORDER BY key').all() as { key: string }[]
     ).map((r) => r.key);
-    expect(keys).toEqual(['calendar', 'currentGameDate', 'meta', 'prefs']);
+    expect(keys).toEqual(['calendar', 'currentGameDate', 'layout', 'meta', 'prefs']);
   });
 });
 
@@ -313,18 +313,25 @@ describe('layout (templates and sections)', () => {
     quickActions: false,
   };
 
-  it('starts as the default template and stores nothing until it changes', async () => {
+  it('records the template the journal was made from', async () => {
     expect((await get()).layout).toEqual({
-      template: 'default',
+      template: 'stardew',
       order: [],
       hidden: [],
       labels: {},
       quickActions: true,
     });
-    const keys = (
-      t.database.sqlite.prepare('SELECT key FROM settings ORDER BY key').all() as { key: string }[]
-    ).map((r) => r.key);
-    expect(keys).not.toContain('layout');
+  });
+
+  it('keeps the template and the kind of calendar it was made with', async () => {
+    const swap = await patch({ layout: { ...layout, template: 'default' } });
+    expect(swap.status).toBe(400);
+    expect((await errorOf(swap)).message).toMatch(/keeps the template/);
+    const counter = await patch({
+      calendar: { seasons: [{ name: 'Day', days: 99 }], counter: true },
+    });
+    expect(counter.status).toBe(400);
+    expect((await errorOf(counter)).message).toMatch(/kind of calendar/);
   });
 
   it('saves and returns a layout', async () => {
@@ -350,19 +357,35 @@ describe('layout (templates and sections)', () => {
       settings: { layout?: unknown };
     };
     expect(exported.settings.layout).toEqual(layout);
-    await patch({ layout: { ...layout, template: 'default', labels: {} } });
+    await patch({ layout: { ...layout, labels: {}, hidden: [], quickActions: true } });
     const res = await t.call('POST', '/api/data/import', exported);
     expect(res.status).toBe(200);
     expect((await get()).layout).toEqual(layout);
   });
 
-  it('a default layout is left out of the export, and import resets to it', async () => {
-    const plain = (await (await t.call('GET', '/api/data/export.json')).json()) as {
+  it('a plain Default journal leaves its layout out of the export and is still Default after import', async () => {
+    const plainApp = await makeTestApp({ template: 'default' });
+    try {
+      const plain = (await (await plainApp.call('GET', '/api/data/export.json')).json()) as {
+        settings: { layout?: unknown; calendar: unknown };
+      };
+      expect(plain.settings.layout).toBeUndefined();
+      expect(plain.settings.calendar).toMatchObject({ counter: true });
+      expect((await plainApp.call('POST', '/api/data/import', plain)).status).toBe(200);
+      const after = (await (await plainApp.call('GET', '/api/settings')).json()) as Settings;
+      expect(after.layout.template).toBe('default');
+      expect(after.calendar.counter).toBe(true);
+    } finally {
+      plainApp.close();
+    }
+  });
+
+  it('a file from before templates, with seasons and no layout, imports as Stardew Valley', async () => {
+    const legacy = (await (await t.call('GET', '/api/data/export.json')).json()) as {
       settings: { layout?: unknown };
     };
-    expect(plain.settings.layout).toBeUndefined();
-    await patch({ layout });
-    expect((await t.call('POST', '/api/data/import', plain)).status).toBe(200);
-    expect((await get()).layout.template).toBe('default');
+    delete legacy.settings.layout;
+    expect((await t.call('POST', '/api/data/import', legacy)).status).toBe(200);
+    expect((await get()).layout.template).toBe('stardew');
   });
 });

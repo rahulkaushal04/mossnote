@@ -38,9 +38,7 @@ test.describe('maps', () => {
     const sheet = page.getByRole('dialog', { name: 'Marker' });
     await expect(sheet).toBeVisible();
     await expect(sheet.getByLabel('Name')).toHaveValue('Odd stone');
-    await sheet
-      .getByLabel('Link to a note, person or farm entry')
-      .fill('Met someone near the lake');
+    await sheet.getByLabel('Link to a note, person').fill('Met someone near the lake');
     await sheet.getByRole('button', { name: /as a new note and link it/ }).click();
     await expect(sheet.getByText('Linked to')).toBeVisible();
     await sheet.getByRole('button', { name: 'Done' }).click();
@@ -111,10 +109,15 @@ test.describe('maps', () => {
 });
 
 test.describe('game templates and sections', () => {
-  test('choose a game, rename and hide a section, use a quick action', async ({ page }) => {
+  test('a Stardew Valley journal: rename and hide a section, use a quick action', async ({
+    page,
+    seed,
+  }) => {
+    await seed.reset('stardew');
     await page.goto('/settings#game');
-    await page.getByRole('radio', { name: 'Stardew Valley' }).click();
-    await expect(page.getByRole('radio', { name: 'Stardew Valley' })).toBeChecked();
+    // The template was chosen when the journal was made; it is shown, not offered.
+    await expect(page.getByText('Stardew Valley', { exact: true })).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Stardew Valley' })).toHaveCount(0);
     const nav = page.getByRole('navigation', { name: 'Primary' }).first();
     await expect(nav.getByRole('link', { name: 'NPCs' })).toBeVisible();
     await expect(nav.getByRole('link', { name: 'Daily journal' })).toBeVisible();

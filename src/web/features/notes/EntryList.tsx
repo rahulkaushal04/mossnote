@@ -72,7 +72,8 @@ export function EntryList({
         rows.push(<DayHeader key={`h-${note.id}`}>Not dated</DayHeader>);
       } else {
         const { year } = decode(key);
-        if (lastYear !== undefined && lastYear !== year) {
+        // A day counter has no years to announce.
+        if (!calendar.calendar.counter && lastYear !== undefined && lastYear !== year) {
           rows.push(<YearHeader key={`y-${note.id}`} year={year} />);
         }
         lastYear = year;

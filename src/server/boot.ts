@@ -8,6 +8,7 @@ import {
   type Snapshot,
 } from './db/backup';
 import { openDatabase, type Database } from './db/client';
+import { knownMigrations, peekSchema } from './db/catalog';
 import {
   MigrationFailedError,
   migrateDatabase,
@@ -16,6 +17,8 @@ import {
 } from './db/migrate';
 import { acquireLock, AlreadyRunningError, type Lock } from './lock';
 import type { Logger } from './logger';
+import { createCtx } from './services/ctx';
+import { reindexAll } from './services/search-index';
 import { ensureSettings } from './services/settings';
 import { purgeOldTrash } from './services/trash';
 
@@ -31,14 +34,28 @@ function isCorruption(error: unknown): boolean {
 export class IntegrityError extends Error {
   readonly problems: string[];
   readonly newest: Snapshot | null;
-  constructor(problems: string[], newest: Snapshot | null) {
+  /** The journal file that failed, for the restore steps. */
+  readonly dbPath: string;
+  constructor(problems: string[], newest: Snapshot | null, dbPath: string) {
     super('The journal failed its integrity check.');
     this.problems = problems;
     this.newest = newest;
+    this.dbPath = dbPath;
+  }
+}
+
+/** The schema state of a journal file, or null when the file cannot even be read as a database. */
+function peekSafely(dbPath: string, migrationsFolder: string) {
+  try {
+    return peekSchema(dbPath, knownMigrations(migrationsFolder));
+  } catch {
+    return null;
   }
 }
 
 export interface Journal {
+  /** The journal's id, which is its file name stem. */
+  id: string;
   database: Database;
   migration: MigrateResult;
   /** The automatic snapshot taken by this start, if one was due. */
@@ -54,17 +71,21 @@ export interface OpenJournalOptions {
   migrationsFolder: string;
   /** Process id written to the lock file. Tests pass a different one to simulate a second process. */
   pid?: number;
+  /** Name and template for a journal that does not exist yet. Ignored for an existing one. */
+  init?: { name: string; template: string };
 }
 
 /**
- * The startup sequence: create the data folder, take the lock, open the
- * database, check integrity, migrate (with a pre-migration snapshot for existing journals),
- * create the default settings rows, and take the daily automatic snapshot when due.
+ * The startup sequence: create the data folder, refuse a journal from a newer version, take the
+ * lock, open the database, check integrity, migrate (with a pre-migration snapshot for existing
+ * journals), create the default settings rows, and take the daily automatic snapshot when due.
  */
 export async function openJournal(options: OpenJournalOptions): Promise<Journal> {
   const { config, clock, logger, migrationsFolder } = options;
 
   ensureDataDir(config);
+  // Looked at before anything can write: a newer journal is left exactly as it is.
+  if (peekSafely(config.dbPath, migrationsFolder) === 'newer') throw new NewerJournalError();
   const lock: Lock = acquireLock(config.lockPath, options.pid);
   let database: Database | undefined;
   try {
@@ -77,7 +98,11 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
       problems = [(error as Error).message];
     }
     if (problems.length > 0) {
-      throw new IntegrityError(problems, newestSnapshot(config.backupsDir, config.journal));
+      throw new IntegrityError(
+        problems,
+        newestSnapshot(config.backupsDir, config.journal),
+        config.dbPath,
+      );
     }
 
     if (!database) throw new Error('The database did not open.');
@@ -89,9 +114,13 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
       clock,
       autoKeep: config.backupKeep,
     });
-    if (migration.applied > 0) logger.info('applied migrations', { count: migration.applied });
+    if (migration.applied > 0) {
+      logger.info('applied migrations', { count: migration.applied });
+      // A journal from before the search index existed has records the index does not know yet.
+      reindexAll(createCtx({ db: database.db, sqlite: database.sqlite, clock, config }));
+    }
 
-    ensureSettings(database, config.journal, clock);
+    ensureSettings(database, options.init?.name ?? config.journal, clock, options.init?.template);
 
     // Records deleted more than 30 days ago are removed for good.
     const purged = purgeOldTrash({ sqlite: database.sqlite, clock });
@@ -109,6 +138,7 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
     const opened = database;
     let closed = false;
     return {
+      id: config.journal,
       database: opened,
       migration,
       snapshot,
@@ -148,8 +178,8 @@ export function describeStartupError(error: unknown, config: Config): string[] {
       lines.push(
         `The newest snapshot is ${error.newest.path}.`,
         'To restore it: stop Mossnote, copy that file over',
-        `  ${config.dbPath}`,
-        `delete ${config.dbPath}-wal and ${config.dbPath}-shm, then start Mossnote again.`,
+        `  ${error.dbPath}`,
+        `delete ${error.dbPath}-wal and ${error.dbPath}-shm, then start Mossnote again.`,
       );
     } else {
       lines.push(`There are no snapshots in ${config.backupsDir}.`);

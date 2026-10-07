@@ -11,6 +11,7 @@ import {
 } from '../../lib/theme';
 import { AboutSection } from './AboutSection';
 import { CalendarSection } from './CalendarSection';
+import { JournalsSection } from '../journals/JournalsSection';
 import { DataSection } from './DataSection';
 import { LayoutSection } from './LayoutSection';
 import { TagsSection } from './TagsSection';
@@ -128,10 +129,13 @@ export default function SettingsPage() {
       <Section id="appearance" title="Appearance">
         <Appearance />
       </Section>
-      <Section id="game" title="Game and sections">
+      <Section id="journals" title="Journals">
+        <JournalsSection />
+      </Section>
+      <Section id="game" title="Template and sections">
         <LayoutSection />
       </Section>
-      <Section id="calendar" title="Game calendar">
+      <Section id="calendar" title="Calendar">
         <CalendarSection />
       </Section>
       <Section id="tags" title="Tags">

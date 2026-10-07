@@ -6,9 +6,11 @@ import {
 } from '@shared/schemas/planting';
 import { backlinkQuerySchema } from '@shared/schemas/misc';
 import type { Env } from '../env';
+import { notFound } from '../errors';
 import { validateId, validateJson, validateQuery } from '../middleware/validate';
 import type { Ctx } from '../services/ctx';
 import { listBacklinks } from '../services/notes';
+import { journalUses } from '../services/settings';
 import {
   createPlanting,
   deletePlanting,
@@ -20,6 +22,12 @@ import {
 
 export const plantingRoutes = (ctx: Ctx) =>
   new Hono<Env>()
+    // A journal whose template has no Farm section has no farm routes.
+    .use('*', async (_c, next) => {
+      if (!journalUses(ctx, 'farm'))
+        throw notFound("This journal's template doesn't use that section.");
+      await next();
+    })
     .get('/', validateQuery(plantingListQuerySchema), (c) =>
       c.json(listPlantings(ctx, c.req.valid('query'))),
     )

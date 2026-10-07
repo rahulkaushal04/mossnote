@@ -61,7 +61,9 @@ test('the document is served with the specified CSP (plus a style nonce) and sec
 test(
   'the app renders and works under the full CSP with zero violations',
   { tag: '@smoke' },
-  async ({ page }) => {
+  async ({ page, seed }) => {
+    // The Stardew Valley template has every screen, Farm included.
+    await seed.reset('stardew');
     const violations = await watchViolations(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible();

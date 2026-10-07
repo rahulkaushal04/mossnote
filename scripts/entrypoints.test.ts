@@ -3,7 +3,10 @@ import fs from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { makeTempDir, removeDir } from '../src/server/testing/helpers';
+import { openJournal } from '../src/server/boot';
+import { loadConfig } from '../src/server/config';
+import { silentLogger } from '../src/server/logger';
+import { makeTempDir, MIGRATIONS_FOLDER, removeDir } from '../src/server/testing/helpers';
 import { API_ARGS } from './dev-command';
 
 /**
@@ -61,7 +64,18 @@ describe('npm script entry points', () => {
       }
       expect(stderr).toBe('');
       expect(health?.ok).toBe(true);
-      expect(fs.existsSync(path.join(dataDir, 'journal.db'))).toBe(true);
+      // A first run holds no journal until one is made from a template.
+      expect(fs.readdirSync(dataDir).filter((name) => name.endsWith('.db'))).toEqual([]);
+      const made = await fetch(`http://127.0.0.1:${port}/api/journals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Moss-Client': 'web',
+        },
+        body: JSON.stringify({ name: 'My journal', template: 'default' }),
+      });
+      expect(made.status).toBe(201);
+      expect(fs.existsSync(path.join(dataDir, 'my-journal.db'))).toBe(true);
     } finally {
       child.kill('SIGTERM');
       await new Promise((resolve) => child.once('exit', resolve));
@@ -69,20 +83,18 @@ describe('npm script entry points', () => {
     }
   }, 30_000);
 
-  it('db:vacuum runs under tsx against a journal', () => {
+  it('db:vacuum runs under tsx against a journal', async () => {
     const dataDir = makeTempDir();
-    // Create the journal by starting and stopping the real server entry once.
-    const created = spawnSync(
-      tsx,
-      [
-        '--tsconfig',
-        'tsconfig.server.json',
-        '-e',
-        "import('./src/server/boot.ts').then(async (b) => { const c = (await import('./src/server/config.ts')).loadConfig(); const { createLogger } = await import('./src/server/logger.ts'); const j = await b.openJournal({ config: c, clock: { now: () => Date.now() }, logger: createLogger('error'), migrationsFolder: process.cwd() + '/drizzle' }); j.close(); });",
-      ],
-      { cwd: root, env: { ...process.env, MOSS_DATA_DIR: dataDir }, encoding: 'utf8' },
-    );
-    expect(created.stderr).toBe('');
+    // Make the journal in this process, with the real startup sequence, then close it again.
+    const config = loadConfig({ MOSS_DATA_DIR: dataDir });
+    (
+      await openJournal({
+        config,
+        clock: { now: () => Date.now() },
+        logger: silentLogger,
+        migrationsFolder: MIGRATIONS_FOLDER,
+      })
+    ).close();
     const vacuum = spawnSync('npm', ['run', '--silent', 'db:vacuum'], {
       cwd: root,
       env: { ...process.env, MOSS_DATA_DIR: dataDir },
@@ -90,7 +102,7 @@ describe('npm script entry points', () => {
     });
     expect(vacuum.stderr).toBe('');
     expect(vacuum.status).toBe(0);
-    expect(vacuum.stdout).toMatch(/Vacuumed .*journal\.db/);
+    expect(vacuum.stdout).toMatch(/Vacuumed .*journal\.db: \d+ bytes before/);
     removeDir(dataDir);
   }, 60_000);
 });

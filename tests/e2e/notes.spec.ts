@@ -247,6 +247,7 @@ test.describe('the … menu, flags, delete and undo', () => {
   });
 
   test('Set date from the menu stamps the note', async ({ page, seed }) => {
+    await seed.reset('stardew');
     await seed.note({ body: 'needs a date' });
     await page.goto('/journal?undated=1');
     await article(page, 'needs a date').getByRole('button', { name: 'More actions' }).click();

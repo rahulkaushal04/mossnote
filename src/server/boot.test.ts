@@ -170,13 +170,16 @@ describe('describeStartupError', () => {
 
   it('prints the newer-version message', () => {
     expect(describeStartupError(new NewerJournalError(), config)).toEqual([
-      'This journal was created by a newer version of Mossnote.',
+      'This journal was made by a newer version of Mossnote. Update Mossnote to open it. Nothing was changed.',
     ]);
   });
 
   it('prints the restore steps when integrity fails', () => {
     const snapshot = { name: 'n', path: '/x/n.db', reason: 'auto', takenAt: 0, size: 1 } as const;
-    const lines = describeStartupError(new IntegrityError(['bad'], snapshot), config).join('\n');
+    const lines = describeStartupError(
+      new IntegrityError(['bad'], snapshot, config.dbPath),
+      config,
+    ).join('\n');
     expect(lines).toContain('/x/n.db');
     expect(lines).toContain('-wal');
     expect(lines).toContain('-shm');

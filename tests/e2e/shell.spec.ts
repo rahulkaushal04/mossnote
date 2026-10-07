@@ -15,25 +15,57 @@ test.describe('first launch', () => {
         'Today',
         'Journal',
         'People',
-        'Farm',
         'Maps',
         'Settings',
       ]);
 
-      // The journal is empty and the only settings are the calendar defaults.
+      // The journal is empty, with no seasons, no Farm and no quick actions.
       const settings = (await (await request.get(`${server.url}/api/settings`)).json()) as {
-        calendar: { seasons: { name: string; days: number }[] };
+        calendar: { seasons: { name: string; days: number }[]; counter?: boolean };
         currentGameDate: number | null;
       };
       expect(settings.currentGameDate).toBeNull();
-      expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual([
-        'Spring 28',
-        'Summer 28',
-        'Fall 28',
-        'Winter 28',
-      ]);
+      expect(settings.calendar.counter).toBe(true);
+      expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual(['Day 99']);
+      await expect(page.getByRole('group', { name: 'Quick actions' })).toHaveCount(0);
     },
   );
+
+  test('a Stardew Valley journal has its own sections, Farm and seasons', async ({
+    page,
+    request,
+    server,
+    seed,
+  }) => {
+    await seed.reset('stardew');
+    await page.goto('/');
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await expect(nav.getByRole('link')).toHaveText([
+      'Today',
+      'Daily journal',
+      'NPCs',
+      'Farm',
+      'Maps',
+      'Settings',
+    ]);
+    const settings = (await (await request.get(`${server.url}/api/settings`)).json()) as {
+      calendar: { seasons: { name: string; days: number }[] };
+    };
+    expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual([
+      'Spring 28',
+      'Summer 28',
+      'Fall 28',
+      'Winter 28',
+    ]);
+    await nav.getByRole('link', { name: 'Farm' }).click();
+    await expect(
+      page.getByText('Nothing here yet. Add a crop when you plant something.'),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Farm', exact: true }).first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
 
   test('each destination shows its empty-state copy', async ({ page }) => {
     await page.goto('/');
@@ -44,14 +76,7 @@ test.describe('first launch', () => {
     await expect(
       page.getByText('No people yet. Add someone above, or type @ in a note.'),
     ).toBeVisible();
-    await nav.getByRole('link', { name: 'Farm' }).click();
-    await expect(
-      page.getByText('Nothing here yet. Add an entry when you plant something.'),
-    ).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Farm', exact: true }).first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await expect(nav.getByRole('link', { name: 'Farm' })).toHaveCount(0);
   });
 });
 

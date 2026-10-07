@@ -39,11 +39,11 @@ export function PageHeader({ title, documentTitle }: { title: string; documentTi
   }, [key, navigated]);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-rule bg-paper py-3">
+    <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-rule bg-paper py-3">
       <h1 ref={ref} tabIndex={-1} className="text-2xl font-semibold outline-offset-4">
         {title}
       </h1>
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
         {actions}
         {/* Narrow screens have no rail, so Settings lives in the top bar. */}
         <Link to="/settings" className="tap wide:hidden">

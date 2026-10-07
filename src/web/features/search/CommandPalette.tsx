@@ -9,7 +9,8 @@ import { Snippet } from '../../components/ui/Snippet';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { useCommands } from './commands';
 import { useRecentNotes, useSearch } from './hooks';
-import { useTerms } from '../settings/useLayout';
+import { useTerms, useUsesSection } from '../settings/useLayout';
+import { searchScope } from './scope';
 import { sentence } from '@shared/text';
 
 const ITEM =
@@ -74,6 +75,7 @@ export function CommandPalette({
   onOpenChange: (open: boolean) => void;
 }) {
   const terms = useTerms();
+  const usesFarm = useUsesSection('farm');
   const [text, setText] = useState('');
   const query = useDebounced(text, 80);
   const navigate = useNavigate();
@@ -145,7 +147,7 @@ export function CommandPalette({
             <Command.Input
               value={text}
               onValueChange={setText}
-              placeholder={`Search notes, ${terms.people.many}, ${terms.farm.many}, maps…`}
+              placeholder={`Search ${searchScope(terms, usesFarm)}…`}
               aria-label="Search"
               className="tap w-full border-0 border-b border-rule bg-transparent px-4 py-3 outline-none placeholder:text-ink-muted"
             />
@@ -169,8 +171,7 @@ export function CommandPalette({
 
               {searching && shown && total === 0 && !search.isFetching ? (
                 <Command.Empty className="px-3 py-3 text-ink-muted">
-                  No matches for ‘{text.trim()}’. Search covers notes, people, farm entries, maps
-                  and tags.
+                  No matches for ‘{text.trim()}’. Search covers {searchScope(terms, usesFarm)}.
                 </Command.Empty>
               ) : null}
 

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { DEFAULT_CALENDAR, SETTING_KEYS } from '@shared/constants';
+import { COUNTER_CALENDAR, DEFAULT_CALENDAR, SETTING_KEYS } from '@shared/constants';
 import { loadConfig } from './config';
 import { openJournal, type Journal } from './boot';
 import { createApp } from './app';
@@ -15,7 +15,8 @@ import {
 
 /**
  * Spoiler guard: a fresh journal, created by the real startup
- * sequence, contains no user records, and its only settings are the calendar and journal metadata.
+ * sequence, contains no user records, and its only settings are the calendar, the template it
+ * was made from and journal metadata.
  */
 let dir: string;
 let journal: Journal;
@@ -49,21 +50,25 @@ describe('fresh database', () => {
     }
   });
 
-  it('holds only the calendar and meta settings, and only allowed keys', () => {
+  it('holds only the calendar, layout and meta settings, and only allowed keys', () => {
     const keys = (
       journal.database.sqlite.prepare('SELECT key FROM settings ORDER BY key').all() as {
         key: string;
       }[]
     ).map((r) => r.key);
-    expect(keys).toEqual(['calendar', 'meta']);
+    expect(keys).toEqual(['calendar', 'layout', 'meta']);
     for (const key of keys) expect(SETTING_KEYS).toContain(key);
   });
 
-  it('has exactly the default calendar and no other pre-filled text', () => {
+  it('has a plain day counter, no seasons, and no other pre-filled text', () => {
     const row = journal.database.sqlite
       .prepare("SELECT value FROM settings WHERE key = 'calendar'")
       .get() as { value: string };
-    expect(JSON.parse(row.value)).toEqual(DEFAULT_CALENDAR);
+    expect(JSON.parse(row.value)).toEqual(COUNTER_CALENDAR);
+    const layout = journal.database.sqlite
+      .prepare("SELECT value FROM settings WHERE key = 'layout'")
+      .get() as { value: string };
+    expect(JSON.parse(layout.value)).toMatchObject({ template: 'default', hidden: [], labels: {} });
     const meta = journal.database.sqlite
       .prepare("SELECT value FROM settings WHERE key = 'meta'")
       .get() as { value: string };
@@ -97,12 +102,43 @@ describe('fresh database', () => {
     const res = await app.request('/api/settings', { headers: { host: '127.0.0.1:4317' } });
     const settings = (await res.json()) as { currentGameDate: unknown; calendar: unknown };
     expect(settings.currentGameDate).toBeNull();
-    expect(settings.calendar).toEqual(DEFAULT_CALENDAR);
+    expect(settings.calendar).toEqual(COUNTER_CALENDAR);
     // List endpoints join this check as they are added (notes, people, plantings, tags,
     // trash, search): every one must return an empty list on a fresh journal.
   });
 
   it('writes the database inside the data folder only', () => {
     expect(journal.database.sqlite.name).toBe(path.join(dir, 'journal.db'));
+  });
+});
+
+describe('a journal made from the Stardew Valley template', () => {
+  it('starts with the four editable seasons and nothing else pre-filled', async () => {
+    const stardewDir = makeTempDir();
+    const stardew = await openJournal({
+      config: loadConfig({ MOSS_DATA_DIR: stardewDir }),
+      clock: fakeClock(),
+      logger: silentLogger,
+      migrationsFolder: MIGRATIONS_FOLDER,
+      init: { name: 'Example', template: 'stardew' },
+    });
+    const value = (key: string) =>
+      JSON.parse(
+        (
+          stardew.database.sqlite.prepare('SELECT value FROM settings WHERE key = ?').get(key) as {
+            value: string;
+          }
+        ).value,
+      ) as unknown;
+    expect(value('calendar')).toEqual(DEFAULT_CALENDAR);
+    expect(value('layout')).toMatchObject({ template: 'stardew' });
+    for (const table of USER_TABLES) {
+      const n = stardew.database.sqlite.prepare(`SELECT count(*) AS n FROM ${table}`).get() as {
+        n: number;
+      };
+      expect(n.n, table).toBe(0);
+    }
+    stardew.close();
+    removeDir(stardewDir);
   });
 });

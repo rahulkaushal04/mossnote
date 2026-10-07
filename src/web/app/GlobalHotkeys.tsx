@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { useAdvanceDay } from '../features/calendar/useAdvanceDay';
 import { usePalette } from '../features/search/PaletteProvider';
 import { singleKey, useHotkeys } from '../lib/hotkeys';
+import { useUsesSection } from '../features/settings/useLayout';
 import { useNewNote } from './NewNote';
 import { useOpenSetDate } from './SetDate';
 
@@ -16,6 +17,7 @@ export function GlobalHotkeys({ onShowShortcuts }: { onShowShortcuts: () => void
   const newNote = useNewNote();
   const day = useAdvanceDay();
   const openSetDate = useOpenSetDate();
+  const usesFarm = useUsesSection('farm');
   const go = (path: string) =>
     singleKey(() => {
       void navigate(path);
@@ -37,7 +39,7 @@ export function GlobalHotkeys({ onShowShortcuts }: { onShowShortcuts: () => void
     'g t': go('/'),
     'g j': go('/journal'),
     'g p': go('/people'),
-    'g f': go('/farm'),
+    ...(usesFarm ? { 'g f': go('/farm') } : {}),
     'g m': go('/maps'),
     'g s': go('/settings'),
     'd n': singleKey(day.next),

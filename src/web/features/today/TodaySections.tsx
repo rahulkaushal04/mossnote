@@ -6,7 +6,7 @@ import { plural } from '../../lib/format';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { useNotes, useNotesCount } from '../notes/hooks';
 import { NoteBody } from '../notes/NoteBody';
-import { useTerms } from '../settings/useLayout';
+import { useTerms, useUsesSection } from '../settings/useLayout';
 
 const SECTION = 'text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted';
 
@@ -92,10 +92,11 @@ function OpenQuestions() {
 
 /** Today's optional sections. Each is removed from the page when empty, with no placeholder. */
 export function TodaySections() {
+  const usesFarm = useUsesSection('farm');
   return (
     <>
       <RecentDiscoveries />
-      <Growing />
+      {usesFarm ? <Growing /> : null}
       <OpenQuestions />
     </>
   );

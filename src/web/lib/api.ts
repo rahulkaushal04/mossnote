@@ -1,15 +1,19 @@
 import { hc } from 'hono/client';
 import type { AppType } from '@server/app';
+import { currentJournalId, markJournalChanged } from './journal';
 import type { ApiErrorBody, ErrorCode } from '@shared/errors';
 import type { NoteCreate, NotePatch } from '@shared/schemas/note';
 import type { PersonCreate, PersonPatch } from '@shared/schemas/person';
 import type { PlantingCreate, PlantingPatch } from '@shared/schemas/planting';
 import type { MapChanges, MapCreate, MapPatch, PinCreate, PinPatch } from '@shared/schemas/map';
+import type { JournalCreate, JournalDelete } from '@shared/schemas/journal';
 import type { Settings, SettingsPatch } from '@shared/schemas/settings';
 import type {
   BackupInfo,
   DataInfo,
   ImportSummary,
+  JournalInfo,
+  JournalList,
   MapDetail,
   MapPin,
   MapSummary,
@@ -57,8 +61,13 @@ export class ApiError extends Error {
  */
 const client = hc<AppType>('/', {
   // Every non-GET request needs both headers, including the ones with
-  // no body (delete, restore, back up now).
-  headers: { 'X-Moss-Client': 'web', 'Content-Type': 'application/json' },
+  // no body (delete, restore, back up now). `X-Moss-Journal` names the journal this window shows,
+  // so a window left on another journal cannot write into the one that is open now.
+  headers: () => ({
+    'X-Moss-Client': 'web',
+    'Content-Type': 'application/json',
+    ...journalHeader(),
+  }),
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
     try {
       return await fetch(input, init);
@@ -68,6 +77,11 @@ const client = hc<AppType>('/', {
   },
 });
 
+function journalHeader(): Record<string, string> {
+  const id = currentJournalId();
+  return id === null ? {} : { 'X-Moss-Journal': id };
+}
+
 async function failure(response: Response): Promise<never> {
   let body: ApiErrorBody | undefined;
   try {
@@ -75,6 +89,7 @@ async function failure(response: Response): Promise<never> {
   } catch {
     body = undefined;
   }
+  if (body?.error.details?.reason === 'journal_changed') markJournalChanged();
   throw new ApiError(
     response.status,
     body?.error ?? { code: 'internal', message: 'Something went wrong.' },
@@ -94,6 +109,8 @@ export interface Health {
   ok: true;
   version: string;
   schemaVersion: number;
+  /** The id of the open journal, or null on a first run. */
+  journal: string | null;
 }
 
 export interface NoteFilters {
@@ -137,6 +154,21 @@ const withBody = <T>(json: T) => ({ json });
 
 export const api = {
   getHealth: async () => unwrap<Health>(await client.api.health.$get()),
+
+  // journals
+  listJournals: async () => unwrap<JournalList>(await client.api.journals.$get()),
+  createJournal: async (input: JournalCreate) =>
+    unwrap<JournalInfo>(await client.api.journals.$post(withBody(input))),
+  activateJournal: async (id: string) =>
+    unwrap<JournalInfo>(await client.api.journals[':id'].activate.$post({ param: { id } })),
+  renameJournal: async (id: string, name: string) =>
+    unwrap<JournalInfo>(
+      await client.api.journals[':id'].$patch({ param: { id }, ...withBody({ name }) }),
+    ),
+  deleteJournal: async (id: string, input: JournalDelete) =>
+    unwrap<{ active: string | null; snapshot: string | null }>(
+      await client.api.journals[':id'].$delete({ param: { id }, ...withBody(input) }),
+    ),
 
   // settings
   getSettings: async () => unwrap<Settings>(await client.api.settings.$get()),
@@ -230,7 +262,11 @@ export const api = {
     fetch(`/api/maps/${id}/changes`, {
       method: 'POST',
       keepalive: true,
-      headers: { 'Content-Type': 'application/json', 'X-Moss-Client': 'web' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Moss-Client': 'web',
+        ...journalHeader(),
+      },
       body: JSON.stringify(changes),
     }).catch(() => undefined);
   },
@@ -331,6 +367,13 @@ export const api = {
   dataInfo: async () => unwrap<DataInfo>(await client.api.data.info.$get()),
   backups: async () => unwrap<{ items: BackupInfo[] }>(await client.api.data.backups.$get()),
   backupNow: async () => unwrap<BackupInfo>(await client.api.data.backup.$post()),
+  restoreBackup: async (name: string) =>
+    unwrap<{ restored: BackupInfo; safety: BackupInfo }>(
+      await client.api.data.backups[':name'].restore.$post({ param: { name } }),
+    ),
+  deleteBackup: async (name: string) =>
+    unwrapEmpty(await client.api.data.backups[':name'].$delete({ param: { name } })),
+  openDataFolder: async () => unwrapEmpty(await client.api.data['open-folder'].$post()),
   importDryRun: async (file: unknown) =>
     unwrap<ImportSummary>(
       await client.api.data.import.$post({ query: { dryRun: '1' }, ...withBody(file as object) }),

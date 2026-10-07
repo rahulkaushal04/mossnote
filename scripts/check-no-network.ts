@@ -28,6 +28,13 @@ export const BUILT_HOSTS = new Set([
   'json-schema.org',
 ]);
 
+/**
+ * The one source file that may name a web page: links the person clicks to open in their own
+ * browser (see `src/shared/links.ts`). Nothing in the app ever fetches them.
+ */
+const LINK_FILE = path.join('src', 'shared', 'links.ts');
+const LINK_HOSTS = new Set([...SOURCE_HOSTS, 'github.com']);
+
 const URL_PATTERN =
   /(?<![\w/.:-])(?:https?:)?\/\/([a-z0-9][a-z0-9.-]*\.[a-z]{2,}|localhost|127\.0\.0\.1)(?::\d+)?(?:[/"'`)\s]|$)/gi;
 const REMOTE_IMPORT =
@@ -86,8 +93,13 @@ export function scan(root: string, dirs: string[]): Finding[] {
     for (const file of walk(path.join(root, dir))) {
       // Tests assert on hostile URLs on purpose; they never ship.
       if (/\.test\.tsx?$/.test(file) || file.includes(`${path.sep}testing${path.sep}`)) continue;
+      const relative = path.relative(root, file);
       findings.push(
-        ...findExternalUrls(path.relative(root, file), fs.readFileSync(file, 'utf8'), allowed),
+        ...findExternalUrls(
+          relative,
+          fs.readFileSync(file, 'utf8'),
+          relative === LINK_FILE ? LINK_HOSTS : allowed,
+        ),
       );
     }
   }

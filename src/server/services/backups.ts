@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import type { BackupInfo, DataInfo } from '@shared/types';
-import { createSnapshot, listSnapshots, type Snapshot } from '../db/backup';
+import { createSnapshot, deleteSnapshot, listSnapshots, type Snapshot } from '../db/backup';
+import { notFound } from '../errors';
 import { iso, type Ctx } from './ctx';
 
 const toInfo = (s: Snapshot): BackupInfo => ({
@@ -28,6 +29,13 @@ export async function backupNow(ctx: Ctx): Promise<BackupInfo> {
   return toInfo(snapshot);
 }
 
+/** Remove one snapshot of the open journal (`DELETE /api/data/backups/:name`). */
+export function deleteBackup(ctx: Ctx, name: string): void {
+  if (!deleteSnapshot(ctx.config.backupsDir, ctx.config.journal, name)) {
+    throw notFound("That snapshot doesn't exist.");
+  }
+}
+
 const COUNTS = `
   SELECT (SELECT count(*) FROM notes WHERE deleted_at IS NULL) AS notes,
          (SELECT count(*) FROM people WHERE deleted_at IS NULL) AS people,
@@ -44,12 +52,20 @@ export function dataInfo(ctx: Ctx): DataInfo {
   } catch {
     // In-memory databases (tests) have no file.
   }
-  const newest = listSnapshots(ctx.config.backupsDir, ctx.config.journal).at(-1);
+  const snapshots = listSnapshots(ctx.config.backupsDir, ctx.config.journal);
+  const newest = snapshots.at(-1);
   return {
     dataDir: ctx.config.dataDir,
+    backupsDir: ctx.config.backupsDir,
     databasePath: ctx.config.dbPath,
     databaseBytes: bytes,
+    journal: {
+      id: ctx.config.journal,
+      name: ctx.journals?.get(ctx.config.journal).name ?? ctx.config.journal,
+    },
     counts,
     lastBackupAt: newest ? iso(newest.takenAt) : null,
+    backupCount: snapshots.length,
+    backupBytes: snapshots.reduce((sum, s) => sum + s.size, 0),
   };
 }

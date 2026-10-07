@@ -15,7 +15,6 @@ const ROUTES = [
   '/people',
   '/people/abc',
   '/farm',
-  '/farm/abc',
   '/maps',
   '/maps/abc',
   '/search?q=lantern',
@@ -25,6 +24,8 @@ const ROUTES = [
 ];
 /** Routes that open a modal sheet. The sheet hides the page behind it, so its title is the heading. */
 const SHEET_ROUTES = new Set(['/farm/abc']);
+/** What only a Stardew Valley journal has: Farm, a seasons calendar and quick actions. */
+const STARDEW_ROUTES = ['/', '/day/10003', '/people', '/farm', '/farm/abc', '/settings'];
 const WIDTHS = [360, 768, 1280];
 const THEMES = ['light', 'dark'] as const;
 
@@ -39,19 +40,30 @@ async function violations(page: Page) {
 
 for (const theme of THEMES) {
   for (const width of WIDTHS) {
-    test(`no serious or critical violations: ${theme} theme at ${width}px`, async ({ page }) => {
-      await page.addInitScript((value) => {
-        localStorage.setItem('moss:theme', value);
-      }, theme);
-      await page.setViewportSize({ width, height: 800 });
-      for (const route of ROUTES) {
-        await page.goto(route);
-        if (SHEET_ROUTES.has(route)) await expect(page.getByRole('dialog')).toBeVisible();
-        else await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-        expect(await violations(page), `${route} (${theme}, ${width}px)`).toEqual([]);
-      }
-    });
+    for (const template of ['default', 'stardew'] as const) {
+      test(`no serious or critical violations: ${theme} theme at ${width}px, ${template} journal`, async ({
+        page,
+        seed,
+      }) => {
+        await seed.reset(template);
+        await page.addInitScript((value) => {
+          localStorage.setItem('moss:theme', value);
+        }, theme);
+        await page.setViewportSize({ width, height: 800 });
+        // A Default journal has no Farm: those routes are the not-found page there, which is
+        // scanned too. The Stardew Valley journal is scanned on the screens that differ.
+        for (const route of template === 'default' ? ROUTES : STARDEW_ROUTES) {
+          await page.goto(route);
+          if (template === 'stardew' && SHEET_ROUTES.has(route)) {
+            await expect(page.getByRole('dialog')).toBeVisible();
+          } else await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+          await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+          expect(await violations(page), `${route} (${theme}, ${width}px, ${template})`).toEqual(
+            [],
+          );
+        }
+      });
+    }
   }
 
   test(`dialog and toast are accessible: ${theme} theme`, async ({ page }) => {

@@ -78,29 +78,35 @@ function exited(child: ChildProcess): Promise<void> {
 
 const HEADERS = { 'X-Moss-Client': 'web' };
 
+type TemplateId = 'default' | 'stardew';
+
 /** An empty, valid export: importing it resets the journal (data and settings) between tests. */
-const EMPTY_JOURNAL = {
+const emptyJournal = (template: TemplateId) => ({
   format: 'mossnote',
   formatVersion: 1,
   exportedAt: '2026-01-01T00:00:00.000Z',
-  journalName: 'journal',
+  journalName: `e2e-${template}`,
   settings: {
-    calendar: {
-      seasons: [
-        { name: 'Spring', days: 28 },
-        { name: 'Summer', days: 28 },
-        { name: 'Fall', days: 28 },
-        { name: 'Winter', days: 28 },
-      ],
-    },
+    calendar:
+      template === 'stardew'
+        ? {
+            seasons: [
+              { name: 'Spring', days: 28 },
+              { name: 'Summer', days: 28 },
+              { name: 'Fall', days: 28 },
+              { name: 'Winter', days: 28 },
+            ],
+          }
+        : { seasons: [{ name: 'Day', days: 99 }], counter: true },
     currentGameDate: null,
     prefs: { readingSize: 'comfortable' },
+    layout: { template, order: [], hidden: [], labels: {}, quickActions: true },
   },
   tags: [],
   people: [],
   plantings: [],
   notes: [],
-};
+});
 
 /** Seeding helpers. Every call goes through the real API, with the guard headers. */
 export class Seed {
@@ -135,8 +141,22 @@ export class Seed {
     return (await response.json()) as T;
   }
 
-  reset(): Promise<unknown> {
-    return this.send('post', '/api/data/import', EMPTY_JOURNAL);
+  /**
+   * A clean journal made from `template`, opened. A new server holds none (a first run), and a
+   * journal keeps its template, so each template gets a journal of its own (`e2e-default`,
+   * `e2e-stardew`) that is switched to, then emptied by importing an empty file.
+   */
+  async reset(template: TemplateId = 'default'): Promise<unknown> {
+    const id = `e2e-${template}`;
+    const list = await this.get<{ active: string | null; items: { id: string }[] }>(
+      '/api/journals',
+    );
+    if (!list.items.some((j) => j.id === id)) {
+      await this.post('/api/journals', { name: id, template });
+    } else if (list.active !== id) {
+      await this.post(`/api/journals/${id}/activate`, {});
+    }
+    return this.send('post', '/api/data/import', emptyJournal(template));
   }
   settings(patch: unknown): Promise<unknown> {
     return this.send('patch', '/api/settings', patch);
@@ -165,34 +185,38 @@ interface Fixtures {
   seed: Seed;
 }
 
+/** Start a server on a free port. Without `dataDir` it uses a new temporary folder. */
+export async function createServer(dataDir?: string): Promise<MossServer> {
+  const folder = dataDir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'moss-e2e-'));
+  const port = await freePort();
+  let child = await launch(port, folder);
+  return {
+    url: `http://127.0.0.1:${port}`,
+    port,
+    dataDir: folder,
+    async stop() {
+      child.kill('SIGTERM');
+      await exited(child);
+    },
+    async kill() {
+      child.kill('SIGKILL');
+      await exited(child);
+    },
+    async start() {
+      child = await launch(port, folder);
+    },
+  };
+}
+
 /** Worker-scoped: one real server per Playwright worker, on a free port with a temp data folder. */
 export const test = base.extend<Fixtures, { server: MossServer }>({
   server: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moss-e2e-'));
-      const port = await freePort();
-      let child = await launch(port, dataDir);
-      const server: MossServer = {
-        url: `http://127.0.0.1:${port}`,
-        port,
-        dataDir,
-        async stop() {
-          child.kill('SIGTERM');
-          await exited(child);
-        },
-        async kill() {
-          child.kill('SIGKILL');
-          await exited(child);
-        },
-        async start() {
-          child = await launch(port, dataDir);
-        },
-      };
+      const server = await createServer();
       await use(server);
-      child.kill('SIGTERM');
-      await exited(child);
-      fs.rmSync(dataDir, { recursive: true, force: true });
+      await server.stop();
+      fs.rmSync(server.dataDir, { recursive: true, force: true });
     },
     { scope: 'worker' },
   ],

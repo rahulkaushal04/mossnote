@@ -10,7 +10,8 @@ import { Snippet } from '../../components/ui/Snippet';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { hitPath, mapHitPath } from './CommandPalette';
 import { useSearch } from './hooks';
-import { useTerms } from '../settings/useLayout';
+import { useTerms, useUsesSection } from '../settings/useLayout';
+import { searchScope } from './scope';
 import { sentence } from '@shared/text';
 
 function Group({ title, hits }: { title: string; hits: SearchHit[] }) {
@@ -68,19 +69,25 @@ function MapGroup({ hits }: { hits: MapHit[] }) {
   );
 }
 
-const TIPS: [string, string][] = [
-  ['harbour lantern', 'Every word must match, in any order'],
-  ['"quiet corner"', 'An exact phrase'],
-  ['-draft', 'Leave out a word'],
-  ['#idea', 'Has the tag'],
-  ['@Name', 'Notes that link to that person'],
-  ['is:discovery  is:question', 'Flags'],
-  ['is:open  is:solved', 'Question state'],
-  ['in:notes  in:people  in:farm', 'Only one kind of result'],
-  ['spring 3  y2 summer', 'An in-game date; the year is optional'],
-];
+function tips(withFarm: boolean, counter: boolean): [string, string][] {
+  return [
+    ['harbour lantern', 'Every word must match, in any order'],
+    ['"quiet corner"', 'An exact phrase'],
+    ['-draft', 'Leave out a word'],
+    ['#idea', 'Has the tag'],
+    ['@Name', 'Notes that link to that person'],
+    ['is:discovery  is:question', 'Flags'],
+    ['is:open  is:solved', 'Question state'],
+    [`in:notes  in:people${withFarm ? '  in:farm' : ''}`, 'Only one kind of result'],
+    counter
+      ? ['day 120', 'One in-game day']
+      : ['spring 3  y2 summer', 'An in-game date; the year is optional'],
+  ];
+}
 
 function Tips() {
+  const withFarm = useUsesSection('farm');
+  const counter = useCalendar().calendar.counter === true;
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -90,7 +97,7 @@ function Tips() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80">
         <dl className="m-0 flex flex-col gap-2 text-sm">
-          {TIPS.map(([example, meaning]) => (
+          {tips(withFarm, counter).map(([example, meaning]) => (
             <div key={example}>
               <dt className="font-semibold">
                 <code>{example}</code>
@@ -107,6 +114,7 @@ function Tips() {
 /** `/search?q=`: the full results, with removable chips for recognised tokens. */
 export default function SearchPage() {
   const terms = useTerms();
+  const usesFarm = useUsesSection('farm');
   const [params, setParams] = useSearchParams();
   const calendar = useCalendar();
   const q = (params.get('q') ?? '').slice(0, 200);
@@ -141,7 +149,7 @@ export default function SearchPage() {
     else if (total === 0) {
       body = (
         <p className="py-8 text-ink-muted">
-          No matches for ‘{q.trim()}’. Search covers notes, people, farm entries, maps and tags.
+          No matches for ‘{q.trim()}’. Search covers {searchScope(terms, usesFarm)}.
         </p>
       );
     } else if (groups) {
@@ -152,7 +160,7 @@ export default function SearchPage() {
           ) : null}
           <Group title="Notes" hits={groups.notes} />
           <Group title={terms.people.label} hits={groups.people} />
-          <Group title={sentence(terms.farm.many)} hits={groups.plantings} />
+          {usesFarm ? <Group title={sentence(terms.farm.many)} hits={groups.plantings} /> : null}
           <Group title="Tags" hits={groups.tags} />
           <MapGroup hits={groups.maps} />
         </>

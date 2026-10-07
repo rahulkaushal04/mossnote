@@ -4,7 +4,9 @@ import {
   resolveSections,
   termsFor,
   templateById,
+  templateUses,
   type Layout,
+  type SectionId,
 } from '@shared/templates';
 import { useSettings } from './useSettings';
 
@@ -29,4 +31,9 @@ export function useTerms() {
 export function useTemplate() {
   const layout = useLayout();
   return templateById(layout.template);
+}
+
+/** True when this journal's template has the section. Farm screens, search and links check this. */
+export function useUsesSection(section: SectionId): boolean {
+  return templateUses(useLayout().template, section);
 }

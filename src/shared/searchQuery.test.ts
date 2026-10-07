@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CALENDAR, type Calendar } from './constants';
+import { COUNTER_CALENDAR, DEFAULT_CALENDAR, type Calendar } from './constants';
 import { hasCriteria, parseSearch, removeChip } from './searchQuery';
 
 const cal = DEFAULT_CALENDAR;
@@ -134,5 +134,22 @@ describe('chips', () => {
     expect(removeChip(q, date ?? p.chips[0]!)).toBe('lantern #idea is:open');
     const tag = p.chips.find((c) => c.type === 'tag');
     expect(removeChip(q, tag ?? p.chips[0]!)).toBe('lantern is:open spring 3 y2');
+  });
+});
+
+describe('game dates in a day counter calendar', () => {
+  const counter = COUNTER_CALENDAR;
+
+  it('reads "day 120" as that exact day and leaves the other words as text', () => {
+    const p = parse('lantern day 120', counter);
+    expect(p.date).toEqual({ year: 2, season: 0, day: 21 });
+    expect(p.terms.map((t) => t.text)).toEqual(['lantern']);
+    expect(p.chips.map((c) => c.label)).toContain('Day 120');
+  });
+
+  it('treats a bare number, a season name and an out-of-range day as plain text', () => {
+    expect(parse('120', counter).date).toBeNull();
+    expect(parse('spring 3', counter).date).toBeNull();
+    expect(parse('day 0', counter).date).toBeNull();
   });
 });

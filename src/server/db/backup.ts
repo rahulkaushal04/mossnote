@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Sqlite } from './client';
 
-export type BackupReason = 'auto' | 'pre-migration' | 'pre-import' | 'manual';
+export type BackupReason = 'auto' | 'pre-migration' | 'pre-import' | 'pre-restore' | 'manual';
 
 export interface Clock {
   now(): number;
@@ -17,7 +17,13 @@ export interface Snapshot {
   size: number;
 }
 
-const REASONS: readonly BackupReason[] = ['auto', 'pre-migration', 'pre-import', 'manual'];
+const REASONS: readonly BackupReason[] = [
+  'auto',
+  'pre-migration',
+  'pre-import',
+  'pre-restore',
+  'manual',
+];
 
 /** Snapshots kept per reason. `auto` comes from MOSS_BACKUP_KEEP; manual is never pruned. */
 export function retentionFor(reason: BackupReason, autoKeep: number): number | null {
@@ -27,6 +33,7 @@ export function retentionFor(reason: BackupReason, autoKeep: number): number | n
     case 'pre-migration':
       return 3;
     case 'pre-import':
+    case 'pre-restore':
       return 5;
     case 'manual':
       return null;
@@ -49,7 +56,7 @@ export function snapshotName(
 
 /** The `-n` between the time and the reason in a snapshot name, or 1 when there is none. */
 function sequenceOf(name: string): number {
-  const match = /-\d{4}-(\d+)-(?:auto|pre-migration|pre-import|manual)\.db$/.exec(name);
+  const match = /-\d{4}-(\d+)-(?:auto|pre-migration|pre-import|pre-restore|manual)\.db$/.exec(name);
   return match?.[1] ? Number(match[1]) : 1;
 }
 
@@ -137,6 +144,14 @@ export async function createSnapshot(options: SnapshotOptions): Promise<Snapshot
   const made = listSnapshots(backupsDir, journal).find((s) => s.name === name);
   if (!made) throw new Error(`Snapshot ${name} was created but could not be listed.`);
   return made;
+}
+
+/** Remove one snapshot file. Returns false when this journal has no snapshot with that name. */
+export function deleteSnapshot(backupsDir: string, journal: string, name: string): boolean {
+  const snapshot = listSnapshots(backupsDir, journal).find((s) => s.name === name);
+  if (!snapshot) return false;
+  fs.rmSync(snapshot.path, { force: true });
+  return true;
 }
 
 /** Remove snapshots beyond the retention limit for each reason, oldest first. */

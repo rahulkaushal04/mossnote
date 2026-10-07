@@ -3,36 +3,98 @@ import type { AppConfig } from '../app';
 import { AppError } from '../errors';
 import type { Clock } from '../db/backup';
 import type { Db, Sqlite } from '../db/client';
+import type { JournalManager } from '../journals/manager';
 import { VocabCache } from './vocab';
 
-/** Everything a service needs. Tests pass a fake clock and a counting id generator. */
-export interface Ctx {
+/** The open journal's handles, which `Ctx` swaps when another journal is opened. */
+export interface Attached {
   db: Db;
   sqlite: Sqlite;
+  journal: string;
+  dbPath: string;
+}
+
+/**
+ * Everything a service needs. Tests pass a fake clock and a counting id generator. The journal
+ * handles are read each time they are used, so opening another journal re-points every service
+ * at once; while no journal is open (a first run) reading them throws.
+ */
+export interface Ctx {
+  readonly db: Db;
+  readonly sqlite: Sqlite;
+  readonly vocab: VocabCache;
+  readonly config: AppConfig;
   clock: Clock;
   newId: () => string;
-  config: AppConfig;
-  vocab: VocabCache;
+  /** True while a journal is open. */
+  readonly attached: boolean;
+  attach(journal: Attached): void;
+  detach(): void;
+  /** Present in the running app; absent in tests that use one fixed in-memory journal. */
+  journals: JournalManager | undefined;
+  /** Show the data folder in the system file manager. */
+  openFolder: (dir: string) => Promise<void>;
 }
 
 export interface CtxInput {
-  db: Db;
-  sqlite: Sqlite;
+  db?: Db;
+  sqlite?: Sqlite;
   clock: Clock;
   config: AppConfig;
   ids?: () => string;
+  journals?: JournalManager;
+  openFolder?: (dir: string) => Promise<void>;
 }
 
 export function createCtx(input: CtxInput): Ctx {
+  let current: Attached | null =
+    input.db && input.sqlite
+      ? {
+          db: input.db,
+          sqlite: input.sqlite,
+          journal: input.config.journal,
+          dbPath: input.config.dbPath,
+        }
+      : null;
+  let vocab = new VocabCache();
+  const open = (): Attached => {
+    if (!current) throw new AppError('conflict', NO_JOURNAL, { details: { reason: 'no_journal' } });
+    return current;
+  };
   return {
-    db: input.db,
-    sqlite: input.sqlite,
+    get db() {
+      return open().db;
+    },
+    get sqlite() {
+      return open().sqlite;
+    },
+    get vocab() {
+      return vocab;
+    },
+    get config() {
+      return current
+        ? { ...input.config, journal: current.journal, dbPath: current.dbPath }
+        : { ...input.config, journal: '', dbPath: '' };
+    },
     clock: input.clock,
     newId: input.ids ?? (() => ulid(input.clock.now())),
-    config: input.config,
-    vocab: new VocabCache(),
+    get attached() {
+      return current !== null;
+    },
+    attach(journal) {
+      current = journal;
+      vocab = new VocabCache();
+    },
+    detach() {
+      current = null;
+      vocab = new VocabCache();
+    },
+    journals: input.journals,
+    openFolder: input.openFolder ?? (() => Promise.resolve()),
   };
 }
+
+export const NO_JOURNAL = 'No journal is open yet. Make one to get started.';
 
 /** Run `fn` in one transaction: it commits together with the search index writes, or not at all. */
 export function inTx<T>(ctx: Ctx, fn: () => T): T {

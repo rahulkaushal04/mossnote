@@ -8,7 +8,7 @@ import {
   type MouseEventHandler,
   type ReactElement,
 } from 'react';
-import { decode, encode } from '@shared/gameDate';
+import { COUNTER_MAX, dayNumber, decode, encode, fromDayNumber } from '@shared/gameDate';
 import { LIMITS } from '@shared/constants';
 import { Dialog } from '../../components/ui/Dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/Popover';
@@ -32,12 +32,113 @@ export interface GameDatePickerProps {
 
 const COLUMNS = 7;
 
-export function DatePickerBody({
-  value,
-  onChange,
-  clearLabel,
-  close,
-}: Pick<GameDatePickerProps, 'value' | 'onChange' | 'clearLabel'> & { close: () => void }) {
+type BodyProps = Pick<GameDatePickerProps, 'value' | 'onChange' | 'clearLabel'> & {
+  close: () => void;
+};
+
+/** A day counter has one thing to pick: which day. */
+function CounterPickerBody({ value, onChange, clearLabel, close }: BodyProps) {
+  const calendar = useCalendar();
+  const seed = value ?? calendar.currentGameDate;
+  const [day, setDay] = useState(seed !== null && calendar.isValid(seed) ? dayNumber(seed) : 1);
+  const word = calendar.calendar.seasons[0]?.name ?? 'Day';
+
+  const confirm = () => {
+    const key = fromDayNumber(day);
+    if (key === null) return;
+    onChange(key);
+    close();
+  };
+
+  return (
+    <form
+      role="group"
+      aria-label="Pick a date"
+      className="flex w-full flex-col gap-4 text-base"
+      onSubmit={(event) => {
+        event.preventDefault();
+        confirm();
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <label htmlFor="picker-day-number" className="font-semibold">
+          {word}
+        </label>
+        <button
+          type="button"
+          className="btn tap"
+          aria-label={`Previous ${word.toLowerCase()}`}
+          disabled={day <= 1}
+          onClick={() => {
+            setDay((d) => Math.max(1, d - 1));
+          }}
+        >
+          −
+        </button>
+        <input
+          id="picker-day-number"
+          type="number"
+          inputMode="numeric"
+          min={1}
+          max={COUNTER_MAX}
+          value={day}
+          // eslint-disable-next-line jsx-a11y/no-autofocus -- the picker has this one field
+          autoFocus
+          onFocus={(e) => {
+            e.currentTarget.select();
+          }}
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            if (Number.isInteger(n) && n >= 1 && n <= COUNTER_MAX) setDay(n);
+          }}
+          className="tap w-28 rounded-control border border-ink-muted bg-paper px-2 text-center"
+        />
+        <button
+          type="button"
+          className="btn tap"
+          aria-label={`Next ${word.toLowerCase()}`}
+          disabled={day >= COUNTER_MAX}
+          onClick={() => {
+            setDay((d) => Math.min(COUNTER_MAX, d + 1));
+          }}
+        >
+          +
+        </button>
+      </div>
+      <p className="text-sm text-ink-muted">
+        Type a number, or use the arrow keys. Enter confirms.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="submit" className="btn btn-primary tap">
+          Set date
+        </button>
+        {clearLabel ? (
+          <button
+            type="button"
+            className="btn tap"
+            onClick={() => {
+              onChange(null);
+              close();
+            }}
+          >
+            {clearLabel}
+          </button>
+        ) : null}
+      </div>
+    </form>
+  );
+}
+
+export function DatePickerBody(props: BodyProps) {
+  const calendar = useCalendar();
+  return calendar.calendar.counter ? (
+    <CounterPickerBody {...props} />
+  ) : (
+    <SeasonPickerBody {...props} />
+  );
+}
+
+function SeasonPickerBody({ value, onChange, clearLabel, close }: BodyProps) {
   const calendar = useCalendar();
   const start = useMemo(() => {
     const seed = value ?? calendar.currentGameDate ?? encode({ year: 1, season: 0, day: 1 });

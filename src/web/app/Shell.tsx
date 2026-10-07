@@ -4,6 +4,7 @@ import { HeaderActionsContext, RouteFocusContext } from '../components/ui/PageHe
 import { PlusIcon, SearchIcon } from '../components/ui/icons';
 import { Tip } from '../components/ui/Tooltip';
 import { usePalette } from '../features/search/PaletteProvider';
+import { JournalSwitcher } from '../features/journals/JournalSwitcher';
 import { useTags } from '../features/tags/hooks';
 import { modLabel } from '../lib/hotkeys';
 import { GlobalHotkeys } from './GlobalHotkeys';
@@ -91,7 +92,15 @@ export function Shell() {
 
   return (
     <RouteFocusContext value={navigated}>
-      <HeaderActionsContext value={<SearchButton />}>
+      <HeaderActionsContext
+        value={
+          <>
+            {/* The rail has the switcher at 900px and wider; narrower screens get it up here. */}
+            <JournalSwitcher className="max-w-28 px-2 text-sm wide:hidden" />
+            <SearchButton />
+          </>
+        }
+      >
         <div className="min-h-screen wide:grid wide:grid-cols-[13rem_1fr]">
           <a
             href="#main"
@@ -105,6 +114,7 @@ export function Shell() {
             className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r border-rule px-3 py-6 wide:flex"
           >
             <p className="px-3 pb-3 text-xl font-semibold">Mossnote</p>
+            <JournalSwitcher className="mb-3 w-full" />
             <button
               type="button"
               className="btn tap mb-4 justify-start"

@@ -10,6 +10,7 @@ import { FarmPage } from '../features/farm/FarmPage';
 import { PlantingSheet } from '../features/farm/PlantingSheet';
 import { JournalPage } from '../features/journal/JournalPage';
 import { MapsPage } from '../features/maps/MapsPage';
+import { useUsesSection } from '../features/settings/useLayout';
 import { NotePage } from '../features/notes/NotePage';
 import { PeoplePage } from '../features/people/PeoplePage';
 import { PersonPage } from '../features/people/PersonPage';
@@ -33,6 +34,12 @@ const MapPage = lazy(() =>
 function devKitRoute(): RouteObject {
   const DevKit = lazy(() => import('../features/dev/DevKit'));
   return { path: '/dev/kit', element: <DevKit /> };
+}
+
+/** The Farm screens exist only in journals whose template has a Farm section. */
+function FarmRoute() {
+  const usesFarm = useUsesSection('farm');
+  return usesFarm ? <FarmPage /> : <NotFoundPage />;
 }
 
 function TagRedirect() {
@@ -75,7 +82,7 @@ export const routes: RouteObject[] = [
           { path: '/people/:id', element: <PersonPage /> },
           {
             path: '/farm',
-            element: <FarmPage />,
+            element: <FarmRoute />,
             children: [{ path: ':id', element: <PlantingSheet /> }],
           },
           { path: '/maps', element: <MapsPage /> },

@@ -2,9 +2,9 @@
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { encode } from '@shared/gameDate';
+import { encode, fromDayNumber } from '@shared/gameDate';
 import { api, ApiError, NetworkError } from '../lib/api';
-import { mockApi, renderApp, settingsFixture } from '../testing';
+import { mockApi, renderApp, settingsFixture, stardewFixture } from '../testing';
 
 beforeEach(() => {
   localStorage.clear();
@@ -32,7 +32,7 @@ describe('empty app shell', () => {
     ).toBeTruthy();
   });
 
-  it('has the landmarks and the five destinations, with the current one marked', async () => {
+  it('has the landmarks and the four destinations of the Default template, with the current one marked', async () => {
     renderApp('/journal');
     await screen.findByRole('heading', { level: 1, name: 'Journal' });
     expect(screen.getByRole('main')).toBeTruthy();
@@ -41,7 +41,7 @@ describe('empty app shell', () => {
     const labels = within(nav)
       .getAllByRole('link')
       .map((a) => a.textContent);
-    expect(labels).toEqual(['Today', 'Journal', 'People', 'Farm', 'Maps', 'Settings']);
+    expect(labels).toEqual(['Today', 'Journal', 'People', 'Maps', 'Settings']);
     const current = screen.getAllByRole('link', { current: 'page' }).map((a) => a.textContent);
     expect(current).toContain('Journal');
     expect(current).not.toContain('Today');
@@ -59,7 +59,6 @@ describe('empty app shell', () => {
     const copy: [string, string][] = [
       ['/journal', 'Your journal starts with your first note.'],
       ['/people', 'No people yet. Add someone above, or type @ in a note.'],
-      ['/farm', 'Nothing here yet. Add an entry when you plant something.'],
     ];
     for (const [path, text] of copy) {
       const view = renderApp(path);
@@ -73,7 +72,6 @@ describe('empty app shell', () => {
       ['/', 'Today'],
       ['/journal', 'Journal'],
       ['/people', 'People'],
-      ['/farm', 'Farm'],
       ['/settings', 'Settings'],
       ['/search', 'Search'],
       ['/notes/abc', 'Note'],
@@ -91,15 +89,45 @@ describe('empty app shell', () => {
     }
   });
 
+  it('has no Farm screens at all in a Default journal', async () => {
+    renderApp('/farm');
+    await screen.findByRole('heading', { level: 1, name: 'Not found' });
+    cleanup();
+    renderApp('/');
+    await screen.findByRole('heading', { level: 1, name: 'Today' });
+    expect(screen.queryByRole('link', { name: /farm/i })).toBeNull();
+    expect(screen.queryByText(/Growing/)).toBeNull();
+  });
+
+  it('a Stardew Valley journal has the Farm screens and its own wording', async () => {
+    mockApi(stardewFixture());
+    renderApp('/farm');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Farm' })).toBeTruthy();
+    expect(
+      await screen.findByText('Nothing here yet. Add a crop when you plant something.'),
+    ).toBeTruthy();
+    cleanup();
+    renderApp('/');
+    await screen.findByRole('heading', { level: 1, name: 'Today' });
+    const nav = screen.getAllByRole('navigation', { name: 'Primary' }).at(0);
+    if (!nav) throw new Error('No primary navigation.');
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((a) => a.textContent),
+    ).toEqual(['Today', 'Daily journal', 'NPCs', 'Farm', 'Maps', 'Settings']);
+  });
+
   it('/farm/:id is a sheet over the list, as a labelled modal dialog', async () => {
+    mockApi(stardewFixture());
     renderApp('/farm/abc');
-    expect(await screen.findByRole('dialog', { name: 'Farm entry' })).toBeTruthy();
+    expect(await screen.findByRole('dialog', { name: 'Crop' })).toBeTruthy();
     // The list stays in the document, behind the sheet (hidden from assistive technology).
     expect(screen.getByRole('heading', { level: 1, name: 'Farm', hidden: true })).toBeTruthy();
   });
 
   it('copy rule: no exclamation marks on any screen', async () => {
-    for (const path of ['/', '/journal', '/people', '/farm', '/settings', '/nowhere', '/day/zzz']) {
+    for (const path of ['/', '/journal', '/people', '/settings', '/nowhere', '/day/zzz']) {
       const view = renderApp(path);
       await screen.findByRole('main');
       await waitFor(() => {
@@ -132,13 +160,20 @@ describe('routes', () => {
   });
 
   it('formats a valid day key with the user calendar', async () => {
+    mockApi(stardewFixture());
     renderApp(`/day/${encode({ year: 2, season: 3, day: 9 })}`);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Winter 9 · Year 2' }),
     ).toBeTruthy();
   });
 
+  it('writes a day of a Default journal as a counted day', async () => {
+    renderApp(`/day/${fromDayNumber(120)}`);
+    expect(await screen.findByRole('heading', { level: 1, name: 'Day 120' })).toBeTruthy();
+  });
+
   it('says an out-of-calendar day is not in the calendar and links to Today', async () => {
+    mockApi(stardewFixture());
     for (const key of ['10029', '10400', 'abc', '0']) {
       const view = renderApp(`/day/${key}`);
       expect(await screen.findByText(/That date isn.t in your calendar/), key).toBeTruthy();
@@ -243,7 +278,7 @@ describe('server unreachable', () => {
     vi.spyOn(api, 'getHealth').mockRejectedValue(new NetworkError());
     renderApp('/journal');
     expect(await screen.findByRole('heading', { name: "Can't reach your journal." })).toBeTruthy();
-    expect(screen.getByText('npm start')).toBeTruthy();
+    expect(screen.getByText('mossnote')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
     expect(screen.queryByRole('navigation')).toBeNull();
   });
@@ -252,7 +287,7 @@ describe('server unreachable', () => {
     const health = vi.spyOn(api, 'getHealth').mockRejectedValue(new NetworkError());
     renderApp('/journal');
     await screen.findByRole('heading', { name: "Can't reach your journal." });
-    health.mockResolvedValue({ ok: true, version: 'test', schemaVersion: 2 });
+    health.mockResolvedValue({ ok: true, version: 'test', schemaVersion: 4, journal: 'journal' });
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByRole('heading', { level: 1, name: 'Journal' })).toBeTruthy();
   });
@@ -263,7 +298,7 @@ describe('server unreachable', () => {
     renderApp('/');
     await screen.findByRole('heading', { name: "Can't reach your journal." });
     const callsBefore = health.mock.calls.length;
-    health.mockResolvedValue({ ok: true, version: 'test', schemaVersion: 2 });
+    health.mockResolvedValue({ ok: true, version: 'test', schemaVersion: 4, journal: 'journal' });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(5100);
     });
@@ -317,7 +352,7 @@ describe('game template and sections', () => {
   };
   const withLayout = () =>
     mockApi(
-      settingsFixture({
+      stardewFixture({
         layout: { ...layout, order: [...layout.order], hidden: [...layout.hidden] },
       }),
     );

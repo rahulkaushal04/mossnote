@@ -18,6 +18,8 @@ for (const theme of ['light', 'dark'] as const) {
       page,
       seed,
     }) => {
+      // Quick actions belong to the Stardew Valley template.
+      await seed.reset('stardew');
       await page.addInitScript((value) => {
         localStorage.setItem('moss:theme', value);
       }, theme);
@@ -30,15 +32,6 @@ for (const theme of ['light', 'dark'] as const) {
         label: 'Example pin',
         color: 'rose',
         target: { type: 'note', id: note.id },
-      });
-      await seed.settings({
-        layout: {
-          template: 'stardew',
-          order: [],
-          hidden: [],
-          labels: {},
-          quickActions: true,
-        },
       });
 
       await page.goto('/maps');
@@ -56,7 +49,7 @@ for (const theme of ['light', 'dark'] as const) {
 
       await page.goto('/settings#game');
       await expect(
-        page.getByRole('heading', { level: 2, name: 'Game and sections' }),
+        page.getByRole('heading', { level: 2, name: 'Template and sections' }),
       ).toBeVisible();
       expect(await violations(page), 'game settings').toEqual([]);
 

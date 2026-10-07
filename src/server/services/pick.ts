@@ -6,6 +6,7 @@ import type { Ctx } from './ctx';
 import { noteLabel } from './links';
 import { readCalendar } from './search-index';
 import { quote } from './search';
+import { journalUses } from './settings';
 
 export interface PickParams {
   kind: 'tag' | 'person' | 'note' | 'planting' | 'any';
@@ -81,6 +82,7 @@ function pickNotes(ctx: Ctx, p: PickParams): PickItem[] {
 }
 
 function pickPlantings(ctx: Ctx, p: PickParams): PickItem[] {
+  if (!journalUses(ctx, 'farm')) return [];
   const exclude = JSON.stringify(p.exclude);
   const match = prefixMatch(p.q);
   const rows = match

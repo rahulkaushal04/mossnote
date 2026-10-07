@@ -21,14 +21,20 @@ export interface QuickAction {
   set: { discovery?: true; question?: true; tag?: string };
 }
 
+/** How dates are written: counted days, or the seasons-and-years calendar. */
+export type CalendarKind = 'counter' | 'seasons';
+
 export interface GameTemplate {
   id: string;
   name: string;
-  /** One line shown under the name in Settings. */
+  /** One line shown where a template is picked. */
   about: string;
+  /** Wording for every section; sections the template does not use are never shown. */
   terms: Record<SectionId, SectionTerms>;
-  /** The order the sections start in. */
+  /** The sections this template uses, in the order they start in. Others are skipped everywhere. */
   order: readonly SectionId[];
+  /** The calendar a new journal made from this template starts with. */
+  calendar: CalendarKind;
   quickActions: readonly QuickAction[];
   /** Tags the user can add with one click in Settings. Never created on their own. */
   suggestedTags: readonly string[];

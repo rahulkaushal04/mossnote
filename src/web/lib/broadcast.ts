@@ -22,6 +22,28 @@ export function invalidateEverywhere(client: QueryClient, keys: Keys): Promise<u
   return Promise.all(keys.map((queryKey) => client.invalidateQueries({ queryKey })));
 }
 
+/** Tell the other open windows that this one switched journals, so they stop writing to the old one. */
+export function broadcastJournalSwitched(id: string | null): void {
+  try {
+    channel?.postMessage({ type: 'journal', id });
+  } catch {
+    // A window that misses this is told by the server on its next request.
+  }
+}
+
+/** Listen for a journal switch in another window. Returns a cleanup function. */
+export function listenForJournalSwitch(onSwitch: (id: string | null) => void): () => void {
+  if (!channel) return () => undefined;
+  const onMessage = (event: MessageEvent<unknown>) => {
+    const data = event.data as { type?: string; id?: string | null } | null;
+    if (data?.type === 'journal') onSwitch(data.id ?? null);
+  };
+  channel.addEventListener('message', onMessage);
+  return () => {
+    channel.removeEventListener('message', onMessage);
+  };
+}
+
 /** Listen for invalidations from other windows. Returns a cleanup function. */
 export function listenForInvalidations(client: QueryClient): () => void {
   if (!channel) return () => undefined;

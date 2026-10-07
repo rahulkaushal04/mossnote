@@ -2,8 +2,9 @@ import { fileURLToPath } from 'node:url';
 import { serve } from '@hono/node-server';
 import open from 'open';
 import { createApp } from './app';
-import { describeStartupError, openJournal, type Journal } from './boot';
+import { describeStartupError } from './boot';
 import { loadConfig, type Config } from './config';
+import { JournalManager } from './journals/manager';
 import { createLogger } from './logger';
 
 const systemClock = { now: () => Date.now() };
@@ -21,15 +22,15 @@ async function main(): Promise<void> {
   }
 
   const logger = createLogger(config.logLevel);
-  let journal: Journal;
+  const journals = new JournalManager({
+    config,
+    clock: systemClock,
+    logger,
+    // dist/server/index.js and src/server/index.ts both sit two levels below the package root.
+    migrationsFolder: fileURLToPath(new URL('../../drizzle', import.meta.url)),
+  });
   try {
-    journal = await openJournal({
-      config,
-      clock: systemClock,
-      logger,
-      // dist/server/index.js and src/server/index.ts both sit two levels below the repository root.
-      migrationsFolder: fileURLToPath(new URL('../../drizzle', import.meta.url)),
-    });
+    await journals.start();
   } catch (error) {
     writeError(describeStartupError(error, config));
     process.exit(1);
@@ -37,8 +38,10 @@ async function main(): Promise<void> {
 
   const webRoot = config.dev ? undefined : fileURLToPath(new URL('../web', import.meta.url));
   const app = createApp({
-    db: journal.database.db,
-    sqlite: journal.database.sqlite,
+    journals,
+    openFolder: async (dir) => {
+      await open(dir);
+    },
     clock: systemClock,
     config,
     logger,
@@ -48,7 +51,10 @@ async function main(): Promise<void> {
   const url = `http://${config.host.includes(':') ? `[${config.host}]` : config.host}:${config.port}`;
   const server = serve({ fetch: app.fetch, hostname: config.host, port: config.port }, () => {
     logger.info(`Mossnote is running at ${url}`);
-    logger.info(`Journal: ${config.dbPath}`);
+    logger.info(`Data folder: ${config.dataDir}`);
+    logger.info(
+      journals.activeId ? `Journal: ${journals.activeId}` : 'No journal yet. Make one in the app.',
+    );
     if (config.allowRemote) {
       logger.warn('MOSS_ALLOW_REMOTE is set. Remote access is unsupported and unauthenticated.');
     }
@@ -61,13 +67,13 @@ async function main(): Promise<void> {
 
   server.on('error', (error) => {
     writeError(describeStartupError(error, config));
-    journal.close();
+    journals.close();
     process.exit(1);
   });
 
   const shutdown = () => {
     server.close();
-    journal.close();
+    journals.close();
     process.exit(0);
   };
   process.on('SIGINT', shutdown);

@@ -1,6 +1,7 @@
 /** Query keys. `health` and `fieldLabels` are additions. */
 export const queryKeys = {
   health: ['health'] as const,
+  journals: ['journals'] as const,
   settings: ['settings'] as const,
   tags: ['tags'] as const,
   notes: (filters: unknown) => ['notes', filters] as const,

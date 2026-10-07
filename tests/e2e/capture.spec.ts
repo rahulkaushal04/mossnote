@@ -204,6 +204,7 @@ test.describe('structure while capturing', () => {
   });
 
   test('[[ links a note or farm entry as a chip only', async ({ page, seed }) => {
+    await seed.reset('stardew');
     const target = await seed.note({ title: 'Target note', body: 'hello' });
     await seed.planting('Row one');
     await page.goto('/');
@@ -269,9 +270,16 @@ test.describe('failing saves', () => {
     await expect(page.getByRole('heading', { name: "Can't reach your journal." })).toBeVisible({
       timeout: 10_000,
     });
-    expect(await page.evaluate(() => localStorage.getItem('moss:draft:home'))).toContain(
-      'survives an outage',
-    );
+    // Drafts are kept per journal: moss:draft:<journal>:home.
+    const draft = await page.evaluate((): string | null => {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i) ?? '';
+        if (key.startsWith('moss:draft:') && key.endsWith(':home'))
+          return localStorage.getItem(key);
+      }
+      return null;
+    });
+    expect(draft).toContain('survives an outage');
     await server.start();
     await expect(composer(page)).toHaveValue('survives an outage', { timeout: 15_000 });
     await page.getByRole('button', { name: 'Save' }).click();

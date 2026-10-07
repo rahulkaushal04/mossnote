@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { currentJournalId } from './journal';
 import { readStorage, writeStorage } from './storage';
 
-/** Storage key for an unsaved draft: `moss:draft:<scope>`. */
-export const draftKey = (scope: string): string => `moss:draft:${scope}`;
+/** Storage key for an unsaved draft: `moss:draft:<journal>:<scope>`, so journals never mix drafts. */
+export const draftKey = (scope: string): string =>
+  `moss:draft:${currentJournalId() ?? 'none'}:${scope}`;
+
+/** Drafts written before journals were separate were stored as `moss:draft:<scope>`. */
+const legacyDraftKey = (scope: string): string => `moss:draft:${scope}`;
 
 export function readDraft<T>(scope: string, valid: (value: unknown) => value is T): T | null {
-  const raw = readStorage(draftKey(scope));
+  // Only the first journal can own an older draft; it moves to its own key on the next write.
+  const raw =
+    readStorage(draftKey(scope)) ??
+    (currentJournalId() === 'journal' ? readStorage(legacyDraftKey(scope)) : null);
   if (raw === null) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -18,6 +26,7 @@ export function readDraft<T>(scope: string, valid: (value: unknown) => value is 
 export function removeDraft(scope: string): void {
   try {
     localStorage.removeItem(draftKey(scope));
+    if (currentJournalId() === 'journal') localStorage.removeItem(legacyDraftKey(scope));
   } catch {
     // Storage unavailable: nothing was kept.
   }

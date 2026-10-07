@@ -1,10 +1,18 @@
 import { sql } from 'drizzle-orm';
-import { DEFAULT_CALENDAR, DEFAULT_PREFS, type Calendar } from '@shared/constants';
+import { DEFAULT_PREFS, type Calendar } from '@shared/constants';
 import { decode, isValid } from '@shared/gameDate';
 import { calendarSchema } from '@shared/schemas/calendar';
 import { layoutSchema } from '@shared/schemas/layout';
 import { markerTypesSchema } from '@shared/schemas/map';
-import { DEFAULT_LAYOUT } from '@shared/templates';
+import {
+  DEFAULT_LAYOUT,
+  DEFAULT_TEMPLATE_ID,
+  calendarForTemplate,
+  templateForLegacyCalendar,
+  templateUses,
+  type Layout,
+  type SectionId,
+} from '@shared/templates';
 import {
   currentGameDateSchema,
   metaSchema,
@@ -19,6 +27,10 @@ import { settings } from '../db/schema';
 import { AppError } from '../errors';
 
 const OUTSIDE_CALENDAR = "That date isn't in your calendar.";
+const SAME_TEMPLATE =
+  'A journal keeps the template it was made with. Make a new journal to use another one.';
+const SAME_CALENDAR =
+  'A journal keeps the kind of calendar it was made with. Make a new journal to use another one.';
 
 function readRaw(database: Database, key: string): unknown {
   const row = database.db
@@ -39,14 +51,22 @@ function writeRaw(database: Database, key: string, value: unknown, now: number):
 }
 
 /**
- * Create the rows a fresh journal holds: `calendar` and `meta`, nothing else.
- * Existing rows are never touched, so this is safe to call on every start.
+ * Create the rows a fresh journal holds: `calendar`, `meta` and the `layout` that records its
+ * template, nothing else. Existing rows are never touched, so this is safe to call on every
+ * start; a journal made before templates were per journal keeps having no `layout` row.
  */
-export function ensureSettings(database: Database, journalName: string, clock: Clock): void {
+export function ensureSettings(
+  database: Database,
+  journalName: string,
+  clock: Clock,
+  template: string = DEFAULT_TEMPLATE_ID,
+): void {
   const now = clock.now();
   database.db.transaction(() => {
-    if (readRaw(database, 'calendar') === undefined) {
-      writeRaw(database, 'calendar', DEFAULT_CALENDAR, now);
+    const fresh = readRaw(database, 'calendar') === undefined;
+    if (fresh) writeRaw(database, 'calendar', calendarForTemplate(template), now);
+    if (fresh && readRaw(database, 'layout') === undefined) {
+      writeRaw(database, 'layout', { ...DEFAULT_LAYOUT, template }, now);
     }
     if (readRaw(database, 'meta') === undefined) {
       writeRaw(database, 'meta', { createdAt: now, journalName }, now);
@@ -56,24 +76,42 @@ export function ensureSettings(database: Database, journalName: string, clock: C
 
 function readCalendar(database: Database): Calendar {
   const raw = readRaw(database, 'calendar');
-  return raw === undefined ? DEFAULT_CALENDAR : calendarSchema.parse(raw);
+  return raw === undefined ? calendarForTemplate(DEFAULT_TEMPLATE_ID) : calendarSchema.parse(raw);
+}
+
+/** The stored layout, or the one implied by the calendar for a journal that has none. */
+function readLayout(database: Database, calendar: Calendar): Layout {
+  const raw = readRaw(database, 'layout');
+  return raw === undefined
+    ? { ...DEFAULT_LAYOUT, template: templateForLegacyCalendar(calendar) }
+    : layoutSchema.parse(raw);
 }
 
 export function getSettings(database: Database, journalName: string, clock: Clock): Settings {
   const rawDate = readRaw(database, 'currentGameDate');
   const rawPrefs = readRaw(database, 'prefs');
   const rawMeta = readRaw(database, 'meta');
-  const rawLayout = readRaw(database, 'layout');
   const rawMarkers = readRaw(database, 'markerTypes');
+  const calendar = readCalendar(database);
   return {
-    calendar: readCalendar(database),
+    calendar,
     currentGameDate: rawDate === undefined ? null : currentGameDateSchema.parse(rawDate),
     prefs: { ...DEFAULT_PREFS, ...(rawPrefs === undefined ? {} : prefsSchema.parse(rawPrefs)) },
     markerTypes: rawMarkers === undefined ? [] : markerTypesSchema.parse(rawMarkers),
-    layout: rawLayout === undefined ? DEFAULT_LAYOUT : layoutSchema.parse(rawLayout),
+    layout: readLayout(database, calendar),
     meta:
       rawMeta === undefined ? { createdAt: clock.now(), journalName } : metaSchema.parse(rawMeta),
   };
+}
+
+/** The template this journal was made with. */
+export function journalTemplate(database: Database): string {
+  return readLayout(database, readCalendar(database)).template;
+}
+
+/** True when the journal's template has this section. Farm routes, search and export ask this. */
+export function journalUses(database: Database, section: SectionId): boolean {
+  return templateUses(journalTemplate(database), section);
 }
 
 interface DateUse {
@@ -189,6 +227,17 @@ export function updateSettings(
     const currentGameDate =
       patch.currentGameDate === undefined ? before.currentGameDate : patch.currentGameDate;
 
+    if (patch.layout && patch.layout.template !== before.layout.template) {
+      throw new AppError('validation_failed', SAME_TEMPLATE, {
+        fields: { layout: SAME_TEMPLATE },
+      });
+    }
+    if (patch.calendar && Boolean(patch.calendar.counter) !== Boolean(before.calendar.counter)) {
+      throw new AppError('validation_failed', SAME_CALENDAR, {
+        fields: { calendar: SAME_CALENDAR },
+      });
+    }
+
     if (patch.currentGameDate != null && !isValid(patch.currentGameDate, calendar)) {
       throw new AppError('validation_failed', OUTSIDE_CALENDAR, {
         fields: { currentGameDate: OUTSIDE_CALENDAR },
@@ -227,6 +276,15 @@ export function updateSettings(
     if (patch.markerTypes) writeRaw(database, 'markerTypes', patch.markerTypes, now);
   });
   return getSettings(database, journalName, clock);
+}
+
+/** Change the name a journal is shown with. Its file name stays as it was. */
+export function renameJournal(database: Database, name: string, clock: Clock): void {
+  database.db.transaction(() => {
+    const current = metaSchema.safeParse(readRaw(database, 'meta'));
+    const createdAt = current.success ? current.data.createdAt : clock.now();
+    writeRaw(database, 'meta', { createdAt, journalName: name }, clock.now());
+  });
 }
 
 /** Store one setting value (used by import, which replaces the journal's settings). */
