@@ -9,6 +9,13 @@ updates:
     commit-message:
       prefix: 'chore(deps)'
       prefix-development: 'chore(deps-dev)'
+    # eslint-plugin-jsx-a11y does not support eslint 10 yet, so `npm ci` fails with it. Remove these
+    # two entries once that plugin's peer range includes eslint 10.
+    ignore:
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
         dependency-type: development
