@@ -9,12 +9,18 @@ updates:
     commit-message:
       prefix: 'chore(deps)'
       prefix-development: 'chore(deps-dev)'
-    # eslint-plugin-jsx-a11y does not support eslint 10 yet, so `npm ci` fails with it. Remove these
-    # two entries once that plugin's peer range includes eslint 10.
+    # Major versions held back on purpose. Remove an entry when the reason no longer applies.
     ignore:
+      # eslint-plugin-jsx-a11y does not support eslint 10 yet, so `npm ci` fails with it.
       - dependency-name: eslint
         update-types: ['version-update:semver-major']
       - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
+      # typescript-eslint does not support TypeScript 7 yet.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      # The types must match the Node versions in `engines` (22 to 24), not the newest Node.
+      - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
