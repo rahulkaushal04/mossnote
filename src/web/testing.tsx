@@ -12,6 +12,9 @@ import { createQueryClient } from './lib/queryClient';
 import { routes } from './app/routes';
 import { vi } from 'vitest';
 
+// jsdom has no layout, so it has no scrollIntoView either.
+Element.prototype.scrollIntoView = () => undefined;
+
 /** A journal made from the Default template: a day counter, no Farm section. */
 export const settingsFixture = (overrides: Partial<Settings> = {}): Settings => ({
   calendar: COUNTER_CALENDAR,

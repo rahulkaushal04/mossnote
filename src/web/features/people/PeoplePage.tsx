@@ -4,7 +4,9 @@ import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { CloseIcon, PeopleIcon } from '../../components/ui/icons';
+import { RemovableChip } from '../../components/ui/Chip';
+import { PeopleArt } from '../../components/ui/art';
+import { Avatar } from '../../components/ui/Avatar';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { TagPicker } from '../journal/FilterBar';
@@ -71,15 +73,18 @@ export function PeoplePage() {
 
   return (
     <>
-      <PageHeader title={terms.people.label} />
+      <PageHeader
+        title={terms.people.label}
+        intro={`Everyone you have met, with the notes that mention them.`}
+      />
       <form
-        className="mt-4 flex flex-col gap-1"
+        className="flex flex-col gap-1"
         onSubmit={(e) => {
           e.preventDefault();
           add();
         }}
       >
-        <label htmlFor="add-person" className="font-medium">
+        <label htmlFor="add-person" className="text-sm font-medium text-ink-2">
           Add someone
         </label>
         <div className="flex gap-2">
@@ -133,16 +138,13 @@ export function PeoplePage() {
           }}
         />
         {tag ? (
-          <button
-            type="button"
-            className="chip chip-toggle chip-selected"
-            aria-label={`Remove tag filter ${tag}`}
-            onClick={() => {
+          <RemovableChip
+            label={`#${tag}`}
+            removeLabel={`Remove tag filter ${tag}`}
+            onRemove={() => {
               update({ tag: null });
             }}
-          >
-            #{tag} <CloseIcon className="size-3.5" />
-          </button>
+          />
         ) : null}
         <button
           type="button"
@@ -161,7 +163,7 @@ export function PeoplePage() {
       {people.data && rows.length === 0 ? (
         all.length === 0 && !tag ? (
           <EmptyState
-            icon={<PeopleIcon />}
+            art={<PeopleArt />}
             action={
               <Button
                 variant="primary"
@@ -192,24 +194,20 @@ export function PeoplePage() {
         )
       ) : null}
       {rows.length > 0 ? (
-        <ul aria-label={terms.people.label} className="m-0 mt-2 list-none p-0">
+        <ul aria-label={terms.people.label} className="stagger m-0 mt-2 list-none p-0">
           {rows.map((person) => (
-            <li
-              key={person.id}
-              className="relative flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line py-2"
-            >
-              <span className="flex items-center gap-3">
-                <Link
-                  to={`/people/${person.id}`}
-                  className="reading text-ink no-underline after:absolute after:inset-0 hover:underline"
-                >
-                  {person.name}
-                </Link>
-                {person.progressMax !== null ? (
-                  <PipsInline value={person.progress ?? 0} max={person.progressMax} />
-                ) : null}
-              </span>
-              <span className="relative z-10">
+            <li key={person.id} className="list-row relative flex-wrap gap-y-1">
+              <Avatar name={person.name} />
+              <Link
+                to={`/people/${person.id}`}
+                className="list-row-title min-w-0 truncate text-ink no-underline after:absolute after:inset-0 hover:underline"
+              >
+                {person.name}
+              </Link>
+              {person.progressMax !== null ? (
+                <PipsInline value={person.progress ?? 0} max={person.progressMax} />
+              ) : null}
+              <span className="relative z-10 ml-auto">
                 <TagList tags={person.tags} to={(t) => `/people?tag=${encodeURIComponent(t)}`} />
               </span>
             </li>

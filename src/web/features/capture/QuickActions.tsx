@@ -1,5 +1,4 @@
 import type { QuickAction } from '@shared/templates';
-import { Chip } from '../../components/ui/Chip';
 import { useLayout, useTemplate } from '../settings/useLayout';
 import { withTag, type NoteDraft } from './draft';
 
@@ -40,19 +39,20 @@ export function QuickActions({
     <div
       role="group"
       aria-label="Quick actions"
-      className="scroll-row -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
+      className="scroll-row -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
     >
       {template.quickActions.map((action) => (
-        <Chip
+        <button
           key={action.id}
-          selected={isOn(value, action)}
-          className="shrink-0"
-          onToggle={() => {
+          type="button"
+          className="pill shrink-0"
+          aria-pressed={isOn(value, action)}
+          onClick={() => {
             onChange(toggle(value, action));
           }}
         >
           {action.label}
-        </Chip>
+        </button>
       ))}
     </div>
   );

@@ -205,7 +205,7 @@ describe('routes', () => {
 
 describe('phone navigation', () => {
   const tabBar = () => {
-    const bar = screen.getAllByRole('navigation', { name: 'Primary' }).at(1);
+    const bar = screen.getAllByRole('navigation', { name: 'Primary' }).at(-1);
     if (!bar) throw new Error('No tab bar.');
     return bar;
   };
@@ -254,20 +254,20 @@ describe('phone navigation', () => {
     Object.defineProperty(window, 'innerHeight', { value: 812, configurable: true });
     renderApp('/');
     await screen.findByRole('heading', { level: 1, name: 'Today' });
-    expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(2);
+    expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(3);
     act(() => {
       viewport.height = 500;
       viewport.dispatchEvent(new Event('resize'));
     });
     await waitFor(() => {
-      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(1);
+      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(2);
     });
     act(() => {
       viewport.height = 812;
       viewport.dispatchEvent(new Event('resize'));
     });
     await waitFor(() => {
-      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(2);
+      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(3);
     });
     Reflect.deleteProperty(window, 'visualViewport');
   });

@@ -142,42 +142,53 @@ test.describe('responsive layout', () => {
     });
   }
 
-  test('rail at 900px and wider, tab bar below, never both', async ({ page }) => {
-    for (const [width, rail] of [
-      [360, false],
-      [899, false],
-      [900, true],
-      [1280, true],
+  test('sidebar from 900px, icon rail from 640px, floating bottom bar below, never two', async ({
+    page,
+  }) => {
+    // The panels have a margin of 8px around them, which the boxes do not include.
+    for (const [width, kind, boxWidth] of [
+      [360, 'dock', 344],
+      [639, 'dock', 623],
+      [640, 'rail', 64],
+      [899, 'rail', 64],
+      [900, 'sidebar', 232],
+      [1280, 'sidebar', 232],
     ] as const) {
       await page.setViewportSize({ width, height: 800 });
       await page.goto('/');
       const nav = page.getByRole('navigation', { name: 'Primary' });
       await expect(nav, `${width}px`).toHaveCount(1);
       const box = await nav.boundingBox();
-      if (rail) {
-        expect(box?.x).toBe(0);
-        expect(box?.width).toBe(224);
+      expect(box?.width, `${width}px ${kind}`).toBe(boxWidth);
+      if (kind === 'dock') {
+        // Floating: a margin at the bottom, not flush with the edge.
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThan(800);
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeGreaterThan(780);
       } else {
-        expect(box?.width).toBe(width);
-        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(800, 0);
+        expect(box?.x).toBe(8);
       }
     }
   });
 
-  test('the content column never exceeds 44rem on a phone or tablet, 52rem on a wide screen', async ({
+  test('the content column is 44rem at most and centred in the space beside the sidebar', async ({
     page,
   }) => {
-    for (const [viewport, max] of [
-      [{ width: 800, height: 900 }, 704],
-      [{ width: 1920, height: 900 }, 832],
-    ] as const) {
+    for (const viewport of [
+      { width: 800, height: 900 },
+      { width: 1280, height: 900 },
+      { width: 1920, height: 900 },
+    ]) {
       await page.setViewportSize(viewport);
       await page.goto('/');
-      const width = await page
-        .getByRole('main')
-        .evaluate((el) => el.parentElement?.getBoundingClientRect().width);
-      expect(width, `${viewport.width}px`).toBeLessThanOrEqual(max);
+      const main = await page.getByRole('main').boundingBox();
+      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(704);
     }
+    // At 1920 it is wider than it is allowed to be, so it must sit in the middle of what is left.
+    const main = await page.getByRole('main').boundingBox();
+    const nav = await page.getByRole('navigation', { name: 'Primary' }).boundingBox();
+    const left = (main?.x ?? 0) - ((nav?.x ?? 0) + (nav?.width ?? 0));
+    const right = 1920 - ((main?.x ?? 0) + (main?.width ?? 0));
+    expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
   });
 
   test('a phone reaches Settings and the journals from the More tab', async ({ page }) => {
@@ -283,6 +294,6 @@ test.describe('theme', () => {
     const families = await page.evaluate(() =>
       [...document.fonts].map((f) => `${f.family.replaceAll('"', '')} ${f.status}`),
     );
-    expect(families).toContain('Source Sans 3 Variable loaded');
+    expect(families).toContain('Inter Variable loaded');
   });
 });

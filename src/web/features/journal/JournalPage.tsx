@@ -24,7 +24,7 @@ function emptyCopy(flag: string, state: string): string | null {
 /** `/journal`: everything in game-time order, narrowed by flag, tag and "Not dated". */
 export function JournalPage() {
   const terms = useTerms();
-  const { filters, query, update, clear, active } = useJournalFilters();
+  const { filters, query, update, clear } = useJournalFilters();
   const notes = useNotes(query);
   const count = useNotesCount({ ...query, order: undefined, limit: undefined });
   const everything = useNotesCount({});
@@ -91,12 +91,15 @@ export function JournalPage() {
 
   return (
     <>
-      <PageHeader title={terms.journal.label} />
+      <PageHeader
+        title={terms.journal.label}
+        accent
+        intro="Every note you have written, grouped by day."
+      />
       <FilterBar filters={filters} onChange={update} />
       {count.data ? (
-        <p className="text-sm text-ink-muted" aria-live="polite">
+        <p className="tnum text-sm text-ink-muted" aria-live="polite">
           {plural(count.data.count, 'note')}
-          {active ? '' : ''}
         </p>
       ) : null}
       {notes.isError ? <LoadError onRetry={() => void notes.refetch()} /> : null}

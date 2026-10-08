@@ -10,6 +10,8 @@ import {
 } from '../components/ui/icons';
 
 export interface NavItem {
+  /** The section this item opens; absent for Settings. */
+  id?: SectionId;
   to: string;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -40,3 +42,28 @@ export const SETTINGS_ITEM: NavItem = {
   icon: SettingsIcon,
   isActive: (p) => p === '/settings',
 };
+
+/** The journal's totals, as the journal list reports them. */
+export interface JournalCounts {
+  notes: number;
+  people: number;
+  plantings: number;
+  maps: number;
+}
+
+/** The number shown beside a section in the sidebar; null where a count means nothing. */
+export function countFor(id: SectionId, counts: JournalCounts | null | undefined): number | null {
+  if (!counts) return null;
+  switch (id) {
+    case 'journal':
+      return counts.notes;
+    case 'people':
+      return counts.people;
+    case 'farm':
+      return counts.plantings;
+    case 'maps':
+      return counts.maps;
+    default:
+      return null;
+  }
+}

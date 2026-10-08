@@ -38,7 +38,7 @@ test.describe('quick capture', () => {
 
   test('the hint can be dismissed and stays dismissed', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Dismiss' }).click();
+    await page.getByRole('button', { name: 'Hide this tip' }).click();
     await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeHidden();
     await page.reload();
     await expect(page.getByText('Nothing written today.')).toBeVisible();

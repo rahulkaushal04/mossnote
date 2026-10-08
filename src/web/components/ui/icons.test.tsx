@@ -70,6 +70,19 @@ describe('icon set', () => {
     });
   }
 
+  it('uses one stroke width across the whole set', () => {
+    const widths = new Set<string>();
+    for (const [, Icon] of all) {
+      const { container, unmount } = render(<Icon />);
+      for (const el of container.querySelectorAll('svg, svg *')) {
+        const width = el.getAttribute('stroke-width');
+        if (width) widths.add(width);
+      }
+      unmount();
+    }
+    expect([...widths]).toEqual(['1.75']);
+  });
+
   it('lets a caller set the size and label', () => {
     const { container } = render(<icons.SearchIcon className="size-6" aria-label="Search" />);
     expect(container.querySelector('svg')?.getAttribute('class')).toBe('size-6');

@@ -81,7 +81,7 @@ export function MapPage() {
 
   return (
     <>
-      <PageHeader title={map?.name ?? 'Map'} documentTitle={map?.name ?? 'Map'} immersiveOnPhone />
+      <PageHeader title={map?.name ?? 'Map'} documentTitle={map?.name ?? 'Map'} hidden />
 
       <ListSkeleton pending={query.isPending} />
       {gone ? (

@@ -18,13 +18,15 @@ export function FirstRun() {
   }, []);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-6 px-4 py-10">
+    <main className="mx-auto flex min-h-screen max-w-[40rem] flex-col justify-center gap-8 px-5 py-12">
       <div>
-        <h1 className="font-serif text-2xl font-semibold">Welcome to Mossnote</h1>
-        <p className="mt-2 text-ink-muted">
+        <h1 className="page-title">
+          Welcome to <em>Mossnote</em>
+        </h1>
+        <p className="page-intro">
           A private journal for the games you play. It lives on this computer, never connects to the
-          internet, and starts empty. Choose how it should be set up. You can make more journals
-          later, one for each game.
+          internet, and starts empty. Pick a starting point; you can make more journals later, one
+          for each game.
         </p>
       </div>
       <NewJournalForm

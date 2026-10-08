@@ -2,6 +2,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { EmptyState } from './EmptyState';
+import { PageArt } from './art';
 import { PeopleIcon } from './icons';
 
 afterEach(cleanup);
@@ -20,6 +21,16 @@ describe('EmptyState', () => {
     );
     expect(screen.getByRole('button', { name: 'Add a name' })).toBeTruthy();
     expect(document.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('shows line art instead of the icon when given', () => {
+    render(
+      <EmptyState icon={<PeopleIcon />} art={<PageArt />}>
+        Nothing here.
+      </EmptyState>,
+    );
+    expect(document.querySelectorAll('svg')).toHaveLength(1);
+    expect(document.querySelector('svg')?.getAttribute('width')).toBe('96');
   });
 
   it('has no icon or action when none is given', () => {

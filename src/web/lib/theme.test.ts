@@ -33,6 +33,25 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('theme-color meta', () => {
+  const color = () => document.querySelector('meta[name="theme-color"]')?.getAttribute('content');
+
+  it('matches the paper colour of the applied theme', () => {
+    mockMatchMedia(false);
+    applyTheme('dark');
+    expect(color()).toBe('#141816');
+    applyTheme('light');
+    expect(color()).toBe('#f7f5f0');
+  });
+
+  it('keeps a single meta tag', () => {
+    mockMatchMedia(false);
+    applyTheme('dark');
+    applyTheme('light');
+    expect(document.querySelectorAll('meta[name="theme-color"]')).toHaveLength(1);
+  });
+});
+
 describe('theme', () => {
   it('follows the system when the choice is System', () => {
     const media = mockMatchMedia(true);

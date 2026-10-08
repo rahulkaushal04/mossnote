@@ -10,11 +10,12 @@ import { useCalendar } from '../calendar/CalendarProvider';
 import { useCommands } from './commands';
 import { useRecentNotes, useSearch } from './hooks';
 import { useTerms, useUsesSection } from '../settings/useLayout';
-import { searchScope } from './scope';
+import { narrowGroups, scopeTabs, searchScope, type PaletteScope } from './scope';
+import { Kbd } from '../../components/ui/Kbd';
 import { sentence } from '@shared/text';
 
 const ITEM =
-  'tap flex cursor-pointer items-baseline justify-between gap-3 rounded-md px-3 py-1.5 data-[selected=true]:bg-surface';
+  'tap flex cursor-pointer items-baseline justify-between gap-3 rounded-md px-3 py-1.5 data-[selected=true]:bg-hover';
 const HEADING =
   '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink-2';
 
@@ -77,6 +78,7 @@ export function CommandPalette({
   const terms = useTerms();
   const usesFarm = useUsesSection('farm');
   const [text, setText] = useState('');
+  const [scope, setScope] = useState<PaletteScope>('all');
   const query = useDebounced(text, 80);
   const navigate = useNavigate();
   const openSetDate = useOpenSetDate();
@@ -89,13 +91,14 @@ export function CommandPalette({
   const close = () => {
     onOpenChange(false);
     setText('');
+    setScope('all');
   };
   const go = (path: string) => {
     close();
     void navigate(path);
   };
 
-  const groups = search.data?.groups;
+  const groups = search.data ? narrowGroups(scope, search.data.groups) : undefined;
   const shown = searching && query.trim() === text.trim() ? groups : searching ? groups : undefined;
   const total = shown
     ? shown.notes.length +
@@ -106,7 +109,11 @@ export function CommandPalette({
     : 0;
   const needle = text.trim().toLowerCase();
   const matching = commands.filter((c) =>
-    needle === '' ? true : `${c.label} ${c.keywords}`.toLowerCase().includes(needle),
+    scope !== 'all'
+      ? false
+      : needle === ''
+        ? true
+        : `${c.label} ${c.keywords}`.toLowerCase().includes(needle),
   );
 
   return (
@@ -114,11 +121,14 @@ export function CommandPalette({
       open={open}
       onOpenChange={(next) => {
         onOpenChange(next);
-        if (!next) setText('');
+        if (!next) {
+          setText('');
+          setScope('all');
+        }
       }}
     >
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-40 bg-ink/40" />
+        <RadixDialog.Overlay className="scrim scrim-blur fixed inset-0 z-40" />
         <RadixDialog.Content
           aria-describedby={undefined}
           onOpenAutoFocus={() => {
@@ -129,7 +139,7 @@ export function CommandPalette({
             event.preventDefault();
             opener.current?.focus();
           }}
-          className="fixed inset-x-0 top-0 z-50 flex max-h-[60vh] flex-col overflow-hidden bg-raised text-ink wide:inset-auto wide:top-24 wide:left-1/2 wide:w-[560px] wide:-translate-x-1/2 wide:rounded-lg wide:shadow-2"
+          className="pop-in fixed inset-x-0 top-0 z-50 flex max-h-[60vh] flex-col overflow-hidden bg-raised text-ink shadow-3 phone:inset-auto phone:top-[12vh] phone:left-1/2 phone:w-[min(36rem,calc(100vw-2rem))] phone:-translate-x-1/2 phone:rounded-lg phone:border phone:border-hairline"
         >
           <RadixDialog.Title className="sr-only">Search and commands</RadixDialog.Title>
           <Command
@@ -149,8 +159,30 @@ export function CommandPalette({
               onValueChange={setText}
               placeholder={`Search ${searchScope(terms, usesFarm)}…`}
               aria-label="Search"
-              className="tap w-full border-0 border-b border-line bg-transparent px-4 py-3 outline-none placeholder:text-ink-muted"
+              className="tap w-full border-0 bg-transparent px-4 pt-4 pb-2 text-lg outline-offset-[-2px] placeholder:text-ink-muted"
             />
+            <div
+              role="group"
+              aria-label="Search scope"
+              className="scroll-row flex gap-1 overflow-x-auto border-b border-hairline px-3 pb-2"
+            >
+              {scopeTabs(
+                { people: terms.people.label, farm: sentence(terms.farm.many) },
+                usesFarm,
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  className="pill shrink-0"
+                  aria-pressed={scope === tab.id}
+                  onClick={() => {
+                    setScope(tab.id);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
             <Command.List className={`min-h-0 flex-1 overflow-y-auto p-2 ${HEADING}`}>
               <p role="status" aria-live="polite" className="sr-only">
                 {searching ? `${total} ${total === 1 ? 'result' : 'results'}` : ''}
@@ -277,7 +309,10 @@ export function CommandPalette({
                 </Command.Group>
               ) : null}
 
-              {!searching && recent.data && recent.data.items.length > 0 ? (
+              {!searching &&
+              (scope === 'all' || scope === 'notes') &&
+              recent.data &&
+              recent.data.items.length > 0 ? (
                 <Command.Group heading="Recent notes">
                   {recent.data.items.slice(0, 5).map((item) => (
                     <Command.Item
@@ -297,8 +332,20 @@ export function CommandPalette({
                 </Command.Group>
               ) : null}
             </Command.List>
-            <p className="border-t border-line px-4 py-2 text-xs text-ink-muted">
-              ↑↓ to move · ↵ to open · {modLabel()}↵ for all results · Esc to close
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-hairline px-4 py-2 text-xs text-ink-muted">
+              <span className="inline-flex items-center gap-1">
+                <Kbd>↑</Kbd>
+                <Kbd>↓</Kbd> move
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Kbd>↵</Kbd> open
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Kbd>{modLabel()}↵</Kbd> all results
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Kbd>Esc</Kbd> close
+              </span>
             </p>
           </Command>
         </RadixDialog.Content>

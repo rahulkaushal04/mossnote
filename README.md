@@ -50,14 +50,14 @@ The first time you open Mossnote it asks one question, **Which template?** Defau
 
 Keep one journal for each game, or each playthrough. Every journal has its own notes, people, maps, calendar and sections, and its own template, and they sit side by side in your data folder.
 
-- The journal switcher is at the top of the left rail. In a narrow window (a phone-sized browser) it is under the **More** tab, with Settings. It lists your journals and lets you switch, make a new one, or rename the current one. Settings → Journals lists them all with Open, Rename, Download and Delete.
+- The journal switcher is at the top of the sidebar. In a narrower window it is under the **More** button (the last icon in the rail on a tablet, the last tab on a phone), with Settings. It lists your journals and lets you switch, make a new one, or rename the current one. Settings → Journals lists them all with Open, Rename, Download and Delete.
 - A **template** is chosen when a journal is made and stays with it. **Default** has Today, Journal, People and Maps and counts days ("Day 12"). **Stardew Valley** adds a Farm section, a calendar of four seasons, and quick actions and suggested tags. Neither carries any facts about a game, only wording and structure. To use another template, make another journal.
 - Deleting a journal asks you to type its name, offers a copy to download first, and keeps a last copy in your backups folder unless you switch that off.
 - Journals made by earlier versions open as they were. They are read as Stardew Valley journals, because the seasons and the Farm section they used now belong to that template.
 
 ## What you can do
 
-**Write quickly.** The box on Today saves with Cmd/Ctrl+Enter and stays where it is. New notes get the current game date. A draft survives a refresh.
+**Write quickly.** Today opens with the day's name and the note box ready to type in; it saves with Cmd/Ctrl+Enter and stays where it is. Quick actions sit under it as pills. New notes get the current game date. A draft survives a refresh.
 
 **Link as you type.** `#tag`, `@person`, `[[farm entry]]` and `/` pickers create things on the spot. Nothing exists until you make it.
 
@@ -74,16 +74,19 @@ Keep one journal for each game, or each playthrough. Every journal has its own n
 - Snapping, guides, a grid, rulers, a minimap, copy and paste, grouping, alignment and undo.
 - Markers have an icon, a status, tags and fields, and can link to a note, a person or a farm entry. That page then lists the marker under "On maps". You can define your own marker types.
 - Exploring mode is for flipping between the game and the map.
-- In a narrow or touch window the editor uses the whole screen, with an icon toolbar you can hide, pinch to zoom, and handles that are easy to grab.
+- In a narrow or touch window the editor uses the whole screen, with an icon toolbar you can hide, pinch to zoom, and handles that are easy to grab. Press and hold an icon to see its name.
+- The canvas is dotted, and the details panel sits at the right on a wide screen.
 - Version history, duplicate a map, and export to PNG, SVG, PDF or an editable project file.
 
 The maps are your own drawings. Nothing about any game comes with them.
 
 **Pick a game.** A journal's template sets its wording (for example "NPCs" and "Daily journal"), its calendar and, for Stardew Valley, a few one-tap actions above the note box. You can rename, hide and reorder sections, or turn a pinned tag into a section of your own. A template holds vocabulary and structure only.
 
-**Search.** Cmd/Ctrl+K opens a palette with full-text search that forgives typos. The results page understands `#tag`, `@person` and "quoted phrases". Maps and markers match on plain text.
+**Search.** Cmd/Ctrl+K, or the Search field in the sidebar, opens a palette with full-text search that forgives typos. Tabs narrow it to notes, people, farm entries or maps, and a row of key hints shows how to move and open. The results page understands `#tag`, `@person` and "quoted phrases". Maps and markers match on plain text.
 
 **Stay safe.** Export any journal as JSON or Markdown, import a file (it replaces that journal, after a snapshot is taken), automatic and manual snapshots that you can restore or delete from Settings, and 30 days of Recently deleted. Deleting a note, person, entry or map can be undone for a few seconds, and from Recently deleted after that.
+
+**Layout.** On a wide screen a floating sidebar holds the journal switcher, search, New note, your sections with counts, pinned tags and Settings, and the page is one centred column. On a tablet the sidebar becomes a slim icon rail. On a phone a floating bar sits at the bottom, with More for journals and Settings. Light and dark themes follow your system, or you can choose one in Settings.
 
 Press `?` inside the app to see the keyboard shortcuts.
 
@@ -225,4 +228,4 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before you start, and [SECURITY.m
 
 MIT. See [LICENSE](LICENSE).
 
-The fonts are [Literata](https://github.com/googlefonts/literata) and [Source Sans 3](https://github.com/adobe-fonts/source-sans), bundled through the `@fontsource-variable` packages under the SIL Open Font License 1.1.
+The fonts are [Literata](https://github.com/googlefonts/literata) and [Inter](https://github.com/rsms/inter), bundled through the `@fontsource-variable` packages under the SIL Open Font License 1.1.

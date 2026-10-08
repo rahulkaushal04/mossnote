@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { THEME_COLOR } from '../lib/theme';
 
 /**
  * Contrast check for the design tokens: text at least 4.5:1, interface
@@ -16,6 +17,28 @@ function readTokens(selector: string): Record<string, string> {
     tokens[match[1] ?? ''] = (match[2] ?? '').toLowerCase();
   }
   return tokens;
+}
+
+/** Alpha tokens (`--hover`, `--hairline`, `--ring`) are written as `rgb(r g b / a)`. */
+function readAlphaTokens(selector: string): Record<string, [string, number]> {
+  const start = css.indexOf(`${selector} {`);
+  const body = css.slice(start, css.indexOf('}', start));
+  const tokens: Record<string, [string, number]> = {};
+  for (const m of body.matchAll(/--([a-z0-9-]+):\s*rgb\((\d+) (\d+) (\d+) \/ ([0-9.]+)\)\s*;/g)) {
+    const hex = [m[2], m[3], m[4]].map((v) => Number(v).toString(16).padStart(2, '0')).join('');
+    tokens[m[1] ?? ''] = [`#${hex}`, Number(m[5])];
+  }
+  return tokens;
+}
+
+/** The colour an alpha token produces on top of an opaque background. */
+function over([fg, alpha]: [string, number], bg: string): string {
+  const mix = (shift: number) => {
+    const f = (Number.parseInt(fg.slice(1), 16) >> shift) & 255;
+    const b = (Number.parseInt(bg.slice(1), 16) >> shift) & 255;
+    return Math.round(f * alpha + b * (1 - alpha));
+  };
+  return `#${[16, 8, 0].map((s) => mix(s).toString(16).padStart(2, '0')).join('')}`;
 }
 
 const themes = {
@@ -112,11 +135,61 @@ for (const [name, tokens] of Object.entries(themes)) {
         4.5,
       );
     });
+    for (const fg of ['ink', 'ink-2', 'ink-muted'] as const) {
+      it(`text: ${fg} on a selected card (accent-soft) is at least 4.5:1`, () => {
+        const ratio = contrast(tokens[fg] ?? '', tokens['accent-soft'] ?? '');
+        expect(ratio, `${fg} on accent-soft = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+      });
+    }
     it('text on accent fills (accent-ink on accent) is at least 4.5:1', () => {
       expect(contrast(tokens['accent-ink'] ?? '', tokens.accent ?? '')).toBeGreaterThanOrEqual(4.5);
     });
   });
 }
+
+const alphaThemes = {
+  light: readAlphaTokens(':root'),
+  dark: readAlphaTokens(":root[data-theme='dark']"),
+};
+
+for (const [name, tokens] of Object.entries(themes)) {
+  const alpha = alphaThemes[name as keyof typeof alphaThemes];
+  describe(`${name} theme alpha tokens`, () => {
+    it('defines hover, hairline and ring', () => {
+      for (const token of ['hover', 'hairline', 'ring']) {
+        expect(alpha[token], `${name} ${token}`).toBeDefined();
+      }
+    });
+    for (const bg of SURFACES) {
+      const base = tokens[bg] ?? '';
+      const hover = alpha.hover;
+      for (const fg of ['ink', 'ink-2', 'ink-muted', 'accent'] as const) {
+        it(`text: ${fg} on a hovered ${bg} is at least 4.5:1`, () => {
+          if (!hover) throw new Error('missing --hover');
+          const ratio = contrast(tokens[fg] ?? '', over(hover, base));
+          expect(ratio, `${fg} on hover/${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+      it(`a hairline is visible on ${bg} (decorative, at least 1.15:1)`, () => {
+        if (!alpha.hairline) throw new Error('missing --hairline');
+        const ratio = contrast(over(alpha.hairline, base), base);
+        expect(ratio, `hairline on ${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(1.15);
+      });
+      it(`the focus ring is visible on ${bg} (at least 1.2:1)`, () => {
+        if (!alpha.ring) throw new Error('missing --ring');
+        const ratio = contrast(over(alpha.ring, base), base);
+        expect(ratio, `ring on ${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(1.2);
+      });
+    }
+  });
+}
+
+describe('theme-color meta', () => {
+  it('uses the paper colour of each theme', () => {
+    expect(THEME_COLOR.light).toBe(themes.light.paper);
+    expect(THEME_COLOR.dark).toBe(themes.dark.paper);
+  });
+});
 
 describe('the checker itself', () => {
   it('computes the WCAG reference values', () => {

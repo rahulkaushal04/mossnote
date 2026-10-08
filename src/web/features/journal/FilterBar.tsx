@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Chip } from '../../components/ui/Chip';
-import { CloseIcon, FilterIcon, SparkIcon } from '../../components/ui/icons';
+import { Chip, RemovableChip } from '../../components/ui/Chip';
+import { FilterIcon, SparkIcon } from '../../components/ui/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/Popover';
 import { useTags } from '../tags/hooks';
 import type { FlagFilter, JournalFilters, QuestionState } from './useJournalFilters';
@@ -52,7 +52,7 @@ export function TagPicker({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button type="button" className="chip chip-toggle shrink-0">
+        <button type="button" className="pill shrink-0">
           <FilterIcon className="size-4" />
           Tag
         </button>
@@ -163,17 +163,14 @@ export function FilterBar({
       ) : null}
       <TagPicker selected={filters.tags} onToggle={toggleTag} />
       {filters.tags.map((tag) => (
-        <button
+        <RemovableChip
           key={tag}
-          type="button"
-          className="chip chip-toggle chip-selected shrink-0"
-          aria-label={`Remove tag filter ${tag}`}
-          onClick={() => {
+          label={`#${tag}`}
+          removeLabel={`Remove tag filter ${tag}`}
+          onRemove={() => {
             toggleTag(tag);
           }}
-        >
-          #{tag} <CloseIcon className="size-3.5" />
-        </button>
+        />
       ))}
       {pinned
         .filter((t) => !has(t.name))

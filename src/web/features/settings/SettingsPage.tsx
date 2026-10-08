@@ -54,7 +54,7 @@ function Choice<T extends string>({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="m-0 font-medium">{legend}</p>
+      <p className="m-0 text-sm font-medium text-ink-2">{legend}</p>
       <Segmented label={legend} options={options} value={value} onChange={onChange} />
     </div>
   );
@@ -65,9 +65,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="flex scroll-mt-24 flex-col gap-4 border-t border-line py-6 first:border-t-0"
+      className="flex scroll-mt-24 flex-col gap-4 border-t border-hairline py-8 first:border-t-0"
     >
-      <h2 id={`${id}-heading`} className="font-serif text-lg font-semibold">
+      <h2 id={`${id}-heading`} className="font-serif text-xl font-medium tracking-tight">
         {title}
       </h2>
       {children}
@@ -119,17 +119,16 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" />
+      <PageHeader
+        title="Settings"
+        intro="Look, feel and your data. Everything stays on this computer."
+      />
       <nav
         aria-label="Settings sections"
         className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:px-0"
       >
         {SECTIONS.map((section) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="chip chip-toggle shrink-0 no-underline"
-          >
+          <a key={section.id} href={`#${section.id}`} className="pill shrink-0 no-underline">
             {section.title}
           </a>
         ))}

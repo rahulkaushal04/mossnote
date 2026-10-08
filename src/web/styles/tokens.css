@@ -21,6 +21,10 @@
   --danger: #a3322a;
   --success: #2f6b3a;
   --scrim: rgb(14 20 17 / 0.45);
+  /* Ink at low alpha: hover fills, hairlines and the flat focus ring on the composer. */
+  --hover: rgb(29 36 32 / 0.05);
+  --hairline: rgb(29 36 32 / 0.1);
+  --ring: rgb(31 95 86 / 0.3);
 
   --elev-1: 0 1px 2px rgb(20 28 24 / 0.08);
   --elev-2: 0 4px 16px rgb(20 28 24 / 0.12);
@@ -47,6 +51,9 @@
   --danger: #f08f82;
   --success: #8fd09a;
   --scrim: rgb(0 0 0 / 0.6);
+  --hover: rgb(232 235 228 / 0.06);
+  --hairline: rgb(232 235 228 / 0.1);
+  --ring: rgb(108 193 174 / 0.35);
 
   /* Shadows barely show on dark, so elevation also comes from the lighter --raised surface. */
   --elev-1: 0 1px 2px rgb(0 0 0 / 0.4);
@@ -72,6 +79,11 @@
 
   /* Height of a button, field or row action: 36px with a mouse, 44px on touch. */
   --control-h: 2.25rem;
+
+  /* Layout: the inset sidebar, the reading column and the tablet rail. */
+  --sidebar-w: 14.5rem;
+  --rail-w: 4rem;
+  --column: 44rem;
 
   --dur-fast: 120ms;
   --dur-base: 200ms;
@@ -101,6 +113,9 @@
   --text-xl--line-height: 1.25;
   --text-2xl: 1.875rem;
   --text-2xl--line-height: 1.2;
+  /* Page titles: 28px on a phone, 36px from 640px. */
+  --text-title: 1.75rem;
+  --text-title--line-height: 1.2;
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 1rem;
@@ -124,9 +139,12 @@
   --shadow-1: var(--elev-1);
   --shadow-2: var(--elev-2);
   --shadow-3: var(--elev-3);
+  --color-hover: var(--hover);
+  --color-hairline: var(--hairline);
+  --color-ring: var(--ring);
   --font-sans:
-    'Source Sans 3 Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', sans-serif;
+    'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    sans-serif;
   --font-serif: 'Literata Variable', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
 }
 

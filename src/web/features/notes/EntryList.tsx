@@ -9,7 +9,10 @@ import { NoteEntry } from './NoteEntry';
 function DayHeader({ children, to }: { children: string; to?: string }) {
   const label = <span className="text-sm font-semibold text-ink-2">{children}</span>;
   return (
-    <li className="flex items-center gap-3 pt-6" aria-hidden={to ? undefined : true}>
+    <li
+      className="sticky top-0 z-[1] flex items-center gap-3 bg-paper pt-5 pb-1"
+      aria-hidden={to ? undefined : true}
+    >
       {to ? (
         <Link to={to} className="no-underline hover:underline">
           {label}
@@ -17,7 +20,7 @@ function DayHeader({ children, to }: { children: string; to?: string }) {
       ) : (
         label
       )}
-      <span className="h-px flex-1 bg-line" aria-hidden="true" />
+      <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
     </li>
   );
 }

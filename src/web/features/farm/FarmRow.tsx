@@ -79,11 +79,11 @@ export function FarmRow({ entry }: { entry: Planting }) {
   ].filter(Boolean);
 
   return (
-    <li className="group relative border-b border-line py-3">
+    <li className="group relative border-b border-hairline py-3">
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <Link
           to={`/farm/${entry.id}`}
-          className="reading text-ink no-underline after:absolute after:inset-0 hover:underline"
+          className="list-row-title text-ink no-underline after:absolute after:inset-0 hover:underline"
         >
           {entry.label}
         </Link>

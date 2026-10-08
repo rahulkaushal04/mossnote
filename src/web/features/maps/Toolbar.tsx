@@ -3,9 +3,18 @@
  * Buttons are icons; the names show beside them from 900px up. On a phone the rows can be hidden
  * to give the canvas the whole screen, leaving Undo and Redo within reach.
  */
-import type { ComponentType, ReactNode, SVGProps } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ComponentType,
+  type ReactNode,
+  type SVGProps,
+} from 'react';
 import { cx } from '../../lib/cx';
 import { modLabel } from '../../lib/hotkeys';
+import { useLongPress } from '../../lib/useLongPress';
 import { useIsPhone } from '../../lib/useViewport';
 import {
   ArrowIcon,
@@ -82,6 +91,9 @@ export interface ToolbarProps {
   onCollapsed: (collapsed: boolean) => void;
 }
 
+/** Shows a button's name when a finger rests on it, since touch has no hover. */
+const HintContext = createContext<(label: string) => void>(() => undefined);
+
 /** A toolbar button: an icon, with its name beside it on wide screens and for screen readers. */
 function Btn({
   icon: Icon,
@@ -98,22 +110,31 @@ function Btn({
   'aria-pressed'?: boolean;
   'aria-keyshortcuts'?: string;
 }) {
+  const hint = useContext(HintContext);
+  const press = useLongPress(() => {
+    hint(label);
+  });
   return (
-    <button type="button" {...rest} className={cx('btn btn-icon shrink-0 wide:px-3', className)}>
+    <button
+      type="button"
+      {...rest}
+      {...press}
+      className={cx('btn btn-ghost btn-icon shrink-0 wide:px-3', className)}
+    >
       <Icon className="size-5" />
       <span className="sr-only wide:not-sr-only">{label}</span>
     </button>
   );
 }
 
-const Divider = () => <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden="true" />;
+const Divider = () => <span className="mx-1 h-5 w-px shrink-0 bg-hairline" aria-hidden="true" />;
 
 export function Toolbar(p: ToolbarProps) {
   const mod = modLabel();
   const phone = useIsPhone();
   const hidden = phone && p.collapsed;
   const row =
-    'scroll-row -mx-4 flex items-center gap-1 overflow-x-auto px-4 pb-1 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0';
+    'scroll-row flex items-center gap-1 overflow-x-auto phone:flex-wrap phone:overflow-visible';
 
   const extras: ReactNode = (
     <>
@@ -155,7 +176,11 @@ export function Toolbar(p: ToolbarProps) {
       <Divider />
       <Menu>
         <MenuTrigger asChild>
-          <button type="button" className="btn btn-icon shrink-0 wide:px-3" disabled={p.exporting}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon shrink-0 wide:px-3"
+            disabled={p.exporting}
+          >
             <DownloadIcon className="size-5" />
             <span className="sr-only wide:not-sr-only">
               {p.exporting ? 'Exporting…' : 'Export'}
@@ -197,7 +222,11 @@ export function Toolbar(p: ToolbarProps) {
       <Btn icon={ClockIcon} label="History" onClick={p.onHistory} />
       <Menu>
         <MenuTrigger asChild>
-          <button type="button" className="btn btn-icon shrink-0" aria-label="More map actions">
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon shrink-0"
+            aria-label="More map actions"
+          >
             <EllipsisIcon className="size-5" />
           </button>
         </MenuTrigger>
@@ -212,54 +241,76 @@ export function Toolbar(p: ToolbarProps) {
     </>
   );
 
+  const [hint, setHint] = useState<string | null>(null);
+  useEffect(() => {
+    if (hint === null) return;
+    const timer = setTimeout(() => {
+      setHint(null);
+    }, 1600);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [hint]);
+
   return (
-    <div className="flex flex-col gap-1">
-      {hidden ? null : (
-        <div role="toolbar" aria-label="Map tools" className={row}>
-          {TOOLS.map((t) => (
+    <HintContext value={setHint}>
+      <div className="relative flex flex-col gap-1 rounded-lg border border-hairline bg-raised p-1 shadow-1">
+        {hint ? (
+          <p
+            aria-hidden="true"
+            data-testid="toolbar-hint"
+            className="absolute top-full left-1/2 z-20 mt-1 -translate-x-1/2 rounded-md bg-ink px-2 py-1 text-sm whitespace-nowrap text-paper"
+          >
+            {hint}
+          </p>
+        ) : null}
+        {hidden ? null : (
+          <div role="toolbar" aria-label="Map tools" className={row}>
+            {TOOLS.map((t) => (
+              <Btn
+                key={t.id}
+                icon={TOOL_ICONS[t.id]}
+                label={t.label}
+                aria-pressed={p.tool === t.id}
+                aria-keyshortcuts={t.key}
+                title={`${t.hint} (${t.key})`}
+                className={p.tool === t.id ? 'btn-primary' : ''}
+                onClick={() => {
+                  p.onTool(t.id);
+                }}
+              />
+            ))}
+          </div>
+        )}
+        <div role="toolbar" aria-label="Map controls" className={row}>
+          {phone ? (
             <Btn
-              key={t.id}
-              icon={TOOL_ICONS[t.id]}
-              label={t.label}
-              aria-pressed={p.tool === t.id}
-              aria-keyshortcuts={t.key}
-              title={`${t.hint} (${t.key})`}
-              className={p.tool === t.id ? 'btn-primary' : ''}
+              icon={ChevronUpIcon}
+              label={p.collapsed ? 'Show tools' : 'Hide tools'}
+              aria-pressed={undefined}
+              className={p.collapsed ? '[&_svg]:rotate-180' : ''}
               onClick={() => {
-                p.onTool(t.id);
+                p.onCollapsed(!p.collapsed);
               }}
             />
-          ))}
-        </div>
-      )}
-      <div role="toolbar" aria-label="Map controls" className={row}>
-        {phone ? (
+          ) : null}
           <Btn
-            icon={ChevronUpIcon}
-            label={p.collapsed ? 'Show tools' : 'Hide tools'}
-            aria-pressed={undefined}
-            className={p.collapsed ? '[&_svg]:rotate-180' : ''}
-            onClick={() => {
-              p.onCollapsed(!p.collapsed);
-            }}
+            icon={UndoIcon}
+            label="Undo"
+            disabled={!p.canUndo}
+            title={`Undo (${mod}Z)`}
+            onClick={p.onUndo}
           />
-        ) : null}
-        <Btn
-          icon={UndoIcon}
-          label="Undo"
-          disabled={!p.canUndo}
-          title={`Undo (${mod}Z)`}
-          onClick={p.onUndo}
-        />
-        <Btn
-          icon={RedoIcon}
-          label="Redo"
-          disabled={!p.canRedo}
-          title={`Redo (${mod}⇧Z)`}
-          onClick={p.onRedo}
-        />
-        {hidden ? null : extras}
+          <Btn
+            icon={RedoIcon}
+            label="Redo"
+            disabled={!p.canRedo}
+            title={`Redo (${mod}⇧Z)`}
+            onClick={p.onRedo}
+          />
+          {hidden ? null : extras}
+        </div>
       </div>
-    </div>
+    </HintContext>
   );
 }

@@ -176,7 +176,11 @@ test.describe('journals side by side', () => {
     await page.getByRole('button', { name: 'Set date' }).click();
     await page.getByLabel('Day', { exact: true }).fill('120');
     await page.getByLabel('Day', { exact: true }).press('Enter');
-    await expect(page.getByRole('button', { name: /Day 120/ })).toBeVisible();
+    await expect(
+      page
+        .getByRole('group', { name: 'Current in-game date' })
+        .getByRole('button', { name: /Day 120/ }),
+    ).toBeVisible();
     await expect(page.getByText(/Spring|Summer|Season/)).toHaveCount(0);
 
     await page.goto(`${fresh.url}/journal`);

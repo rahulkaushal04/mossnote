@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { CheckIcon } from './icons';
+import { CheckIcon, CloseIcon } from './icons';
 
 /**
  * A small pill. With `onToggle` it is a filter toggle (a button with `aria-pressed`), and a
@@ -29,9 +29,36 @@ export function Chip({
       type="button"
       aria-pressed={selected}
       onClick={onToggle}
-      className={cx('chip chip-toggle', selected && 'chip-selected', className)}
+      className={cx('pill', className)}
     >
       {body}
+    </button>
+  );
+}
+
+/** An active filter shown as a pill that removes itself when pressed. */
+export function RemovableChip({
+  label,
+  removeLabel,
+  onRemove,
+  className,
+}: {
+  label: string;
+  /** What the button does, for screen readers: "Remove tag filter crops". */
+  removeLabel: string;
+  onRemove: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed="true"
+      aria-label={removeLabel}
+      onClick={onRemove}
+      className={cx('pill shrink-0', className)}
+    >
+      {label}
+      <CloseIcon className="size-3.5" />
     </button>
   );
 }

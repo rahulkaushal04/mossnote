@@ -3,20 +3,24 @@ import type { ReactNode } from 'react';
 /**
  * What an empty list is for, and what to do next. The sentence is the message; an icon and one
  * action (a button that starts the first item) are optional. Without them it is a single quiet line.
+ * `art` is a small line drawing from `./art`, for the screens that are empty on first use.
  */
 export function EmptyState({
   children,
   icon,
+  art,
   action,
 }: {
   children: ReactNode;
   icon?: ReactNode;
+  art?: ReactNode;
   action?: ReactNode;
 }) {
-  if (!icon && !action) return <p className="py-8 text-base text-ink-muted">{children}</p>;
+  if (!icon && !art && !action) return <p className="py-8 text-base text-ink-muted">{children}</p>;
   return (
     <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
-      {icon ? (
+      {art ? <span className="text-ink-muted">{art}</span> : null}
+      {icon && !art ? (
         <span
           aria-hidden="true"
           className="grid size-14 place-items-center rounded-full bg-surface text-2xl text-ink-muted"

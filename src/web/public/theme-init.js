@@ -15,4 +15,8 @@
     (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   root.setAttribute('data-theme', dark ? 'dark' : 'light');
   root.setAttribute('data-reading', reading);
+  var meta = document.createElement('meta');
+  meta.name = 'theme-color';
+  meta.content = dark ? '#141816' : '#f7f5f0';
+  document.head.appendChild(meta);
 })();

@@ -13,34 +13,37 @@ import { toScreen, type Size, type View } from './geometry';
 
 const ACCENT = 'var(--accent)';
 
-/** The optional grid: thin lines, with every fifth a little stronger. */
+/** The optional grid, drawn as dots: small ones every step, larger ones every fifth. */
 export function Grid({ view, size }: { view: View; size: Size }) {
   const step = gridStep(view.scale);
   const px = step * view.scale;
   const [ox, oy] = toScreen(view, size, 0, 0);
-  const x = ((ox % (px * 5)) + px * 5) % (px * 5);
-  const y = ((oy % (px * 5)) + px * 5) % (px * 5);
+  const major = px * 5;
+  // A dot sits at the centre of its pattern cell, so the cell starts half a step before the line.
+  const x = ((ox % major) + major) % major;
+  const y = ((oy % major) + major) % major;
   return (
     <g pointerEvents="none" aria-hidden="true">
       <defs>
-        <pattern id="map-grid" x={x} y={y} width={px} height={px} patternUnits="userSpaceOnUse">
-          <path d={`M${px} 0H0V${px}`} fill="none" stroke="var(--line)" strokeWidth={1} />
+        <pattern
+          id="map-grid"
+          x={x - px / 2}
+          y={y - px / 2}
+          width={px}
+          height={px}
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx={px / 2} cy={px / 2} r={1} fill="var(--control)" opacity={0.55} />
         </pattern>
         <pattern
           id="map-grid-major"
-          x={x}
-          y={y}
-          width={px * 5}
-          height={px * 5}
+          x={x - major / 2}
+          y={y - major / 2}
+          width={major}
+          height={major}
           patternUnits="userSpaceOnUse"
         >
-          <path
-            d={`M${px * 5} 0H0V${px * 5}`}
-            fill="none"
-            stroke="var(--ink-muted)"
-            strokeWidth={1}
-            opacity={0.35}
-          />
+          <circle cx={major / 2} cy={major / 2} r={1.75} fill="var(--ink-muted)" opacity={0.6} />
         </pattern>
       </defs>
       <rect width={size.w} height={size.h} fill="url(#map-grid)" />

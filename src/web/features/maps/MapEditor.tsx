@@ -404,7 +404,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
       <div className={`flex gap-2 ${canvasHeight}`}>
         <div
           ref={wrap}
-          className="relative min-w-0 flex-1 overflow-hidden rounded-lg border border-line"
+          className={`relative min-w-0 flex-1 overflow-hidden rounded-lg border border-hairline ${settings.grid ? '' : 'dotted'}`}
         >
           {size.w > 0 ? <Canvas ed={canvasApi} /> : null}
           {settings.compass ? <Compass /> : null}
@@ -505,7 +505,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
           />
           {panelOpen && narrow ? (
             <div
-              className="rounded-t-panel absolute inset-x-0 bottom-0 z-30 max-h-[60%] overflow-y-auto border-t border-line bg-raised p-3 shadow-2"
+              className="absolute inset-x-0 bottom-0 z-30 max-h-[60%] overflow-y-auto rounded-t-lg border-t border-hairline bg-raised p-3 shadow-2"
               onPointerDown={(e) => {
                 e.stopPropagation();
               }}
@@ -521,7 +521,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
         {panelOpen && !narrow ? (
           <aside
             aria-label="Map details"
-            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-line bg-raised p-3"
+            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-hairline bg-raised p-3 shadow-1"
           >
             {sidePanel}
           </aside>
