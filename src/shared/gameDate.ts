@@ -1,4 +1,4 @@
-import { LIMITS, type Calendar } from './constants';
+import { COUNTER_DAYS, LIMITS, type Calendar } from './constants';
 
 /**
  * In-game dates are one integer key: `year*10000 + seasonIndex*100 + day`
@@ -28,6 +28,25 @@ export function decode(key: number): GameDateParts {
   const rest = key - year * 10_000;
   const season = Math.floor(rest / 100);
   return { year, season, day: rest - season * 100 };
+}
+
+/** True for the day-counter calendar of the Default template. */
+export const isCounter = (calendar: Calendar): boolean => calendar.counter === true;
+
+/** The highest day number a counter calendar can hold. */
+export const COUNTER_MAX = LIMITS.yearMax * COUNTER_DAYS;
+
+/** Day number (1, 2, 3 …) of a valid counter-calendar key. */
+export function dayNumber(key: number): number {
+  const { year, day } = decode(key);
+  return (year - 1) * COUNTER_DAYS + day;
+}
+
+/** The key of day `n` in a counter calendar, or null outside 1 to {@link COUNTER_MAX}. */
+export function fromDayNumber(n: number): number | null {
+  if (!Number.isInteger(n) || n < 1 || n > COUNTER_MAX) return null;
+  const year = Math.floor((n - 1) / COUNTER_DAYS) + 1;
+  return encode({ year, season: 0, day: n - (year - 1) * COUNTER_DAYS });
 }
 
 /** True when `key` is an integer date that exists under `calendar`. */
@@ -76,6 +95,7 @@ export function format(
   options: { withYear?: boolean } = {},
 ): string | null {
   if (!isValid(key, calendar)) return null;
+  if (isCounter(calendar)) return `${calendar.seasons[0]?.name ?? 'Day'} ${dayNumber(key)}`;
   const { year, season, day } = decode(key);
   const name = calendar.seasons[season]?.name ?? '';
   const base = `${name} ${day}`;
@@ -120,6 +140,7 @@ function matchSeason(
  * prefix or a day that does not exist in that season.
  */
 export function parse(text: string, calendar: Calendar): GameDateQuery | null {
+  if (isCounter(calendar)) return parseCounter(text, calendar);
   const tokens = normalise(text)
     .replace(/[·,]/g, ' ')
     .split(/\s+/)
@@ -163,4 +184,12 @@ export function parse(text: string, calendar: Calendar): GameDateQuery | null {
   if (year !== undefined) result.year = year;
   if (day !== undefined) result.day = day;
   return result;
+}
+
+/** `day 12`, `d12` or just `12` for a counter calendar. Always one exact day. */
+function parseCounter(text: string, calendar: Calendar): GameDateQuery | null {
+  const word = normalise(calendar.seasons[0]?.name ?? 'day');
+  const match = new RegExp(`^(?:${word}\\s*|d)?(\\d{1,7})$`).exec(normalise(text).trim());
+  const key = match?.[1] ? fromDayNumber(Number(match[1])) : null;
+  return key === null ? null : decode(key);
 }

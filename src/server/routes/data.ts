@@ -1,12 +1,23 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+import { fromZod } from '../middleware/errors';
 import { importQuerySchema } from '@shared/schemas/misc';
 import type { Env } from '../env';
-import { validationFailed } from '../errors';
+import { AppError, validationFailed } from '../errors';
 import { validateQuery } from '../middleware/validate';
-import { backupNow, dataInfo, listBackups } from '../services/backups';
+import { backupNow, dataInfo, deleteBackup, listBackups } from '../services/backups';
 import type { Ctx } from '../services/ctx';
 import { buildExport, buildMarkdown, exportFileName, serializeExport } from '../services/export';
 import { dryRunImport, importJournal } from '../services/import';
+
+const validateBackupName = zValidator(
+  'param',
+  z.object({ name: z.string().max(200) }),
+  (result) => {
+    if (!result.success) throw fromZod(result.error);
+  },
+);
 
 export const dataRoutes = (ctx: Ctx) =>
   new Hono<Env>()
@@ -36,4 +47,17 @@ export const dataRoutes = (ctx: Ctx) =>
       return c.json(await importJournal(ctx, raw));
     })
     .post('/backup', async (c) => c.json(await backupNow(ctx)))
-    .get('/backups', (c) => c.json({ items: listBackups(ctx) }));
+    .get('/backups', (c) => c.json({ items: listBackups(ctx) }))
+    .post('/backups/:name/restore', validateBackupName, async (c) => {
+      if (!ctx.journals) throw new AppError('not_found', 'Not found.');
+      return c.json(await ctx.journals.restoreSnapshot(c.req.valid('param').name));
+    })
+    .delete('/backups/:name', validateBackupName, (c) => {
+      deleteBackup(ctx, c.req.valid('param').name);
+      return c.body(null, 204);
+    })
+    // Opens the data folder in the system file manager. Takes no path: it can only open this one.
+    .post('/open-folder', async (c) => {
+      await ctx.openFolder(ctx.config.dataDir);
+      return c.body(null, 204);
+    });

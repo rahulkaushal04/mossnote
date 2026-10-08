@@ -21,7 +21,7 @@ export function MarkerNameInput({
       placeholder="Name it, then Enter"
       maxLength={80}
       defaultValue={label}
-      className="tap absolute z-20 w-48 -translate-x-1/2 rounded-control border border-accent bg-raised px-2 shadow-float"
+      className="tap absolute z-20 w-48 -translate-x-1/2 rounded-md border border-accent bg-raised px-2 shadow-2"
       style={{ left: at.x, top: at.y + 20 }}
       onPointerDown={(e) => {
         e.stopPropagation();

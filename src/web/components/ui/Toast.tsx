@@ -71,7 +71,7 @@ function ToastView({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
     >
       <div
         role={toast.tone === 'alert' ? 'alert' : undefined}
-        className="flex items-center gap-4 rounded-panel border border-rule bg-raised px-4 py-2 text-ink shadow-float"
+        className="toast-in flex items-center gap-4 rounded-md border border-line bg-raised px-4 py-2 text-ink shadow-2"
       >
         <span>{toast.message}</span>
         {toast.actionLabel && toast.onAction ? (

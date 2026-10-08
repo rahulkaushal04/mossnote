@@ -46,7 +46,7 @@ export function NoteMenu({
           <button
             type="button"
             aria-label="More actions"
-            className="tap rounded-control px-1 text-ink-muted hover:bg-surface hover:text-ink"
+            className="tap rounded-md px-1 text-ink-muted hover:bg-surface hover:text-ink"
           >
             <EllipsisIcon />
           </button>

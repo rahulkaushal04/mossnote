@@ -117,15 +117,45 @@ export interface PickItem {
 
 export interface DataInfo {
   dataDir: string;
+  backupsDir: string;
   databasePath: string;
   databaseBytes: number;
+  /** Id and name of the journal these facts are about. */
+  journal: { id: string; name: string };
   counts: { notes: number; people: number; plantings: number; tags: number; maps: number };
   lastBackupAt: string | null;
+  backupCount: number;
+  backupBytes: number;
+}
+
+/** Why a journal can or cannot be opened. */
+export type JournalStatus = 'ok' | 'needs_newer_app' | 'unreadable';
+
+/** One journal file in the data folder, for the switcher and Settings → Journals. */
+export interface JournalInfo {
+  id: string;
+  name: string;
+  /** Template id; see `src/shared/templates`. */
+  template: string;
+  active: boolean;
+  status: JournalStatus;
+  bytes: number;
+  createdAt: string | null;
+  modifiedAt: string;
+  counts: { notes: number; people: number; plantings: number; maps: number } | null;
+  /** Snapshots kept for this journal. */
+  backups: number;
+}
+
+/** `GET /api/journals`. `active` is null on a first run, before any journal exists. */
+export interface JournalList {
+  active: string | null;
+  items: JournalInfo[];
 }
 
 export interface BackupInfo {
   name: string;
-  reason: 'auto' | 'pre-migration' | 'pre-import' | 'manual';
+  reason: 'auto' | 'pre-migration' | 'pre-import' | 'pre-restore' | 'manual';
   size: number;
   takenAt: string;
 }

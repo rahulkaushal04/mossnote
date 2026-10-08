@@ -15,7 +15,7 @@ import { api } from '../../lib/api';
 import { caretPosition } from '../../lib/caret';
 import { GameDateChip } from '../calendar/GameDateChip';
 import { LinkChip, TagList } from '../notes/NoteParts';
-import { effectiveDate, isDraftEmpty, withLink, withTag, type NoteDraft } from './draft';
+import { effectiveDate, withLink, withTag, type NoteDraft } from './draft';
 import { optionId, PickerList } from './PickerList';
 import { applyTrigger } from './triggers';
 import { toTrigger, usePicker, type PickerRow } from './usePicker';
@@ -39,10 +39,9 @@ export interface CaptureEditorProps {
   describedBy?: string | undefined;
 }
 
-const TEXT_BUTTON =
-  'tap rounded-control px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
+const TEXT_BUTTON = 'tap rounded-md px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
 const TOGGLE =
-  'tap inline-flex items-center justify-center rounded-control px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
+  'tap inline-flex items-center justify-center rounded-md px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
 
 /**
  * The shared text area, chips, flags and trigger handling used by the composer and by inline
@@ -68,30 +67,9 @@ export function CaptureEditor({
   const searchRef = useRef<HTMLInputElement>(null);
   const listId = useId();
   const picker = usePicker(value);
-  const [focused, setFocused] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
   const [anchor, setAnchor] = useState({ top: 0, left: 0 });
   const [busy, setBusy] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  // The action row shows while anything inside has focus. Tracked with native focus events.
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-    const onIn = () => {
-      setFocused(true);
-    };
-    const onOut = (event: FocusEvent) => {
-      if (!(event.relatedTarget instanceof Node && el.contains(event.relatedTarget)))
-        setFocused(false);
-    };
-    el.addEventListener('focusin', onIn);
-    el.addEventListener('focusout', onOut);
-    return () => {
-      el.removeEventListener('focusin', onIn);
-      el.removeEventListener('focusout', onOut);
-    };
-  }, []);
 
   // Grow with the content, from 3 rows up to 40% of the viewport, then scroll.
   useLayoutEffect(() => {
@@ -248,8 +226,6 @@ export function CaptureEditor({
 
   const open = picker.open;
   const inline = open !== null && !open.byButton;
-  const showActions =
-    mode === 'edit' || focused || dateOpen || open !== null || !isDraftEmpty(value);
   const date = effectiveDate(value, defaultGameDate);
   const emptyText =
     open?.kind === 'person'
@@ -260,7 +236,6 @@ export function CaptureEditor({
 
   return (
     <div
-      ref={wrapperRef}
       role="group"
       aria-label={mode === 'compose' ? 'Write a note' : 'Edit note'}
       className="relative flex flex-col gap-2"
@@ -280,7 +255,7 @@ export function CaptureEditor({
               area.current?.focus();
             }
           }}
-          className="reading w-full border-0 border-b border-rule bg-transparent pb-1 font-semibold outline-offset-4 placeholder:text-ink-muted"
+          className="reading w-full border-0 border-b border-line bg-transparent pb-1 font-semibold outline-offset-4 placeholder:text-ink-muted"
         />
       ) : null}
 
@@ -355,78 +330,78 @@ export function CaptureEditor({
         />
       ) : null}
 
-      {showActions ? (
-        <div
-          className="flex flex-wrap items-center gap-1 text-ink-muted"
-          role="group"
-          aria-label="Note options"
+      {/* Always shown, so the layout below the composer never jumps when focus moves: a click
+          that starts by blurring the editor would land on whatever slid into its place. */}
+      <div
+        className="flex flex-wrap items-center gap-1 text-ink-muted"
+        role="group"
+        aria-label="Note options"
+      >
+        <GameDateChip
+          value={date}
+          onChange={(key) => {
+            onChange({ ...value, gameDate: key });
+          }}
+          emptyLabel="Add date"
+          clearLabel="Clear date"
+          title="Date of this note"
+          open={dateOpen}
+          onOpenChange={setDateOpen}
+        />
+        <button
+          type="button"
+          className={`${TOGGLE} ${value.isDiscovery ? 'text-discovery' : ''}`}
+          aria-pressed={value.isDiscovery}
+          aria-label="Discovery"
+          onClick={() => {
+            onChange({ ...value, isDiscovery: !value.isDiscovery });
+          }}
         >
-          <GameDateChip
-            value={date}
-            onChange={(key) => {
-              onChange({ ...value, gameDate: key });
-            }}
-            emptyLabel="Add date"
-            clearLabel="Clear date"
-            title="Date of this note"
-            open={dateOpen}
-            onOpenChange={setDateOpen}
-          />
-          <button
-            type="button"
-            className={`${TOGGLE} ${value.isDiscovery ? 'text-discovery' : ''}`}
-            aria-pressed={value.isDiscovery}
-            aria-label="Discovery"
-            onClick={() => {
-              onChange({ ...value, isDiscovery: !value.isDiscovery });
-            }}
-          >
-            <SparkIcon />
-          </button>
-          <button
-            type="button"
-            className={`${TOGGLE} ${value.isQuestion ? 'text-question' : ''}`}
-            aria-pressed={value.isQuestion}
-            aria-label="Question"
-            onClick={() => {
-              onChange({ ...value, isQuestion: !value.isQuestion });
-            }}
-          >
-            ?
-          </button>
-          {value.title === null ? (
-            <button
-              type="button"
-              className={TEXT_BUTTON}
-              onClick={() => {
-                onChange({ ...value, title: '' });
-                requestAnimationFrame(() => titleRef.current?.focus());
-              }}
-            >
-              Title
-            </button>
-          ) : null}
+          <SparkIcon />
+        </button>
+        <button
+          type="button"
+          className={`${TOGGLE} ${value.isQuestion ? 'text-question' : ''}`}
+          aria-pressed={value.isQuestion}
+          aria-label="Question"
+          onClick={() => {
+            onChange({ ...value, isQuestion: !value.isQuestion });
+          }}
+        >
+          ?
+        </button>
+        {value.title === null ? (
           <button
             type="button"
             className={TEXT_BUTTON}
             onClick={() => {
-              openByButton('tag', area.current?.selectionStart ?? 0);
+              onChange({ ...value, title: '' });
+              requestAnimationFrame(() => titleRef.current?.focus());
             }}
           >
-            Tag
+            Title
           </button>
-          <button
-            type="button"
-            className={TEXT_BUTTON}
-            onClick={() => {
-              openByButton('any', area.current?.selectionStart ?? 0);
-            }}
-          >
-            Link
-          </button>
-          <span className="ml-auto flex items-center gap-2">{actions}</span>
-        </div>
-      ) : null}
+        ) : null}
+        <button
+          type="button"
+          className={TEXT_BUTTON}
+          onClick={() => {
+            openByButton('tag', area.current?.selectionStart ?? 0);
+          }}
+        >
+          Tag
+        </button>
+        <button
+          type="button"
+          className={TEXT_BUTTON}
+          onClick={() => {
+            openByButton('any', area.current?.selectionStart ?? 0);
+          }}
+        >
+          Link
+        </button>
+        <span className="ml-auto flex items-center gap-2">{actions}</span>
+      </div>
     </div>
   );
 }

@@ -58,7 +58,7 @@ export function FieldList({
                   setFocusedLabel(e.target.value);
                   set(index, { label: e.target.value });
                 }}
-                className="tap w-40 rounded-control border border-ink-muted bg-paper px-2"
+                className="field-input w-40"
               />
               {duplicate ? (
                 <span role="alert" className="text-danger">
@@ -75,7 +75,7 @@ export function FieldList({
                 onChange={(e) => {
                   set(index, { value: e.target.value });
                 }}
-                className="tap w-full rounded-control border border-ink-muted bg-paper px-2"
+                className="field-input w-full"
               />
             </label>
             <button

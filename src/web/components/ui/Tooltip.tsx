@@ -10,10 +10,12 @@ export const TooltipProvider = RadixTooltip.Provider;
 export function Tip({
   label,
   keys,
+  side,
   children,
 }: {
   label: string;
   keys?: string;
+  side?: 'top' | 'right' | 'bottom' | 'left';
   children: ReactElement;
 }) {
   return (
@@ -21,8 +23,9 @@ export function Tip({
       <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
       <RadixTooltip.Portal>
         <RadixTooltip.Content
+          side={side}
           sideOffset={6}
-          className="z-[70] rounded-control bg-ink px-2 py-1 text-sm text-paper"
+          className="z-[70] rounded-md bg-ink px-2 py-1 text-sm text-paper"
         >
           {label}
           {keys ? <span className="ml-2 opacity-80">{keys}</span> : null}

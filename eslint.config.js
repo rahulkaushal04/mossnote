@@ -76,6 +76,8 @@ export default tseslint.config(
   {
     ignores: [
       'dist',
+      'build',
+      'release',
       '.tsbuild',
       '.dev-data',
       'node_modules',

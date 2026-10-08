@@ -3,7 +3,8 @@ import { readMigrationFiles } from 'drizzle-orm/migrator';
 import type { Database } from './client';
 import { createSnapshot, type Clock } from './backup';
 
-export const NEWER_JOURNAL_MESSAGE = 'This journal was created by a newer version of Mossnote.';
+export const NEWER_JOURNAL_MESSAGE =
+  'This journal was made by a newer version of Mossnote. Update Mossnote to open it. Nothing was changed.';
 
 /** The database holds a migration this build does not know. */
 export class NewerJournalError extends Error {

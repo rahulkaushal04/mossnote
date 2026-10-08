@@ -15,25 +15,57 @@ test.describe('first launch', () => {
         'Today',
         'Journal',
         'People',
-        'Farm',
         'Maps',
         'Settings',
       ]);
 
-      // The journal is empty and the only settings are the calendar defaults.
+      // The journal is empty, with no seasons, no Farm and no quick actions.
       const settings = (await (await request.get(`${server.url}/api/settings`)).json()) as {
-        calendar: { seasons: { name: string; days: number }[] };
+        calendar: { seasons: { name: string; days: number }[]; counter?: boolean };
         currentGameDate: number | null;
       };
       expect(settings.currentGameDate).toBeNull();
-      expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual([
-        'Spring 28',
-        'Summer 28',
-        'Fall 28',
-        'Winter 28',
-      ]);
+      expect(settings.calendar.counter).toBe(true);
+      expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual(['Day 99']);
+      await expect(page.getByRole('group', { name: 'Quick actions' })).toHaveCount(0);
     },
   );
+
+  test('a Stardew Valley journal has its own sections, Farm and seasons', async ({
+    page,
+    request,
+    server,
+    seed,
+  }) => {
+    await seed.reset('stardew');
+    await page.goto('/');
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await expect(nav.getByRole('link')).toHaveText([
+      'Today',
+      'Daily journal',
+      'NPCs',
+      'Farm',
+      'Maps',
+      'Settings',
+    ]);
+    const settings = (await (await request.get(`${server.url}/api/settings`)).json()) as {
+      calendar: { seasons: { name: string; days: number }[] };
+    };
+    expect(settings.calendar.seasons.map((s) => `${s.name} ${s.days}`)).toEqual([
+      'Spring 28',
+      'Summer 28',
+      'Fall 28',
+      'Winter 28',
+    ]);
+    await nav.getByRole('link', { name: 'Farm' }).click();
+    await expect(
+      page.getByText('Nothing here yet. Add a crop when you plant something.'),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Farm', exact: true }).first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
 
   test('each destination shows its empty-state copy', async ({ page }) => {
     await page.goto('/');
@@ -44,14 +76,7 @@ test.describe('first launch', () => {
     await expect(
       page.getByText('No people yet. Add someone above, or type @ in a note.'),
     ).toBeVisible();
-    await nav.getByRole('link', { name: 'Farm' }).click();
-    await expect(
-      page.getByText('Nothing here yet. Add an entry when you plant something.'),
-    ).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Farm', exact: true }).first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await expect(nav.getByRole('link', { name: 'Farm' })).toHaveCount(0);
   });
 });
 
@@ -117,42 +142,65 @@ test.describe('responsive layout', () => {
     });
   }
 
-  test('rail at 900px and wider, tab bar below, never both', async ({ page }) => {
-    for (const [width, rail] of [
-      [360, false],
-      [899, false],
-      [900, true],
-      [1280, true],
+  test('sidebar from 900px, icon rail from 640px, floating bottom bar below, never two', async ({
+    page,
+  }) => {
+    // The panels have a margin of 8px around them, which the boxes do not include.
+    for (const [width, kind, boxWidth] of [
+      [360, 'dock', 344],
+      [639, 'dock', 623],
+      [640, 'rail', 64],
+      [899, 'rail', 64],
+      [900, 'sidebar', 232],
+      [1280, 'sidebar', 232],
     ] as const) {
       await page.setViewportSize({ width, height: 800 });
       await page.goto('/');
       const nav = page.getByRole('navigation', { name: 'Primary' });
       await expect(nav, `${width}px`).toHaveCount(1);
       const box = await nav.boundingBox();
-      if (rail) {
-        expect(box?.x).toBe(0);
-        expect(box?.width).toBe(208);
+      expect(box?.width, `${width}px ${kind}`).toBe(boxWidth);
+      if (kind === 'dock') {
+        // Floating: a margin at the bottom, not flush with the edge.
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThan(800);
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeGreaterThan(780);
       } else {
-        expect(box?.width).toBe(width);
-        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(800, 0);
+        expect(box?.x).toBe(8);
       }
     }
   });
 
-  test('the content column never exceeds 44rem', async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 900 });
-    await page.goto('/');
-    const width = await page
-      .getByRole('main')
-      .evaluate((el) => el.parentElement?.getBoundingClientRect().width);
-    expect(width).toBeLessThanOrEqual(704);
+  test('the content column is 44rem at most and centred in the space beside the sidebar', async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 800, height: 900 },
+      { width: 1280, height: 900 },
+      { width: 1920, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      const main = await page.getByRole('main').boundingBox();
+      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(704);
+    }
+    // At 1920 it is wider than it is allowed to be, so it must sit in the middle of what is left.
+    const main = await page.getByRole('main').boundingBox();
+    const nav = await page.getByRole('navigation', { name: 'Primary' }).boundingBox();
+    const left = (main?.x ?? 0) - ((nav?.x ?? 0) + (nav?.width ?? 0));
+    const right = 1920 - ((main?.x ?? 0) + (main?.width ?? 0));
+    expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
   });
 
-  test('narrow screens reach Settings from the top bar', async ({ page }) => {
+  test('a phone reaches Settings and the journals from the More tab', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
-    await page.getByRole('link', { name: 'Settings' }).click();
+    await expect(page.getByRole('link', { name: 'Settings' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'More', exact: true }).click();
+    const sheet = page.getByRole('dialog', { name: 'More' });
+    await expect(sheet.getByRole('button', { name: 'New journal…' })).toBeVisible();
+    await sheet.getByRole('link', { name: 'Settings' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+    await expect(sheet).toBeHidden();
   });
 
   test('200% zoom stays usable (equivalent to a 640px wide viewport)', async ({ page }) => {
@@ -201,7 +249,7 @@ test.describe('theme', () => {
     // The blocking script set it once; React never flipped it to light and back.
     expect(seen.every((t) => t === 'dark')).toBe(true);
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bg).toBe('rgb(28, 26, 23)');
+    expect(bg).toBe('rgb(20, 24, 22)');
   });
 
   test('System follows the operating system, live', async ({ page }) => {
@@ -246,6 +294,6 @@ test.describe('theme', () => {
     const families = await page.evaluate(() =>
       [...document.fonts].map((f) => `${f.family.replaceAll('"', '')} ${f.status}`),
     );
-    expect(families).toContain('Source Sans 3 Variable loaded');
+    expect(families).toContain('Inter Variable loaded');
   });
 });

@@ -31,7 +31,7 @@ export function QuickBar({
     <div
       role="toolbar"
       aria-label="Quick actions for the selection"
-      className="absolute z-20 flex -translate-x-1/2 items-center gap-1 rounded-panel border border-rule bg-raised p-1 shadow-float"
+      className="absolute z-20 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-line bg-raised p-1 shadow-2"
       style={{ left: at.x, top: at.y }}
       onPointerDown={(e) => {
         e.stopPropagation();
@@ -40,7 +40,7 @@ export function QuickBar({
       <details className="relative">
         <summary className={`${BTN} cursor-pointer list-none`} aria-label="Colour">
           <span
-            className="block size-4 rounded-full border border-rule"
+            className="block size-4 rounded-full border border-line"
             style={{
               background: color.startsWith('#')
                 ? color
@@ -48,7 +48,7 @@ export function QuickBar({
             }}
           />
         </summary>
-        <div className="absolute top-full left-0 z-30 mt-1 w-56 rounded-panel border border-rule bg-raised p-2 shadow-float">
+        <div className="absolute top-full left-0 z-30 mt-1 w-56 rounded-lg border border-line bg-raised p-2 shadow-2">
           <ColorPicker
             value={color}
             label="Colour"

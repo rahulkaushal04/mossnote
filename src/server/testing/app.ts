@@ -48,13 +48,14 @@ export interface TestApp {
 }
 
 export async function makeTestApp(
-  options: { config?: Partial<AppConfig>; webRoot?: string } = {},
+  options: { config?: Partial<AppConfig>; webRoot?: string; template?: string } = {},
 ): Promise<TestApp> {
   const database = await migratedMemoryDatabase();
   const clock = fakeClock();
   // A real folder per app, so snapshots and exports have somewhere to go.
   const dir = makeTempDir('moss-app-');
-  ensureSettings(database, 'journal', clock);
+  // Most tests exercise the seasons calendar and the Farm section, which belong to this template.
+  ensureSettings(database, 'journal', clock, options.template ?? 'stardew');
   const app = createApp({
     db: database.db,
     sqlite: database.sqlite,

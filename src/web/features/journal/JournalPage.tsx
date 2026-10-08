@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { JournalIcon } from '../../components/ui/icons';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { plural } from '../../lib/format';
@@ -22,7 +24,7 @@ function emptyCopy(flag: string, state: string): string | null {
 /** `/journal`: everything in game-time order, narrowed by flag, tag and "Not dated". */
 export function JournalPage() {
   const terms = useTerms();
-  const { filters, query, update, clear, active } = useJournalFilters();
+  const { filters, query, update, clear } = useJournalFilters();
   const notes = useNotes(query);
   const count = useNotesCount({ ...query, order: undefined, limit: undefined });
   const everything = useNotesCount({});
@@ -53,17 +55,20 @@ export function JournalPage() {
   if (!notes.isPending && !notes.isError && list.length === 0) {
     if (total === 0) {
       empty = (
-        <EmptyState>
-          Your journal starts with your first note.{' '}
-          <button
-            type="button"
-            className="tap underline"
-            onClick={() => {
-              newNote.requestNewNote();
-            }}
-          >
-            Write a note
-          </button>
+        <EmptyState
+          icon={<JournalIcon />}
+          action={
+            <Button
+              variant="primary"
+              onClick={() => {
+                newNote.requestNewNote();
+              }}
+            >
+              Write a note
+            </Button>
+          }
+        >
+          Your journal starts with your first note.
         </EmptyState>
       );
     } else {
@@ -76,7 +81,7 @@ export function JournalPage() {
       ) : (
         <EmptyState>
           Nothing matches these filters.{' '}
-          <button type="button" className="tap underline" onClick={clear}>
+          <button type="button" className="btn btn-ghost underline" onClick={clear}>
             Clear filters
           </button>
         </EmptyState>
@@ -86,12 +91,15 @@ export function JournalPage() {
 
   return (
     <>
-      <PageHeader title={terms.journal.label} />
+      <PageHeader
+        title={terms.journal.label}
+        accent
+        intro="Every note you have written, grouped by day."
+      />
       <FilterBar filters={filters} onChange={update} />
       {count.data ? (
-        <p className="text-sm text-ink-muted" aria-live="polite">
+        <p className="tnum text-sm text-ink-muted" aria-live="polite">
           {plural(count.data.count, 'note')}
-          {active ? '' : ''}
         </p>
       ) : null}
       {notes.isError ? <LoadError onRetry={() => void notes.refetch()} /> : null}

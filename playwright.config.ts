@@ -12,7 +12,9 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
-  use: { trace: 'retain-on-failure', colorScheme: 'light' },
+  // Reduced motion keeps animations from running mid-scan: axe would measure a half-faded dialog.
+  // Tests that care about motion turn it back on with page.emulateMedia.
+  use: { trace: 'retain-on-failure', colorScheme: 'light', reducedMotion: 'reduce' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     // WebKit smoke test (macOS CI only): npx playwright test --project=webkit --grep @smoke

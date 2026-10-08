@@ -1,4 +1,4 @@
-import { decode, format } from '@shared/gameDate';
+import { decode, format, isCounter } from '@shared/gameDate';
 import type { Calendar } from '@shared/constants';
 import { CURRENT_FORMAT_VERSION, type ExportFile } from '@shared/schemas/export';
 import type { Note, Person, Planting } from '@shared/types';
@@ -11,7 +11,7 @@ import { isDefaultLayout } from '@shared/templates';
 import { parseScene } from './maps';
 import { toPlantings } from './plantings';
 import { readCalendar } from './search-index';
-import { getSettings } from './settings';
+import { getSettings, journalUses } from './settings';
 
 interface ExportedDate {
   year: number;
@@ -256,10 +256,12 @@ function noteBlock(n: Note, withMarks = true): string {
 export function buildMarkdown(ctx: Ctx): string {
   const calendar = readCalendar(ctx);
   const { notes, people, plantings } = liveRecords(ctx);
+  // A template without a Farm section never mentions it, unless entries from an older file exist.
+  const showFarm = journalUses(ctx, 'farm') || plantings.length > 0;
   const out: string[] = ['# Mossnote'];
   const when = new Date(ctx.clock.now());
   out.push(
-    `Exported ${when.getFullYear()}-${pad(when.getMonth() + 1)}-${pad(when.getDate())} · ${notes.length} notes · ${people.length} people · ${plantings.length} farm entries`,
+    `Exported ${when.getFullYear()}-${pad(when.getMonth() + 1)}-${pad(when.getDate())} · ${notes.length} notes · ${people.length} people${showFarm ? ` · ${plantings.length} farm entries` : ''}`,
   );
 
   const dated = notes
@@ -277,7 +279,8 @@ export function buildMarkdown(ctx: Ctx): string {
       if (n.gameDate !== currentKey) {
         currentKey = n.gameDate;
         const { year } = decode(n.gameDate ?? 0);
-        out.push('', `### Year ${year} · ${format(n.gameDate ?? 0, calendar) ?? ''}`);
+        const day = format(n.gameDate ?? 0, calendar) ?? '';
+        out.push('', isCounter(calendar) ? `### ${day}` : `### Year ${year} · ${day}`);
       }
       out.push('', noteBlock(n));
     }

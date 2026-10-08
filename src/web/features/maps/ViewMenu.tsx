@@ -6,7 +6,7 @@ import * as RadixMenu from '@radix-ui/react-dropdown-menu';
 import type { EditorSettings } from './editorTypes';
 
 const ITEM =
-  'tap flex cursor-pointer items-center gap-2 rounded-control px-3 py-1.5 text-sm outline-none data-[highlighted]:bg-surface';
+  'tap flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none data-[highlighted]:bg-surface';
 
 function Check({
   label,
@@ -60,9 +60,9 @@ export function ViewMenu({
           align="end"
           sideOffset={4}
           collisionPadding={12}
-          className="z-50 min-w-56 rounded-panel border border-rule bg-raised p-1 text-ink shadow-float"
+          className="z-50 min-w-56 rounded-lg border border-line bg-raised p-1 text-ink shadow-2"
         >
-          <RadixMenu.Label className="px-3 py-1 text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
+          <RadixMenu.Label className="px-3 py-1 text-sm font-semibold text-ink-2">
             Show
           </RadixMenu.Label>
           <Check
@@ -102,8 +102,8 @@ export function ViewMenu({
               onChange({ compass: v });
             }}
           />
-          <RadixMenu.Separator className="my-1 h-px bg-rule" />
-          <RadixMenu.Label className="px-3 py-1 text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
+          <RadixMenu.Separator className="my-1 h-px bg-line" />
+          <RadixMenu.Label className="px-3 py-1 text-sm font-semibold text-ink-2">
             Drawing
           </RadixMenu.Label>
           <Check
@@ -120,8 +120,8 @@ export function ViewMenu({
               onChange({ keepTool: v });
             }}
           />
-          <RadixMenu.Separator className="my-1 h-px bg-rule" />
-          <RadixMenu.Label className="px-3 py-1 text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
+          <RadixMenu.Separator className="my-1 h-px bg-line" />
+          <RadixMenu.Label className="px-3 py-1 text-sm font-semibold text-ink-2">
             Snapping (hold Alt to pause)
           </RadixMenu.Label>
           <Check

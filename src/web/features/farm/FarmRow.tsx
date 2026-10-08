@@ -8,7 +8,7 @@ import { useCalendar } from '../calendar/CalendarProvider';
 import { GameDatePicker } from '../calendar/GameDatePicker';
 import { useCreatePlanting, useUpdatePlanting } from './hooks';
 
-const ACTION = 'tap rounded-control px-2 text-sm underline';
+const ACTION = 'tap rounded-md px-2 text-sm underline';
 // Revealed on hover and focus; always shown where there is no hover (touch).
 const REVEAL =
   'opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100';
@@ -79,11 +79,11 @@ export function FarmRow({ entry }: { entry: Planting }) {
   ].filter(Boolean);
 
   return (
-    <li className="group relative border-b border-rule py-3">
+    <li className="group relative border-b border-hairline py-3">
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <Link
           to={`/farm/${entry.id}`}
-          className="reading text-ink no-underline after:absolute after:inset-0 hover:underline"
+          className="list-row-title text-ink no-underline after:absolute after:inset-0 hover:underline"
         >
           {entry.label}
         </Link>
@@ -167,7 +167,7 @@ export function FarmRow({ entry }: { entry: Planting }) {
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setAsking(false);
               }}
-              className="tap w-28 rounded-control border border-ink-muted bg-paper px-2"
+              className="field-input w-28"
             />
           </label>
           <button type="submit" className="btn tap text-sm">

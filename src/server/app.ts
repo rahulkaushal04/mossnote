@@ -3,6 +3,7 @@ import { bodyLimit } from 'hono/body-limit';
 import { LIMITS } from '@shared/constants';
 import type { Config } from './config';
 import type { Db, Sqlite } from './db/client';
+import type { JournalManager } from './journals/manager';
 import type { Clock } from './db/backup';
 import type { Env } from './env';
 import { silentLogger, type Logger } from './logger';
@@ -24,6 +25,8 @@ import { pickRoutes, searchRoutes } from './routes/search';
 import { tagRoutes } from './routes/tags';
 import { createCtx } from './services/ctx';
 import { settingsRoutes } from './routes/settings';
+import { journalRoutes } from './routes/journals';
+import { requireJournal } from './middleware/journal';
 
 /** The slice of configuration the app needs. The app never reads the environment itself. */
 export type AppConfig = Pick<
@@ -32,8 +35,13 @@ export type AppConfig = Pick<
 >;
 
 export interface AppDeps {
-  db: Db;
-  sqlite: Sqlite;
+  /** The open journal. Omit both when the app starts without one (a first run). */
+  db?: Db;
+  sqlite?: Sqlite;
+  /** Owns the journals in the data folder. Absent in tests that use one fixed journal. */
+  journals?: JournalManager;
+  /** Opens the data folder in the system file manager. */
+  openFolder?: (dir: string) => Promise<void>;
   clock: Clock;
   config: AppConfig;
   logger?: Logger;
@@ -60,8 +68,10 @@ export function createApp(deps: AppDeps) {
   const smallLimit = limit(LIMITS.requestBodyBytes) as MiddlewareHandler<Env>;
   const importLimit = limit(LIMITS.importBodyBytes) as MiddlewareHandler<Env>;
   const ctx = createCtx(deps);
+  deps.journals?.bind(ctx);
   const api = new Hono<Env>()
     .route('/health', healthRoutes(ctx))
+    .route('/journals', journalRoutes(ctx))
     .route('/settings', settingsRoutes(ctx))
     .route('/notes', noteRoutes(ctx))
     .route('/people', peopleRoutes(ctx))
@@ -84,6 +94,9 @@ export function createApp(deps: AppDeps) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- Hono types the path-scoped context's input as any
       return handler(c, next);
     })
+    // Everything except health and the journal list needs an open journal, and a window that is
+    // still showing another one is told so instead of writing into the wrong journal.
+    .use('/api/*', requireJournal(ctx))
     .route('/api', api);
 
   if (deps.webRoot) app.use('*', serveWeb(deps.webRoot));

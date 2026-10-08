@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LIMITS } from '../constants';
+import { COUNTER_CALENDAR, LIMITS } from '../constants';
 
 export const seasonSchema = z
   .object({
@@ -19,9 +19,20 @@ export const seasonSchema = z
 export const calendarSchema = z
   .object({
     seasons: z.array(seasonSchema).min(LIMITS.seasonsMin).max(LIMITS.seasonsMax),
+    counter: z.literal(true).optional(),
   })
   .strict()
   .superRefine((calendar, ctx) => {
+    if (
+      calendar.counter &&
+      JSON.stringify(calendar.seasons) !== JSON.stringify(COUNTER_CALENDAR.seasons)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['counter'],
+        message: 'A day counter has no seasons to change.',
+      });
+    }
     const seen = new Set<string>();
     calendar.seasons.forEach((season, i) => {
       const key = season.name.toLowerCase();

@@ -32,3 +32,12 @@ export function openDatabase(filename: string): Database {
   }
   return { sqlite, db: drizzle(sqlite, { schema, casing: 'snake_case' }) };
 }
+
+/**
+ * Open a journal for reading only: no pragmas, no migration, no writes of any kind. For looking
+ * at a journal that is not the open one.
+ */
+export function openDatabaseReadOnly(filename: string): Database {
+  const sqlite = new BetterSqlite3(filename, { readonly: true, fileMustExist: true });
+  return { sqlite, db: drizzle(sqlite, { schema, casing: 'snake_case' }) };
+}

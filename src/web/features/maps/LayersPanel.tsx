@@ -8,7 +8,7 @@ import type { Objects } from './engine/shapes';
 import type { ObjInfo } from './engine/shapes';
 
 const ICON_BTN =
-  'tap inline-flex items-center justify-center rounded-control px-1.5 text-sm hover:bg-surface';
+  'tap inline-flex items-center justify-center rounded-md px-1.5 text-sm hover:bg-surface';
 
 function label(info: ObjInfo): string {
   if (info.kind === 'pin') {
@@ -72,9 +72,7 @@ export function LayersPanel(p: LayersPanelProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <h3 className="m-0 text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
-          Layers
-        </h3>
+        <h3 className="m-0 text-sm font-semibold text-ink-2">Layers</h3>
         <button type="button" className="btn tap px-2 text-sm" onClick={p.onAddLayer}>
           New layer
         </button>
@@ -87,7 +85,7 @@ export function LayersPanel(p: LayersPanelProps) {
           return (
             <li
               key={layer.id}
-              className={`rounded-control border ${active ? 'border-accent' : 'border-rule'}`}
+              className={`rounded-md border ${active ? 'border-accent' : 'border-line'}`}
             >
               <div className="flex items-center gap-1 px-1">
                 <button
@@ -170,14 +168,14 @@ export function LayersPanel(p: LayersPanelProps) {
                 </button>
               </div>
               {open.has(layer.id) ? (
-                <ul className="m-0 flex list-none flex-col border-t border-rule p-1">
+                <ul className="m-0 flex list-none flex-col border-t border-line p-1">
                   {items.length === 0 ? (
                     <li className="px-2 py-1 text-sm text-ink-muted">Empty</li>
                   ) : null}
                   {items.map((o) => (
                     <li
                       key={o.id}
-                      className={`flex items-center gap-1 rounded-control pl-2 ${p.selection.has(o.id) ? 'bg-surface' : ''}`}
+                      className={`flex items-center gap-1 rounded-md pl-2 ${p.selection.has(o.id) ? 'bg-surface' : ''}`}
                     >
                       <ObjectName
                         info={o}
@@ -227,7 +225,7 @@ export function LayersPanel(p: LayersPanelProps) {
             onChange={(e) => {
               if (e.target.value) p.onMoveSelectionToLayer(e.target.value);
             }}
-            className="tap rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input"
           >
             <option value="">Choose a layer</option>
             {p.doc.scene.layers.map((l) => (
@@ -261,7 +259,7 @@ function LayerName({
         defaultValue={name}
         aria-label="Layer name"
         maxLength={40}
-        className="tap min-w-0 flex-1 rounded-control border border-accent bg-paper px-2 text-sm"
+        className="tap min-w-0 flex-1 rounded-md border border-accent bg-paper px-2 text-sm"
         onBlur={(e) => {
           setEditing(false);
           if (e.target.value.trim() !== '' && e.target.value !== name)
@@ -279,7 +277,7 @@ function LayerName({
       type="button"
       aria-pressed={active}
       title="Click to draw on this layer. Double-click to rename."
-      className={`tap min-w-0 flex-1 truncate rounded-control px-2 text-left text-sm ${active ? 'font-semibold' : ''}`}
+      className={`tap min-w-0 flex-1 truncate rounded-md px-2 text-left text-sm ${active ? 'font-semibold' : ''}`}
       onClick={onPick}
       onDoubleClick={() => {
         setEditing(true);
@@ -310,7 +308,7 @@ function ObjectName({
         ref={focusOnMount}
         defaultValue={info.kind === 'pin' ? (info.pin?.label ?? '') : (info.shape?.name ?? '')}
         aria-label="Object name"
-        className="tap min-w-0 flex-1 rounded-control border border-accent bg-paper px-2 text-sm"
+        className="tap min-w-0 flex-1 rounded-md border border-accent bg-paper px-2 text-sm"
         onBlur={(e) => {
           setEditing(false);
           onRename(e.target.value);
@@ -325,7 +323,7 @@ function ObjectName({
   return (
     <button
       type="button"
-      className="tap min-w-0 flex-1 truncate rounded-control px-1 text-left text-sm"
+      className="tap min-w-0 flex-1 truncate rounded-md px-1 text-left text-sm"
       onClick={onSelect}
       onDoubleClick={() => {
         setEditing(true);

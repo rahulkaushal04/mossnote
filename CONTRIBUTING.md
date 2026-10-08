@@ -6,7 +6,7 @@ Thanks for wanting to help. Mossnote is small on purpose, and a few rules keep i
 
 **1. Open an issue first.** Check your idea against the "What it will not do" list in the [README](README.md#what-it-will-not-do). If it is on that list it will be closed. Those are decisions, not a backlog.
 
-**2. Do not add game content.** This is the one rule with no exceptions. The app can only promise "no spoilers" if nothing about any game is ever in it. That means no names, items, places, mechanics, images, text or screenshots from a game, whether in code, tests, fixtures, copy or docs. In tests, use neutral filler such as "Example Person". A game template (the files in `src/shared/templates/`) may carry the game's name and plain vocabulary, like what a section is called, and nothing that teaches how the game works.
+**2. Do not add game content.** This is the one rule with no exceptions. The app can only promise "no spoilers" if nothing about any game is ever in it. That means no names, items, places, mechanics, images, text or screenshots from a game, whether in code, tests, fixtures, copy or docs. In tests, use neutral filler such as "Example Person". A game template (the files in `src/shared/templates/`) may carry the game's name and plain vocabulary, like what a section is called, and nothing that teaches how the game works. Two templates ship, Default and Stardew Valley. Open a feature request before writing another one; the app links to that form wherever a template is picked.
 
 ## Getting set up
 
@@ -19,7 +19,7 @@ npx playwright install chromium
 npm run dev
 ```
 
-`npm run dev` starts the API on port 4317 and Vite on 5173, and keeps its data in `./.dev-data`, so it never touches your real journal.
+`npm run dev` starts the API on port 4317 and Vite on 5173, and keeps its data in `./.dev-data`, so it never touches your real journal. Its data folder starts empty, so the first thing you see is the "Which template?" question; set `MOSS_JOURNAL` to skip it.
 
 ## Before you open a pull request
 
@@ -36,8 +36,10 @@ Then go through this list:
 - The change is small and does one thing. Several small pull requests beat one big one.
 - It has tests at the lowest layer that proves it: unit, integration, component, or end to end for things a person can see. A bug fix starts with a test that fails.
 - Anything a person can use works with the keyboard alone and passes the axe accessibility scans in both the light and dark theme.
+- Anything that changes how the app looks follows `local_docs_reference/design-system.md`: colours, sizes, radii and motion come from the tokens in `src/web/styles/tokens.css` (no raw hex values or one-off pixel sizes in components), and a new colour pair is added to `src/web/styles/contrast.test.ts` first. Look at the change at 375, 768 and 1280 px, in light and dark, and keep every control reachable by keyboard and touch (44 px on touch, a visible focus ring, nothing that only shows on hover).
 - A new dependency needs a short written reason in the pull request: why you need it and what else you looked at.
-- A schema change comes with a migration, and the migration is tested forward from the previous schema. Generate it with `npm run db:generate` and do not edit generated files by hand.
+- A schema change comes with a migration, and the migration is tested forward from the previous schema. Generate it with `npm run db:generate` and do not edit generated files by hand. The upgrade tests (`src/server/upgrade.test.ts`) open a journal from every older schema automatically; a change that touches how journals are opened, listed or named needs a test there too.
+- Anything that changes how the program is packaged or released (`bin/`, `scripts/package/`, `.github/workflows/release.yml`) is checked with `npm run package:binary` and `npm run package:smoke` on your own system, and must not add a network call or write outside the data folder.
 - The README is updated if behaviour a user can see has changed. Leave `CHANGELOG.md` alone, the maintainer keeps it.
 
 ## Commit messages

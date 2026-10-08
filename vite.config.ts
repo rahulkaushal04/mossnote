@@ -24,6 +24,25 @@ export default defineConfig(({ mode, command }) => ({
     outDir: fileURLToPath(new URL('./dist/web', import.meta.url)),
     emptyOutDir: true,
     sourcemap: false,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+              priority: 30,
+            },
+            {
+              name: 'radix',
+              test: /node_modules[\\/](@radix-ui|cmdk|@floating-ui|aria-hidden|react-remove-scroll)/,
+              priority: 20,
+            },
+            { name: 'data', test: /node_modules[\\/](react-router|@tanstack|zod)/, priority: 10 },
+          ],
+        },
+      },
+    },
   },
   server: {
     host: '127.0.0.1',

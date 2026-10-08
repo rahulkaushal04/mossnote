@@ -133,6 +133,7 @@ describe('JSON export', () => {
       },
       currentGameDate: { year: 2, season: 1, day: 7 },
       prefs: { readingSize: 'large' },
+      layout: expect.objectContaining({ template: 'stardew' }) as unknown,
     });
     expect(file.tags.map((x) => x.name).sort()).toEqual([
       'Person-tag',

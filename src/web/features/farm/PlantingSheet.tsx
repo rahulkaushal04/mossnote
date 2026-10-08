@@ -20,7 +20,7 @@ import { useDeletePlanting, usePlanting, usePlantingNotes, useUpdatePlanting } f
 import { useTerms } from '../settings/useLayout';
 import { sentence } from '@shared/text';
 
-const LABEL = 'text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted';
+const LABEL = 'text-sm font-semibold text-ink-2';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -71,7 +71,7 @@ function CountField({
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur();
         }}
-        className="tap w-32 rounded-control border border-ink-muted bg-paper px-2"
+        className="field-input w-32"
       />
       {error ? (
         <span role="alert" className="text-danger">
@@ -129,7 +129,7 @@ function Details({ entry }: { entry: Planting }) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className="reading w-full border-0 border-b border-transparent bg-transparent text-xl font-semibold hover:border-rule focus:border-ink-muted"
+          className="reading w-full border-0 border-b border-transparent bg-transparent text-xl font-semibold hover:border-line focus:border-ink-muted"
         />
       </label>
 
@@ -192,7 +192,7 @@ function Details({ entry }: { entry: Planting }) {
               notesSave.schedule();
             }}
             onBlur={notesSave.flush}
-            className="reading w-full rounded-control border border-rule bg-paper p-2"
+            className="reading w-full rounded-md border border-line bg-paper p-2"
           />
         </label>
         <SavedIndicator show={notesSave.saved} />
@@ -282,7 +282,7 @@ export function PlantingSheet() {
               <button
                 type="button"
                 aria-label="More actions"
-                className="tap rounded-control px-1 hover:bg-surface"
+                className="tap rounded-md px-1 hover:bg-surface"
               >
                 <EllipsisIcon />
               </button>

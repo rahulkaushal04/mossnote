@@ -1,37 +1,39 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { useRef, type ReactNode } from 'react';
+import { cx } from '../../lib/cx';
+import { useIsPhone } from '../../lib/useViewport';
+import { CloseIcon } from './icons';
 
-interface DialogProps {
+export interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Required: the dialog is labelled by its title. */
   title: string;
   description?: string;
   children: ReactNode;
-  /** `bottom` is a sheet that rises from the bottom edge on narrow screens (date picker). */
-  placement?: 'center' | 'bottom' | 'right';
-  /** Wider panel for the search palette and shortcut list. */
+  /**
+   * `center` and `bottom` are a centred panel, `right` a side drawer. On a phone (under 640px)
+   * all of them become a bottom sheet. `sheet` is a bottom sheet at every width, for content
+   * that is only ever opened from a phone-style control (the More tab, a filter list).
+   */
+  placement?: 'center' | 'bottom' | 'right' | 'sheet';
+  /** Extra classes for the panel, such as a wider width. Ignored when it is shown as a sheet. */
   className?: string;
 }
 
-const NARROW = {
-  center: 'inset-0',
-  bottom: 'inset-x-0 bottom-0 max-h-[85vh] rounded-t-panel',
-  right: 'inset-0',
-} as const;
+const SHEET =
+  'sheet-in fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88dvh] w-full max-w-xl flex-col overflow-y-auto rounded-t-lg bg-raised px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] text-ink shadow-3';
 
-// Wide screens: centred panel, or a 420px sheet on the right edge (farm entry detail).
-const WIDE = {
+const PANEL = {
   center:
-    'wide:inset-auto wide:top-1/2 wide:left-1/2 wide:max-h-[80vh] wide:w-[560px] wide:max-w-[calc(100vw-2rem)] wide:-translate-x-1/2 wide:-translate-y-1/2 wide:rounded-panel wide:shadow-float',
-  bottom:
-    'wide:inset-auto wide:top-1/2 wide:left-1/2 wide:max-h-[80vh] wide:w-[560px] wide:max-w-[calc(100vw-2rem)] wide:-translate-x-1/2 wide:-translate-y-1/2 wide:rounded-panel wide:shadow-float',
-  right: 'wide:inset-y-0 wide:right-0 wide:left-auto wide:w-[420px] wide:shadow-float',
+    'pop-in fixed top-1/2 left-1/2 z-50 flex max-h-[80dvh] w-[560px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-lg bg-raised p-5 text-ink shadow-3',
+  drawer:
+    'slide-in-right fixed inset-y-0 right-0 z-50 flex w-[420px] max-w-full flex-col overflow-y-auto bg-raised p-5 text-ink shadow-3',
 } as const;
 
 /**
  * Modal dialog on Radix: focus is trapped, Esc closes, and focus returns to the trigger.
- * A full-screen sheet (or bottom sheet) on narrow screens, a centred panel up to 560px on wide ones.
+ * A bottom sheet on a phone, a centred panel (or side drawer) from 640px up.
  */
 export function Dialog({
   open,
@@ -40,16 +42,20 @@ export function Dialog({
   description,
   children,
   placement = 'center',
-  className = '',
+  className,
 }: DialogProps) {
+  const phone = useIsPhone();
+  const sheet = phone || placement === 'sheet';
+  const presentation = sheet ? 'sheet' : placement === 'right' ? 'drawer' : 'panel';
   // The dialog is controlled, so Radix does not know which element opened it. Remember the
   // focused element as the dialog opens and give focus back to it on close.
   const opener = useRef<HTMLElement | null>(null);
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-40 bg-ink/40" />
+        <RadixDialog.Overlay className="scrim fixed inset-0 z-40" />
         <RadixDialog.Content
+          data-presentation={presentation}
           onOpenAutoFocus={() => {
             opener.current =
               document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -60,12 +66,23 @@ export function Dialog({
           }}
           // Without a description, say so explicitly so Radix does not warn.
           {...(description ? {} : { 'aria-describedby': undefined })}
-          className={`fixed z-50 flex flex-col overflow-y-auto bg-raised p-4 text-ink ${NARROW[placement]} ${WIDE[placement]} ${className}`}
+          className={
+            sheet ? SHEET : cx(presentation === 'drawer' ? PANEL.drawer : PANEL.center, className)
+          }
         >
+          {sheet ? (
+            <div
+              data-sheet-handle
+              aria-hidden="true"
+              className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-control"
+            />
+          ) : null}
           <div className="flex items-start justify-between gap-4">
-            <RadixDialog.Title className="text-xl font-semibold">{title}</RadixDialog.Title>
-            <RadixDialog.Close className="tap btn" aria-label="Close">
-              Close
+            <RadixDialog.Title className="font-serif text-lg font-semibold">
+              {title}
+            </RadixDialog.Title>
+            <RadixDialog.Close className="btn btn-icon btn-ghost -mt-1 -mr-2" aria-label="Close">
+              <CloseIcon className="size-5" />
             </RadixDialog.Close>
           </div>
           {description ? (

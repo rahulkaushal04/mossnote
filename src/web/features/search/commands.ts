@@ -1,6 +1,10 @@
 import { useNavigate } from 'react-router';
 import { useNewNote } from '../../app/NewNote';
-import { useTerms } from '../settings/useLayout';
+import { api } from '../../lib/api';
+import { broadcastJournalSwitched } from '../../lib/broadcast';
+import { showJournal } from '../../lib/journal';
+import { useJournals } from '../journals/hooks';
+import { useTerms, useUsesSection } from '../settings/useLayout';
 import { useAdvanceDay } from '../calendar/useAdvanceDay';
 
 export interface PaletteCommand {
@@ -19,6 +23,8 @@ export interface PaletteCommand {
 export function useCommands(options: { openDate: () => void }): PaletteCommand[] {
   const navigate = useNavigate();
   const terms = useTerms();
+  const usesFarm = useUsesSection('farm');
+  const journals = useJournals().data;
   const newNote = useNewNote();
   const day = useAdvanceDay();
   const go = (path: string) => () => {
@@ -53,13 +59,17 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
       hint: 'g p',
       run: go('/people'),
     },
-    {
-      id: 'farm',
-      label: `Go to ${terms.farm.label}`,
-      keywords: 'plantings entries',
-      hint: 'g f',
-      run: go('/farm'),
-    },
+    ...(usesFarm
+      ? [
+          {
+            id: 'farm',
+            label: `Go to ${terms.farm.label}`,
+            keywords: 'plantings entries',
+            hint: 'g f',
+            run: go('/farm'),
+          },
+        ]
+      : []),
     {
       id: 'maps',
       label: `Go to ${terms.maps.label}`,
@@ -103,6 +113,29 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
           },
         ]
       : []),
+    {
+      id: 'journals',
+      label: 'Journals: new, rename, delete',
+      keywords: 'journal playthrough game template manage',
+      run: go('/settings#journals'),
+    },
+    // One command per other journal, so switching is a few keystrokes from anywhere.
+    ...(journals?.items ?? [])
+      .filter((journal) => !journal.active && journal.status === 'ok')
+      .map((journal) => ({
+        id: `journal:${journal.id}`,
+        label: `Switch to ${journal.name}`,
+        keywords: 'journal open playthrough game',
+        run: () => {
+          api
+            .activateJournal(journal.id)
+            .then(() => {
+              broadcastJournalSwitched(journal.id);
+              showJournal();
+            })
+            .catch(() => undefined);
+        },
+      })),
     {
       id: 'export',
       label: 'Export JSON',

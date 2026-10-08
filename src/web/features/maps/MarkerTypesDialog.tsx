@@ -42,13 +42,13 @@ export function MarkerTypesDialog({ open, onClose }: { open: boolean; onClose: (
     >
       <ul aria-label="Marker types" className="m-0 flex list-none flex-col gap-4 p-0">
         {types.map((t) => (
-          <li key={t.id} className="flex flex-col gap-2 border-b border-rule pb-3">
+          <li key={t.id} className="flex flex-col gap-2 border-b border-line pb-3">
             <div className="flex gap-2">
               <input
                 aria-label="Type name"
                 defaultValue={t.name}
                 maxLength={30}
-                className="tap flex-1 rounded-control border border-ink-muted bg-paper px-2"
+                className="field-input flex-1"
                 onBlur={(e) => {
                   const v = e.target.value.trim();
                   if (v !== '' && v !== t.name) patch(t.id, { name: v });
@@ -56,7 +56,7 @@ export function MarkerTypesDialog({ open, onClose }: { open: boolean; onClose: (
               />
               <button
                 type="button"
-                className="tap rounded-control px-2 text-sm text-danger underline"
+                className="tap rounded-md px-2 text-sm text-danger underline"
                 onClick={() => {
                   save(types.filter((x) => x.id !== t.id));
                 }}
@@ -75,7 +75,7 @@ export function MarkerTypesDialog({ open, onClose }: { open: boolean; onClose: (
                   onClick={() => {
                     patch(t.id, { icon });
                   }}
-                  className={`tap flex size-8 items-center justify-center rounded-control border ${t.icon === icon ? 'border-accent bg-surface' : 'border-rule'}`}
+                  className={`tap flex size-8 items-center justify-center rounded-md border ${t.icon === icon ? 'border-accent bg-surface' : 'border-line'}`}
                 >
                   <svg width={18} height={18} viewBox="-12 -12 24 24" aria-hidden="true">
                     <g color="var(--ink)">

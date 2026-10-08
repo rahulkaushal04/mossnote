@@ -2,6 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import envPaths from 'env-paths';
 import { DEFAULT_PORT } from '@shared/constants';
+import { JOURNAL_PATTERN, LEGACY_JOURNAL_ID, journalPaths } from './journals/paths';
 
 /** Raised for any bad configuration. The message is printed to the terminal as is. */
 export class ConfigError extends Error {}
@@ -12,7 +13,11 @@ export interface Config {
   host: string;
   port: number;
   dataDir: string;
+  /** The journal `MOSS_JOURNAL` names, or the one older versions kept when it is not set. */
   journal: string;
+  /** True when `MOSS_JOURNAL` was set, which then decides which journal opens at start. */
+  journalExplicit: boolean;
+  /** Files of `journal`. Other journals sit beside them: see `journalPaths`. */
   dbPath: string;
   lockPath: string;
   backupsDir: string;
@@ -26,7 +31,6 @@ export interface Config {
 }
 
 const LOG_LEVELS: readonly LogLevel[] = ['error', 'warn', 'info', 'debug'];
-const JOURNAL_PATTERN = /^[A-Za-z0-9_-]{1,40}$/;
 
 export function isLoopbackHost(host: string): boolean {
   const h = host.toLowerCase();
@@ -69,7 +73,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const port = parseInteger('MOSS_PORT', env.MOSS_PORT ?? String(DEFAULT_PORT), 1, 65_535);
 
-  const journal = env.MOSS_JOURNAL ?? 'journal';
+  const journal = env.MOSS_JOURNAL ?? LEGACY_JOURNAL_ID;
   if (!JOURNAL_PATTERN.test(journal)) {
     throw new ConfigError(
       `MOSS_JOURNAL must be 1 to 40 letters, digits, "-" or "_", got "${journal}".`,
@@ -94,9 +98,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     host,
     port,
     dataDir,
-    journal,
-    dbPath: path.join(dataDir, `${journal}.db`),
-    lockPath: path.join(dataDir, `${journal}.lock`),
+    journalExplicit: env.MOSS_JOURNAL !== undefined,
+    ...journalPaths(dataDir, journal),
     backupsDir: path.join(dataDir, 'backups'),
     backupKeep,
     openBrowser: openRaw === '1',

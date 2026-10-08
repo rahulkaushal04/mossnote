@@ -36,7 +36,7 @@ test('the unreachable page appears when the server stops and the app recovers by
   // radio left to verify afterwards.
   await page.getByRole('radio', { name: 'Large' }).click();
   await expect(page.getByRole('heading', { name: "Can't reach your journal." })).toBeVisible();
-  await expect(page.getByText('npm start')).toBeVisible();
+  await expect(page.getByText('mossnote', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
@@ -72,9 +72,10 @@ test('a killed server (SIGKILL during a burst of writes) restarts with an intact
   const settings = await request.get(`${server.url}/api/settings`);
   expect(settings.ok()).toBe(true);
   const body = (await settings.json()) as {
-    calendar: { seasons: unknown[] };
+    calendar: { seasons: unknown[]; counter?: boolean };
     prefs: { readingSize: string };
   };
-  expect(body.calendar.seasons).toHaveLength(4);
+  // The journal is still the Default one, with its day counter.
+  expect(body.calendar.counter).toBe(true);
   expect(['large', 'comfortable']).toContain(body.prefs.readingSize);
 });

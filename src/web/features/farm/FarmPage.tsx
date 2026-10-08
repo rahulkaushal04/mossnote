@@ -1,10 +1,12 @@
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Outlet, useSearchParams } from 'react-router';
 import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
 import type { Planting } from '@shared/types';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { CloseIcon } from '../../components/ui/icons';
+import { RemovableChip } from '../../components/ui/Chip';
+import { LeafArt } from '../../components/ui/art';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { useCalendar } from '../calendar/CalendarProvider';
@@ -17,8 +19,8 @@ function Group({ title, items }: { title: string; items: Planting[] }) {
   if (items.length === 0) return null;
   return (
     <section aria-label={title} className="mt-8">
-      <h2 className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">{title}</h2>
-      <ul className="m-0 mt-1 list-none p-0">
+      <h2 className="day-label">{title}</h2>
+      <ul className="stagger m-0 list-none p-0">
         {items.map((entry) => (
           <FarmRow key={entry.id} entry={entry} />
         ))}
@@ -38,6 +40,7 @@ export function FarmPage() {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const listId = useId();
+  const entryInput = useRef<HTMLInputElement>(null);
 
   const items = plantings.data?.items ?? [];
   const growing = items.filter((p) => p.plantedOn !== null && p.harvestedOn === null);
@@ -75,17 +78,24 @@ export function FarmPage() {
 
   return (
     <>
-      <PageHeader title={terms.farm.label} />
+      <PageHeader
+        title={terms.farm.label}
+        intro="What you have planted, what is growing and what is done."
+      />
       <form
-        className="mt-4 flex flex-col gap-1"
+        className="flex flex-col gap-1"
         onSubmit={(e) => {
           e.preventDefault();
           add();
         }}
       >
-        <label className="flex flex-col gap-1">
-          <span className="font-semibold">Add an entry</span>
+        <label htmlFor="add-entry" className="text-sm font-medium text-ink-2">
+          Add an entry
+        </label>
+        <div className="flex gap-2">
           <input
+            id="add-entry"
+            ref={entryInput}
             list={listId}
             value={name}
             aria-invalid={error ? true : undefined}
@@ -93,9 +103,12 @@ export function FarmPage() {
               setName(e.target.value);
               setError(null);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-3"
+            className="field-input min-w-0 flex-1"
           />
-        </label>
+          <Button type="submit" variant="primary">
+            Add
+          </Button>
+        </div>
         <datalist id={listId}>
           {earlier.map((label) => (
             <option key={label} value={label} />
@@ -110,23 +123,32 @@ export function FarmPage() {
 
       {tag ? (
         <p className="mt-3">
-          <button
-            type="button"
-            className="tap inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
-            aria-label={`Remove tag filter ${tag}`}
-            onClick={() => {
+          <RemovableChip
+            label={`#${tag}`}
+            removeLabel={`Remove tag filter ${tag}`}
+            onRemove={() => {
               setParams({}, { replace: true });
             }}
-          >
-            #{tag} <CloseIcon />
-          </button>
+          />
         </p>
       ) : null}
 
       {plantings.isError ? <LoadError onRetry={() => void plantings.refetch()} /> : null}
       <ListSkeleton pending={plantings.isPending} />
       {plantings.data && items.length === 0 ? (
-        <EmptyState>
+        <EmptyState
+          art={<LeafArt />}
+          action={
+            <Button
+              variant="primary"
+              onClick={() => {
+                entryInput.current?.focus();
+              }}
+            >
+              Add an entry
+            </Button>
+          }
+        >
           Nothing here yet. Add {a(terms.farm.one === 'farm entry' ? 'entry' : terms.farm.one)} when
           you plant something.
         </EmptyState>

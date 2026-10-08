@@ -344,7 +344,7 @@ test.describe('markers', () => {
     await sheet.getByLabel('Field 1 label').blur();
     await sheet.getByLabel('Field 1 value').fill('3');
     await sheet.getByLabel('Field 1 value').blur();
-    await sheet.getByLabel('Link to a note, person or farm entry').fill('A note about the door');
+    await sheet.getByLabel('Link to a note, person').fill('A note about the door');
     await sheet.getByRole('button', { name: /as a new note and link it/ }).click();
     await expect(sheet.getByText('Linked to')).toBeVisible();
     await sheet.getByRole('button', { name: 'Done' }).click();

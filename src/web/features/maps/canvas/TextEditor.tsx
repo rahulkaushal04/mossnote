@@ -46,7 +46,7 @@ export function TextEditor({ edit, objs, view, size, onCommit, onCancel }: TextE
       aria-label={edit.kind === 'sticky' ? 'Note text' : 'Label text'}
       ref={focusOnMount}
       defaultValue={edit.text}
-      className="absolute z-10 resize-none rounded-control border border-accent bg-raised px-2 py-1 text-ink shadow-float"
+      className="absolute z-10 resize-none rounded-md border border-accent bg-raised px-2 py-1 text-ink shadow-2"
       style={{
         left: position.left,
         top: position.top,

@@ -29,7 +29,7 @@ const EXPORT_NAMED: Record<string, string> = {
 };
 export const exportColor = (c: string): string => EXPORT_NAMED[c] ?? c;
 
-export const EXPORT_PAPER = '#faf6ee';
+export const EXPORT_PAPER = '#f7f5f0';
 export const EXPORT_INK = '#2a2621';
 
 export type ColorFn = (c: string) => string;
@@ -45,7 +45,7 @@ export function textOnFill(
   if (!m) return named;
   const n = parseInt(m[1]!, 16);
   const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
-  return lum > 0.6 ? '#1c1a17' : '#ffffff';
+  return lum > 0.6 ? '#1d2420' : '#ffffff';
 }
 
 export const dashArray = (style: MapStyle): string | undefined => {

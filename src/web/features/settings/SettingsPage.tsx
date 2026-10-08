@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { Segmented } from '../../components/ui/Segmented';
 import {
   setReadingSize,
   setTheme,
@@ -11,11 +12,23 @@ import {
 } from '../../lib/theme';
 import { AboutSection } from './AboutSection';
 import { CalendarSection } from './CalendarSection';
+import { JournalsSection } from '../journals/JournalsSection';
 import { DataSection } from './DataSection';
 import { LayoutSection } from './LayoutSection';
 import { TagsSection } from './TagsSection';
 import { TrashSection } from './TrashSection';
 import { useUpdateSettings } from './useSettings';
+
+const SECTIONS = [
+  { id: 'appearance', title: 'Appearance' },
+  { id: 'journals', title: 'Journals' },
+  { id: 'game', title: 'Template and sections' },
+  { id: 'calendar', title: 'Calendar' },
+  { id: 'tags', title: 'Tags' },
+  { id: 'data', title: 'Data & backup' },
+  { id: 'trash', title: 'Recently deleted' },
+  { id: 'about', title: 'Shortcuts and about' },
+] as const;
 
 const THEMES: { value: ThemeChoice; label: string }[] = [
   { value: 'system', label: 'System' },
@@ -27,40 +40,23 @@ const SIZES: { value: ReadingSize; label: string }[] = [
   { value: 'large', label: 'Large' },
 ];
 
-function RadioGroup<T extends string>({
+/** A visible heading over a joined choice. */
+function Choice<T extends string>({
   legend,
-  name,
   options,
   value,
   onChange,
 }: {
   legend: string;
-  name: string;
   options: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
 }) {
   return (
-    <fieldset className="border-0 p-0">
-      <legend className="mb-1 font-semibold">{legend}</legend>
-      <div className="flex flex-wrap gap-x-6 gap-y-1">
-        {options.map((option) => (
-          <label key={option.value} className="tap flex items-center gap-2">
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => {
-                onChange(option.value);
-              }}
-              className="size-4 accent-accent"
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <div className="flex flex-col gap-2">
+      <p className="m-0 text-sm font-medium text-ink-2">{legend}</p>
+      <Segmented label={legend} options={options} value={value} onChange={onChange} />
+    </div>
   );
 }
 
@@ -69,9 +65,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="flex scroll-mt-20 flex-col gap-4 border-t border-rule py-6 first:border-t-0"
+      className="flex scroll-mt-24 flex-col gap-4 border-t border-hairline py-8 first:border-t-0"
     >
-      <h2 id={`${id}-heading`} className="text-xl font-semibold">
+      <h2 id={`${id}-heading`} className="font-serif text-xl font-medium tracking-tight">
         {title}
       </h2>
       {children}
@@ -87,10 +83,9 @@ function Appearance() {
   const update = useUpdateSettings();
   return (
     <>
-      <RadioGroup legend="Theme" name="theme" options={THEMES} value={theme} onChange={setTheme} />
-      <RadioGroup
+      <Choice legend="Theme" options={THEMES} value={theme} onChange={setTheme} />
+      <Choice
         legend="Reading size"
-        name="reading-size"
         options={SIZES}
         value={readingSize}
         onChange={(size) => {
@@ -124,14 +119,30 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" />
+      <PageHeader
+        title="Settings"
+        intro="Look, feel and your data. Everything stays on this computer."
+      />
+      <nav
+        aria-label="Settings sections"
+        className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:px-0"
+      >
+        {SECTIONS.map((section) => (
+          <a key={section.id} href={`#${section.id}`} className="pill shrink-0 no-underline">
+            {section.title}
+          </a>
+        ))}
+      </nav>
       <Section id="appearance" title="Appearance">
         <Appearance />
       </Section>
-      <Section id="game" title="Game and sections">
+      <Section id="journals" title="Journals">
+        <JournalsSection />
+      </Section>
+      <Section id="game" title="Template and sections">
         <LayoutSection />
       </Section>
-      <Section id="calendar" title="Game calendar">
+      <Section id="calendar" title="Calendar">
         <CalendarSection />
       </Section>
       <Section id="tags" title="Tags">

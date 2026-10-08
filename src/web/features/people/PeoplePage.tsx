@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { CloseIcon } from '../../components/ui/icons';
+import { RemovableChip } from '../../components/ui/Chip';
+import { PeopleArt } from '../../components/ui/art';
+import { Avatar } from '../../components/ui/Avatar';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { TagPicker } from '../journal/FilterBar';
@@ -21,6 +24,7 @@ export function PeoplePage() {
   const people = usePeople({ tag, sort });
   const create = useCreatePerson();
   const [name, setName] = useState('');
+  const nameInput = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -69,17 +73,24 @@ export function PeoplePage() {
 
   return (
     <>
-      <PageHeader title={terms.people.label} />
+      <PageHeader
+        title={terms.people.label}
+        intro={`Everyone you have met, with the notes that mention them.`}
+      />
       <form
-        className="mt-4 flex flex-col gap-1"
+        className="flex flex-col gap-1"
         onSubmit={(e) => {
           e.preventDefault();
           add();
         }}
       >
-        <label className="flex flex-col gap-1">
-          <span className="font-semibold">Add someone</span>
+        <label htmlFor="add-person" className="text-sm font-medium text-ink-2">
+          Add someone
+        </label>
+        <div className="flex gap-2">
           <input
+            id="add-person"
+            ref={nameInput}
             value={name}
             aria-invalid={error ? true : undefined}
             aria-describedby="add-person-note"
@@ -87,9 +98,12 @@ export function PeoplePage() {
               setName(e.target.value);
               setError(null);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-3"
+            className="field-input min-w-0 flex-1"
           />
-        </label>
+          <Button type="submit" variant="primary">
+            Add
+          </Button>
+        </div>
         <div id="add-person-note" className="text-sm">
           {error ? (
             <p role="alert" className="text-danger">
@@ -106,7 +120,7 @@ export function PeoplePage() {
       </form>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex min-w-40 flex-1 items-center gap-2">
           <span className="sr-only">Filter people</span>
           <input
             value={filter}
@@ -114,7 +128,7 @@ export function PeoplePage() {
             onChange={(e) => {
               setFilter(e.target.value);
             }}
-            className="tap w-44 rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input"
           />
         </label>
         <TagPicker
@@ -124,20 +138,17 @@ export function PeoplePage() {
           }}
         />
         {tag ? (
-          <button
-            type="button"
-            className="tap inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
-            aria-label={`Remove tag filter ${tag}`}
-            onClick={() => {
+          <RemovableChip
+            label={`#${tag}`}
+            removeLabel={`Remove tag filter ${tag}`}
+            onRemove={() => {
               update({ tag: null });
             }}
-          >
-            #{tag} <CloseIcon />
-          </button>
+          />
         ) : null}
         <button
           type="button"
-          className="btn tap ml-auto text-sm"
+          className="btn btn-ghost ml-auto"
           aria-pressed={sort === 'updated'}
           onClick={() => {
             update({ sort: sort === 'updated' ? 'name' : 'updated' });
@@ -151,7 +162,19 @@ export function PeoplePage() {
       <ListSkeleton pending={people.isPending} />
       {people.data && rows.length === 0 ? (
         all.length === 0 && !tag ? (
-          <EmptyState>
+          <EmptyState
+            art={<PeopleArt />}
+            action={
+              <Button
+                variant="primary"
+                onClick={() => {
+                  nameInput.current?.focus();
+                }}
+              >
+                Add a name
+              </Button>
+            }
+          >
             No {terms.people.many} yet. Add someone above, or type @ in a note.
           </EmptyState>
         ) : (
@@ -159,7 +182,7 @@ export function PeoplePage() {
             No one matches.{' '}
             <button
               type="button"
-              className="tap underline"
+              className="btn btn-ghost underline"
               onClick={() => {
                 setFilter('');
                 update({ tag: null });
@@ -171,24 +194,20 @@ export function PeoplePage() {
         )
       ) : null}
       {rows.length > 0 ? (
-        <ul aria-label={terms.people.label} className="m-0 mt-2 list-none p-0">
+        <ul aria-label={terms.people.label} className="stagger m-0 mt-2 list-none p-0">
           {rows.map((person) => (
-            <li
-              key={person.id}
-              className="relative flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-rule py-2"
-            >
-              <span className="flex items-center gap-3">
-                <Link
-                  to={`/people/${person.id}`}
-                  className="reading text-ink no-underline after:absolute after:inset-0 hover:underline"
-                >
-                  {person.name}
-                </Link>
-                {person.progressMax !== null ? (
-                  <PipsInline value={person.progress ?? 0} max={person.progressMax} />
-                ) : null}
-              </span>
-              <span className="relative z-10">
+            <li key={person.id} className="list-row relative flex-wrap gap-y-1">
+              <Avatar name={person.name} />
+              <Link
+                to={`/people/${person.id}`}
+                className="list-row-title min-w-0 truncate text-ink no-underline after:absolute after:inset-0 hover:underline"
+              >
+                {person.name}
+              </Link>
+              {person.progressMax !== null ? (
+                <PipsInline value={person.progress ?? 0} max={person.progressMax} />
+              ) : null}
+              <span className="relative z-10 ml-auto">
                 <TagList tags={person.tags} to={(t) => `/people?tag=${encodeURIComponent(t)}`} />
               </span>
             </li>

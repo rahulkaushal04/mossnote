@@ -22,7 +22,13 @@ const ROUTES = [
   '/does-not-exist',
 ];
 
-test('no non-localhost request is attempted on any route', async ({ page, context, server }) => {
+test('no non-localhost request is attempted on any route', async ({
+  page,
+  context,
+  server,
+  seed,
+}) => {
+  await seed.reset('stardew');
   const blocked: string[] = [];
   const seen: string[] = [];
   await context.route(

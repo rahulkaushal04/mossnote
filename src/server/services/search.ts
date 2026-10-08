@@ -9,6 +9,7 @@ import { BM25_WEIGHTS } from '../db/fts';
 import type { Ctx } from './ctx';
 import { searchMaps } from './maps';
 import { readCalendar } from './search-index';
+import { journalUses } from './settings';
 
 export type SearchKind = 'note' | 'person' | 'planting' | 'tag' | 'map';
 
@@ -253,7 +254,9 @@ export function search(ctx: Ctx, params: SearchParams): SearchResponse {
   if (!hasCriteria(parsed)) return { groups, partial: false };
 
   const vocab = ctx.vocab.get(ctx.sqlite);
-  const requested = params.kinds ?? (['note', 'person', 'planting', 'tag', 'map'] as const);
+  const requested = (
+    params.kinds ?? (['note', 'person', 'planting', 'tag', 'map'] as const)
+  ).filter((kind) => kind !== 'planting' || journalUses(ctx, 'farm'));
   const kinds = eligibleKinds(parsed, requested);
   const exclude = buildMatch(parsed.excluded, vocab);
 

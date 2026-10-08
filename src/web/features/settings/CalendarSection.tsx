@@ -16,10 +16,23 @@ const toRows = (calendar: Calendar): Row[] =>
   calendar.seasons.map((s) => ({ name: s.name, days: String(s.days) }));
 
 /**
- * Settings → Game calendar: season names and day counts. Renaming only changes
+ * Settings → Calendar: season names and day counts. Renaming only changes
  * labels. A change that would strand stored dates is refused with a count and nothing changes.
  */
 export function CalendarSection() {
+  const { calendar } = useCalendar();
+  if (calendar.counter) {
+    return (
+      <p className="text-ink-muted">
+        This journal counts days: Day 1, Day 2, and so on. There are no seasons or years to set up.
+        Set today&apos;s day from the date at the top of Today.
+      </p>
+    );
+  }
+  return <SeasonsEditor />;
+}
+
+function SeasonsEditor() {
   const { calendar } = useCalendar();
   const update = useUpdateSettings();
   const [rows, setRows] = useState<Row[]>(() => toRows(calendar));
@@ -70,7 +83,7 @@ export function CalendarSection() {
                 onChange={(e) => {
                   set(index, { name: e.target.value });
                 }}
-                className="tap w-44 rounded-control border border-ink-muted bg-paper px-2"
+                className="field-input w-44"
               />
             </label>
             <label className="flex items-center gap-2">
@@ -83,7 +96,7 @@ export function CalendarSection() {
                 onChange={(e) => {
                   set(index, { days: e.target.value });
                 }}
-                className="tap w-20 rounded-control border border-ink-muted bg-paper px-2"
+                className="field-input w-20"
               />
               <span className="text-sm text-ink-muted">days</span>
             </label>

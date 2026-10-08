@@ -23,10 +23,24 @@ function systemPrefersDark(): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
+/** The page colour per theme, for the browser's address bar. Must equal `--paper` in tokens.css (a test checks). */
+export const THEME_COLOR = { light: '#f7f5f0', dark: '#141816' } as const;
+
+function setThemeColor(dark: boolean): void {
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    document.head.append(meta);
+  }
+  meta.content = dark ? THEME_COLOR.dark : THEME_COLOR.light;
+}
+
 /** Apply the choice to the document (the blocking theme-init.js does the same before first paint). */
 export function applyTheme(choice: ThemeChoice = readTheme()): void {
   const dark = choice === 'dark' || (choice === 'system' && systemPrefersDark());
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  setThemeColor(dark);
 }
 
 export function setTheme(choice: ThemeChoice): void {

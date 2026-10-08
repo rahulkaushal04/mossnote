@@ -3,6 +3,22 @@
 All notable changes to this project are written down here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-10-08
+
+A second pass on the look and feel. Nothing was removed and no data changed.
+
+### Changed
+
+- Page titles are large and serif, with one italic word where it reads well and a one-line intro under them. Today opens with the day's name in italic and the note box ready to type in; quick actions are pills under the box and the date controls sit below them.
+- A wide screen has a floating sidebar with a search field, New note, your sections with counts, pinned tags and Settings, and the page is one centred column. A tablet has a slim icon rail. A phone has a floating bottom bar.
+- Lists are quiet hairline rows with serif names; People has monogram avatars. Filters are pills, and an active filter is a pill you press to remove.
+- The first screen shows each template as a large card with a clear selected state.
+- The search palette has tabs for notes, people, farm entries and maps, a blurred backdrop and a row of key hints.
+- The map editor has a dotted canvas and a raised toolbar. Press and hold an icon on a touch screen to see its name. The note box on Today stays in view when the keyboard opens.
+- The interface font is now Inter (the reading font is still Literata). Small details: thin scrollbars, a selection colour, a browser theme colour for both themes, a new icon, print and high-contrast styles.
+- The note box always shows its options (date, flags, tag, link, Save), so the page no longer jumps when you click elsewhere.
+- Empty People, Farm and Maps pages show a small line drawing and a button for the next step. "Dismiss" on the date tip now reads "Hide this tip".
+
 ## 2026-10-07
 
 First entry. This is where the project starts.

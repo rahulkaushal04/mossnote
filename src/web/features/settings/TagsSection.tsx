@@ -5,7 +5,7 @@ import { ApiError } from '../../lib/api';
 import { plural } from '../../lib/format';
 import { useTagMutations, useTags } from '../tags/hooks';
 
-const ACTION = 'tap rounded-control px-2 text-sm underline';
+const ACTION = 'tap rounded-md px-2 text-sm underline';
 const REVEAL =
   'opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100';
 
@@ -70,7 +70,7 @@ export function TagsSection() {
         {list.map((tag) => (
           <li
             key={tag.id}
-            className="group flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-rule py-2"
+            className="group flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-line py-2"
           >
             {renaming?.tag.id === tag.id ? (
               <form
@@ -93,7 +93,7 @@ export function TagsSection() {
                       if (e.key === 'Escape') setRenaming(null);
                     }}
                     onBlur={commitRename}
-                    className="tap w-48 rounded-control border border-ink-muted bg-paper px-2"
+                    className="field-input w-48"
                   />
                 </label>
               </form>
@@ -220,7 +220,7 @@ function MergePicker({
     <div
       role="group"
       aria-label={`Merge #${source.name} into another tag`}
-      className="mt-3 rounded-control border border-rule p-3"
+      className="mt-3 rounded-md border border-line p-3"
     >
       <label className="flex flex-col gap-1 text-sm">
         <span className="font-semibold">Merge #{source.name} into</span>
@@ -229,7 +229,7 @@ function MergePicker({
           onChange={(e) => {
             setTargetId(e.target.value);
           }}
-          className="tap w-64 rounded-control border border-ink-muted bg-paper px-2"
+          className="field-input w-64"
         >
           <option value="">Choose a tag</option>
           {tags

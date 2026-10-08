@@ -35,13 +35,18 @@ export function QuickActions({
   const layout = useLayout();
   if (!layout.quickActions || template.quickActions.length === 0) return null;
   return (
-    <div role="group" aria-label="Quick actions" className="mb-3 flex flex-wrap gap-2">
+    // One scrolling row on a phone, so the composer stays near the top; wraps from 640px up.
+    <div
+      role="group"
+      aria-label="Quick actions"
+      className="scroll-row -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
+    >
       {template.quickActions.map((action) => (
         <button
           key={action.id}
           type="button"
+          className="pill shrink-0"
           aria-pressed={isOn(value, action)}
-          className={`btn tap text-sm ${isOn(value, action) ? 'btn-primary' : ''}`}
           onClick={() => {
             onChange(toggle(value, action));
           }}

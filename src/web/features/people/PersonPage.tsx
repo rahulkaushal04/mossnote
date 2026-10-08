@@ -20,7 +20,7 @@ import { useDeletePerson, usePerson, usePersonNotes, useUpdatePerson } from './h
 import { ProgressPips } from './ProgressPips';
 import { useTerms } from '../settings/useLayout';
 
-const LABEL = 'text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted';
+const LABEL = 'text-sm font-semibold text-ink-2';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -61,7 +61,7 @@ function NameField({ person }: { person: Person }) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className="reading w-full border-0 border-b border-transparent bg-transparent text-2xl font-semibold hover:border-rule focus:border-ink-muted"
+          className="reading w-full border-0 border-b border-transparent bg-transparent text-2xl font-semibold hover:border-line focus:border-ink-muted"
         />
       </label>
       {error ? (
@@ -109,7 +109,7 @@ function Progress({ person }: { person: Person }) {
               setMax(e.target.value);
               setError(null);
             }}
-            className="tap w-24 rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input w-24"
           />
         </label>
         <button type="submit" className="btn tap">
@@ -163,7 +163,7 @@ function Progress({ person }: { person: Person }) {
               if (n < value) setClamp(n);
               else update.mutate({ id: person.id, patch: { progressMax: n } });
             }}
-            className="tap w-20 rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input w-20"
           />
         </label>
         <button
@@ -218,7 +218,7 @@ function NotesField({ person }: { person: Person }) {
             autosave.schedule();
           }}
           onBlur={autosave.flush}
-          className="reading w-full rounded-control border border-rule bg-paper p-2"
+          className="reading w-full rounded-md border border-line bg-paper p-2"
         />
       </label>
       <SavedIndicator show={autosave.saved} />
@@ -325,7 +325,7 @@ export function PersonPage() {
                 <button
                   type="button"
                   aria-label="More actions"
-                  className="tap rounded-control px-1 hover:bg-surface"
+                  className="tap rounded-md px-1 hover:bg-surface"
                 >
                   <EllipsisIcon />
                 </button>

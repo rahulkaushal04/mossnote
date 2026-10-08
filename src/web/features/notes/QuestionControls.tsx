@@ -96,7 +96,7 @@ export function QuestionControls({ note }: { note: Note }) {
                   setAsking(false);
                 }
               }}
-              className="tap w-72 max-w-full rounded-control border border-ink-muted bg-paper px-2 text-ink"
+              className="field-input w-72 max-w-full text-ink"
             />
           </label>
           <button

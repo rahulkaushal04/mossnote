@@ -1,14 +1,13 @@
 /** Small building blocks shared by the inspector's sections. */
 import type { ReactNode } from 'react';
 
-export const FIELD_CLASS =
-  'tap w-full rounded-control border border-ink-muted bg-paper px-2 text-sm';
+export const FIELD_CLASS = 'field-input w-full text-sm';
 export const BUTTON_CLASS = 'btn tap px-2 text-sm';
-const HEADING_CLASS = 'm-0 text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase';
+const HEADING_CLASS = 'm-0 text-sm font-semibold text-ink-2';
 
 export function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-2 border-t border-rule pt-3 first:border-t-0 first:pt-0">
+    <section className="flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0">
       <h3 className={HEADING_CLASS}>{title}</h3>
       {children}
     </section>

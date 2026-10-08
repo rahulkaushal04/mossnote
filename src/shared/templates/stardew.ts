@@ -1,13 +1,15 @@
 import type { GameTemplate } from './types';
 
 /**
- * Stardew Valley wording and structure only. The calendar of four seasons already ships as the
- * app default. No names, items, places or mechanics appear here, and none may be added.
+ * Stardew Valley wording and structure only: a Farm section, a calendar of four seasons, quick
+ * actions and suggested tags. No names, items, places or mechanics appear here, and none may be
+ * added.
  */
 export const stardewTemplate: GameTemplate = {
   id: 'stardew',
   name: 'Stardew Valley',
-  about: 'Daily journal, NPCs, crops, and a few one-tap actions for notes you take while playing.',
+  about:
+    'A Farm section, a calendar of seasons, NPCs, and a few one-tap actions for notes you take while playing.',
   terms: {
     today: { label: 'Today', one: 'day', many: 'days' },
     journal: { label: 'Daily journal', one: 'entry', many: 'entries' },
@@ -16,6 +18,7 @@ export const stardewTemplate: GameTemplate = {
     maps: { label: 'Maps', one: 'map', many: 'maps' },
   },
   order: ['today', 'journal', 'people', 'farm', 'maps'],
+  calendar: 'seasons',
   quickActions: [
     { id: 'met', label: 'Met someone', set: { tag: 'met' } },
     { id: 'found', label: 'Found something', set: { discovery: true } },

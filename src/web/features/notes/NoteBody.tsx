@@ -52,7 +52,7 @@ export function NoteBody({ value, className = '' }: { value: string; className?:
     ul: ({ children }) => <ul className="ml-6 list-disc">{children}</ul>,
     ol: ({ children }) => <ol className="ml-6 list-decimal">{children}</ol>,
     blockquote: ({ children }) => (
-      <blockquote className="border-l-2 border-rule pl-4 text-ink-muted">{children}</blockquote>
+      <blockquote className="border-l-2 border-line pl-4 text-ink-muted">{children}</blockquote>
     ),
   };
 

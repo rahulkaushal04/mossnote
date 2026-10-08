@@ -1,5 +1,5 @@
 import type { Calendar } from '@shared/constants';
-import { decode } from '@shared/gameDate';
+import { dayNumber, decode, isCounter } from '@shared/gameDate';
 import { DEFAULT_CALENDAR } from '@shared/constants';
 import { calendarSchema } from '@shared/schemas/calendar';
 import type { Ctx } from './ctx';
@@ -9,6 +9,7 @@ export type IndexKind = 'note' | 'person' | 'planting';
 /** Game date as searchable words, for example `Spring 3 Year 1`. */
 export function dateWords(key: number | null, calendar: Calendar): string {
   if (key === null) return '';
+  if (isCounter(calendar)) return `${calendar.seasons[0]?.name ?? 'Day'} ${dayNumber(key)}`;
   const { year, season, day } = decode(key);
   const name = calendar.seasons[season]?.name;
   return name === undefined ? '' : `${name} ${day} Year ${year}`;

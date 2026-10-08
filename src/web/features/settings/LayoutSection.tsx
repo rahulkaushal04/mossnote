@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { SectionId } from '@shared/templates';
+import { REQUEST_TEMPLATE_URL } from '@shared/links';
 import {
   ALWAYS_VISIBLE,
   DEFAULT_LAYOUT,
-  TEMPLATES,
   type Layout,
   type ResolvedSection,
 } from '@shared/templates';
+import { NewJournalDialog } from '../journals/JournalDialogs';
 import { api } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { ALL_DATA_KEYS } from '../../lib/queryKeys';
@@ -35,7 +36,7 @@ function SectionRow({
   const [name, setName] = useState(section.label);
   const locked = ALWAYS_VISIBLE.includes(section.id);
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule py-2">
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2">
       <label className="flex min-w-40 flex-1 flex-col text-sm">
         <span className="sr-only">Name of {section.templateLabel}</span>
         <input
@@ -53,7 +54,7 @@ function SectionRow({
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className="tap rounded-control border border-ink-muted bg-paper px-3"
+          className="field-input"
         />
       </label>
       <label className="tap flex items-center gap-2 text-sm">
@@ -97,8 +98,8 @@ function SectionRow({
 }
 
 /**
- * Settings → Game and sections: pick a template, then rename, hide and reorder the sections it
- * gives you. Nothing is required; with no choice made the plain wording is used.
+ * Settings → Template and sections: the journal's template (chosen when it was made), then
+ * rename, hide and reorder the sections it gives you.
  */
 export function LayoutSection() {
   const client = useQueryClient();
@@ -108,6 +109,7 @@ export function LayoutSection() {
   const tags = useTags();
   const update = useUpdateSettings();
   const [message, setMessage] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const save = (next: Layout) => {
     setMessage(null);
@@ -160,37 +162,33 @@ export function LayoutSection() {
 
   return (
     <>
-      <fieldset className="border-0 p-0">
-        <legend className="mb-1 font-semibold">Game</legend>
-        <p className="mb-2 text-sm text-ink-muted">
-          A game changes wording and adds quick actions. It never adds any facts about the game.
+      <div>
+        <h3 className="font-semibold">Template</h3>
+        <p className="mt-1">
+          <strong>{template.name}</strong>
+          <span className="block text-sm text-ink-muted">{template.about}</span>
         </p>
-        <div className="flex flex-col gap-2">
-          {TEMPLATES.map((t) => (
-            <div key={t.id}>
-              <label className="tap flex items-center gap-3 font-semibold">
-                <input
-                  type="radio"
-                  name="template"
-                  value={t.id}
-                  checked={template.id === t.id}
-                  aria-describedby={`template-${t.id}-about`}
-                  onChange={() => {
-                    // Names you typed belong to the old wording, so they are cleared; order and
-                    // what you hid are kept.
-                    save({ ...layout, template: t.id, labels: {} });
-                  }}
-                  className="size-4 accent-accent"
-                />
-                {t.name}
-              </label>
-              <p id={`template-${t.id}-about`} className="m-0 pl-7 text-sm text-ink-muted">
-                {t.about}
-              </p>
-            </div>
-          ))}
-        </div>
-      </fieldset>
+        <p className="mt-2 text-sm text-ink-muted">
+          A journal keeps the template it was made with. To use another one, make a new journal
+          beside this one. A template changes wording and adds shortcuts; it never adds any facts
+          about a game.
+        </p>
+        <p className="mt-2 flex flex-wrap items-center gap-3 text-sm">
+          <button
+            type="button"
+            className="btn tap"
+            onClick={() => {
+              setCreating(true);
+            }}
+          >
+            New journal…
+          </button>
+          <a href={REQUEST_TEMPLATE_URL} target="_blank" rel="noreferrer noopener">
+            Request a template
+          </a>
+        </p>
+        <NewJournalDialog open={creating} onOpenChange={setCreating} />
+      </div>
 
       <div>
         <h3 className="font-semibold">Sections</h3>
@@ -263,7 +261,7 @@ export function LayoutSection() {
             save({ ...DEFAULT_LAYOUT, template: layout.template });
           }}
         >
-          Reset sections to the game&apos;s defaults
+          Reset sections to the template&apos;s defaults
         </button>
       </div>
       {message ? (

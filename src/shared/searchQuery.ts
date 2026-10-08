@@ -1,6 +1,6 @@
 import { LIMITS, type Calendar } from './constants';
 import { fold } from './text';
-import type { GameDateQuery } from './gameDate';
+import { decode, fromDayNumber, type GameDateQuery } from './gameDate';
 
 /** One word or quoted phrase to match as text. */
 export interface SearchTerm {
@@ -123,6 +123,23 @@ function yearAt(words: Token[], at: number): { year: number; width: number } | n
   return null;
 }
 
+/** `day 12` in a day-counter calendar: one exact day, whatever the stored year. */
+function extractCounterDate(
+  words: Token[],
+  calendar: Calendar,
+): { date: GameDateQuery; used: Token[]; label: string } | null {
+  const name = fold(calendar.seasons[0]?.name ?? 'day');
+  for (let at = 0; at + 1 < words.length; at++) {
+    const number = words[at + 1]?.text ?? '';
+    if (fold(words[at]?.text ?? '') !== name || !/^\d{1,7}$/.test(number)) continue;
+    const key = fromDayNumber(Number(number));
+    if (key === null) continue;
+    const used = words.slice(at, at + 2);
+    return { date: decode(key), used, label: `${calendar.seasons[0]?.name ?? 'Day'} ${number}` };
+  }
+  return null;
+}
+
 /**
  * Find a game-date filter among plain words: a season name, or a prefix of at
  * least 3 letters, with an optional day and an optional `y2` or `year 2`. A bare number is text.
@@ -131,6 +148,7 @@ function extractDate(
   words: Token[],
   calendar: Calendar,
 ): { date: GameDateQuery; used: Token[]; label: string } | null {
+  if (calendar.counter) return extractCounterDate(words, calendar);
   for (let at = 0; at < words.length; at++) {
     const season = matchSeason(words, at, calendar);
     if (!season) continue;

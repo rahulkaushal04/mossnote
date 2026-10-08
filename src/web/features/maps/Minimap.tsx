@@ -62,7 +62,7 @@ export function Minimap({
       height={H}
       role="img"
       aria-label="Overview of the whole map. Click to move there."
-      className="touch-none rounded-control border border-rule bg-raised shadow-float"
+      className="touch-none rounded-md border border-line bg-raised shadow-2"
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
         go(e);

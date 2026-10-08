@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CALENDAR, type Calendar } from './constants';
-import { advance, decode, encode, format, isValid, parse } from './gameDate';
+import { COUNTER_CALENDAR, DEFAULT_CALENDAR, LIMITS, type Calendar } from './constants';
+import {
+  COUNTER_MAX,
+  advance,
+  dayNumber,
+  decode,
+  encode,
+  format,
+  fromDayNumber,
+  isValid,
+  parse,
+} from './gameDate';
 
 const cal = DEFAULT_CALENDAR;
 const uneven: Calendar = {
@@ -212,5 +222,48 @@ describe('parse', () => {
   it('reads the output of format back', () => {
     const text = format(k(4, 2, 17), cal, { withYear: true }) ?? '';
     expect(parse(text, cal)).toEqual({ year: 4, season: 2, day: 17 });
+  });
+});
+
+describe('a day counter calendar', () => {
+  const counter = COUNTER_CALENDAR;
+
+  it('numbers days from 1 and has no seasons or years to show', () => {
+    expect(fromDayNumber(1)).toBe(k(1, 0, 1));
+    expect(fromDayNumber(99)).toBe(k(1, 0, 99));
+    expect(fromDayNumber(100)).toBe(k(2, 0, 1));
+    expect(format(k(1, 0, 12), counter)).toBe('Day 12');
+    expect(format(k(2, 0, 1), counter, { withYear: true })).toBe('Day 100');
+    expect(format(k(1, 1, 1), counter)).toBeNull();
+  });
+
+  it('round-trips every day number across the rollover and at both ends', () => {
+    for (const n of [1, 2, 98, 99, 100, 101, 198, 199, 12_345, COUNTER_MAX]) {
+      const key = fromDayNumber(n);
+      expect(key).not.toBeNull();
+      expect(isValid(key, counter)).toBe(true);
+      expect(dayNumber(key ?? 0)).toBe(n);
+    }
+    expect(fromDayNumber(0)).toBeNull();
+    expect(fromDayNumber(COUNTER_MAX + 1)).toBeNull();
+    expect(fromDayNumber(1.5)).toBeNull();
+    expect(COUNTER_MAX).toBe(LIMITS.yearMax * 99);
+  });
+
+  it('steps forward and back one day at a time without noticing the stored year', () => {
+    expect(advance(k(1, 0, 99), counter, 1)).toBe(k(2, 0, 1));
+    expect(advance(k(2, 0, 1), counter, -1)).toBe(k(1, 0, 99));
+    expect(advance(k(1, 0, 1), counter, -1)).toBeNull();
+    expect(advance(fromDayNumber(COUNTER_MAX) ?? 0, counter, 1)).toBeNull();
+  });
+
+  it('reads "day 12", "d12" and "12" as one exact day, and nothing else', () => {
+    expect(parse('day 120', counter)).toEqual({ year: 2, season: 0, day: 21 });
+    expect(parse('Day 5', counter)).toEqual({ year: 1, season: 0, day: 5 });
+    expect(parse('d5', counter)).toEqual({ year: 1, season: 0, day: 5 });
+    expect(parse('5', counter)).toEqual({ year: 1, season: 0, day: 5 });
+    expect(parse('day 0', counter)).toBeNull();
+    expect(parse('spring 3', counter)).toBeNull();
+    expect(parse('day 12 and more', counter)).toBeNull();
   });
 });

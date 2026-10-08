@@ -5,6 +5,15 @@ export interface Shortcut {
   action: string;
 }
 
+/** The "go to" shortcut for the sections a journal has: `g f` exists only where Farm does. */
+export function goShortcut(labels: readonly string[], withFarm: boolean): Shortcut {
+  return {
+    keys: `g then t, j, p, ${withFarm ? 'f, ' : ''}m, s`,
+    scope: 'Outside text fields',
+    action: `Go to ${labels.join(', ')}, Settings`,
+  };
+}
+
 export const SHORTCUTS: readonly Shortcut[] = [
   { keys: 'mod+K', scope: 'Everywhere', action: 'Open search and commands' },
   { keys: '/', scope: 'Outside text fields', action: 'Open search' },

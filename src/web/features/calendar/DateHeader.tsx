@@ -6,7 +6,7 @@ import { GameDateChip } from './GameDateChip';
 import { useAdvanceDay } from './useAdvanceDay';
 import { useSetCurrentDate } from './useCurrentDate';
 
-const arrow = 'btn tap px-2 disabled:cursor-not-allowed disabled:opacity-50';
+const arrow = 'btn btn-icon btn-ghost';
 
 /** Today's header row: the current game date chip with Previous day and Next day. */
 export function TodayDateHeader() {
@@ -15,7 +15,7 @@ export function TodayDateHeader() {
   const day = useAdvanceDay();
   return (
     <div
-      className="flex flex-wrap items-center gap-2 py-3"
+      className="flex flex-wrap items-center gap-1 py-2"
       role="group"
       aria-label="Current in-game date"
     >
@@ -37,7 +37,7 @@ export function TodayDateHeader() {
           disabled={!day.canGoPrevious}
           onClick={day.previous}
         >
-          <ChevronLeftIcon />
+          <ChevronLeftIcon className="size-5" />
         </button>
       </Tip>
       <Tip label={day.hasDate ? 'Next day' : 'Set the in-game date first'} keys="d n">
@@ -49,7 +49,7 @@ export function TodayDateHeader() {
           disabled={!day.canGoNext}
           onClick={day.next}
         >
-          <ChevronRightIcon />
+          <ChevronRightIcon className="size-5" />
         </button>
       </Tip>
     </div>
@@ -68,7 +68,7 @@ export function DayDateHeader({ dayKey }: { dayKey: number }) {
   const next = calendar.advance(dayKey, 1);
   return (
     <div
-      className="flex flex-wrap items-center gap-2 py-3"
+      className="flex flex-wrap items-center gap-1 py-2"
       role="group"
       aria-label="Viewed in-game day"
     >
@@ -84,7 +84,7 @@ export function DayDateHeader({ dayKey }: { dayKey: number }) {
             go(previous);
           }}
         >
-          <ChevronLeftIcon />
+          <ChevronLeftIcon className="size-5" />
         </button>
       </Tip>
       <Tip label="Next day" keys="]">
@@ -98,7 +98,7 @@ export function DayDateHeader({ dayKey }: { dayKey: number }) {
             go(next);
           }}
         >
-          <ChevronRightIcon />
+          <ChevronRightIcon className="size-5" />
         </button>
       </Tip>
     </div>

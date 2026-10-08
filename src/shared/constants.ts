@@ -84,11 +84,26 @@ export interface Season {
 
 export interface Calendar {
   seasons: Season[];
+  /**
+   * A plain day counter instead of seasons: one period of {@link COUNTER_DAYS} days that the
+   * date helpers show as "Day 123". Dates are still stored in the same integer key.
+   */
+  counter?: true;
 }
 
+/** Days in the single period of a counter calendar. Day 100 is day 1 of the next "year". */
+export const COUNTER_DAYS = 99;
+
+/** The calendar of the Default template: days counted from 1, with no seasons or years. */
+export const COUNTER_CALENDAR: Calendar = {
+  seasons: [{ name: 'Day', days: COUNTER_DAYS }],
+  counter: true,
+};
+
 /**
- * The only game-adjacent default that ships: four seasons of 28 days,
- * editable by the user. Nothing else is pre-filled anywhere.
+ * The calendar of the Stardew Valley template: four seasons of 28 days, editable by the user.
+ * It is the only game-adjacent default that ships, and only a journal made from that template
+ * gets it. Nothing else is pre-filled anywhere.
  */
 export const DEFAULT_CALENDAR: Calendar = {
   seasons: [

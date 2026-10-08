@@ -48,7 +48,7 @@ describe('vacuumJournal', () => {
         key: string;
       }[]
     ).map((r) => r.key);
-    expect(keys).toEqual(['calendar', 'meta']);
+    expect(keys).toEqual(['calendar', 'layout', 'meta']);
     again.close();
     expect(fs.existsSync(path.join(dir, 'journal.lock'))).toBe(false);
   });
