@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from './fixtures';
 
-/** The second visual pass (ADR 0009): editorial Today, palette scopes, long-press names, details. */
+/** The second visual pass: editorial Today, palette scopes, long-press names, details. */
 
 test.describe('Today', () => {
   test('the heading names the day and the composer is the first thing to type in', async ({

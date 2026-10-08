@@ -2,7 +2,7 @@ import type { ReactNode, SVGProps } from 'react';
 
 /**
  * Small line drawings for empty states. One colour (`currentColor`), a 1.5px stroke, no fills,
- * decorative. Inline SVG, so nothing is fetched. Allowed in empty states only (ADR 0009).
+ * decorative. Inline SVG, so nothing is fetched. Allowed in empty states only.
  */
 function Art({ children, ...props }: SVGProps<SVGSVGElement> & { children: ReactNode }) {
   return (

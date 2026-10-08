@@ -5,8 +5,8 @@ type Keys = readonly (readonly unknown[])[];
 const channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('moss');
 
 /**
- * After a successful mutation, tell other open windows which queries to refetch (spec section
- * 12). With refetch on focus this keeps two windows in step without a sync layer.
+ * After a successful mutation, tell other open windows which queries to refetch. With refetch on
+ * focus this keeps two windows in step without a sync layer.
  */
 export function broadcastInvalidate(keys: Keys): void {
   try {

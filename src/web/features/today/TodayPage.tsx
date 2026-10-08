@@ -30,7 +30,7 @@ function SetDateHint() {
   );
 }
 
-/** Today (`/`): capture first, then this day's notes, then the optional sections (spec 5.4). */
+/** Today (`/`): capture first, then this day's notes, then the optional sections. */
 export function TodayPage() {
   const calendar = useCalendar();
   const day = useLocalDay();
