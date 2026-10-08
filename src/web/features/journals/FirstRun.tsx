@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
 import { showJournal } from '../../lib/journal';
+import { WHERE_IT_LIVES } from '../../lib/mode';
 import { journalProblem } from './hooks';
 import { NewJournalForm } from './NewJournalForm';
 
@@ -24,9 +25,9 @@ export function FirstRun() {
           Welcome to <em>Mossnote</em>
         </h1>
         <p className="page-intro">
-          A private journal for the games you play. It lives on this computer, never connects to the
-          internet, and starts empty. Pick a starting point; you can make more journals later, one
-          for each game.
+          A private journal for the games you play. It lives {WHERE_IT_LIVES.place}, never sends
+          anything over the internet, and starts empty. Pick a starting point; you can make more
+          journals later, one for each game.
         </p>
       </div>
       <NewJournalForm

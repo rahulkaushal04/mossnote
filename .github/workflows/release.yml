@@ -38,7 +38,9 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:wasm
       - run: npm run build
+      - run: npm run build:standalone
       - run: npm run check:network
 
   draft:

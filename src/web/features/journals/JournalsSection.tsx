@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { templateById } from '@shared/templates';
 import type { JournalInfo } from '@shared/types';
+import { DownloadLink } from '../../components/DownloadLink';
 import { DownloadIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
 import { formatBytes, plural } from '../../lib/format';
 import { showJournal } from '../../lib/journal';
+import { WHERE_IT_LIVES } from '../../lib/mode';
 import { journalProblem, useJournals } from './hooks';
 import { DeleteJournalDialog, NewJournalDialog, RenameJournalDialog } from './JournalDialogs';
 
@@ -50,8 +52,8 @@ export function JournalsSection() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-ink-muted">
-        Each journal is its own file in your data folder, with its own notes, calendar and sections.
-        Use one for each game or playthrough.
+        Each journal is {WHERE_IT_LIVES.unit}, with its own notes, calendar and sections. Use one
+        for each game or playthrough.
       </p>
       <ul aria-label="Journals" className="m-0 list-none p-0">
         {items.map((journal) => (
@@ -95,24 +97,24 @@ export function JournalsSection() {
               </button>
               {journal.status === 'ok' ? (
                 <>
-                  <a
+                  <DownloadLink
                     className="btn btn-ghost no-underline"
                     aria-label={`Download ${journal.name} as JSON`}
-                    href={`/api/journals/${journal.id}/export.json`}
-                    download
+                    path={`/api/journals/${journal.id}/export.json`}
+                    journalId={journal.id}
                   >
                     <DownloadIcon className="size-4" />
                     JSON
-                  </a>
-                  <a
+                  </DownloadLink>
+                  <DownloadLink
                     className="btn btn-ghost no-underline"
                     aria-label={`Download ${journal.name} as Markdown`}
-                    href={`/api/journals/${journal.id}/export.md`}
-                    download
+                    path={`/api/journals/${journal.id}/export.md`}
+                    journalId={journal.id}
                   >
                     <DownloadIcon className="size-4" />
                     Markdown
-                  </a>
+                  </DownloadLink>
                 </>
               ) : null}
               <button

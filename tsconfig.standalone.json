@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "WebWorker"],
+    "types": [],
+    "outDir": "./.tsbuild/standalone"
+  },
+  "include": ["src/standalone"],
+  "references": [{ "path": "./tsconfig.shared.json" }, { "path": "./tsconfig.server.json" }]
+}

@@ -6,6 +6,7 @@ import { api, ApiError } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { formatBytes, formatDateTime } from '../../lib/format';
 import { journalNav } from '../../lib/journal';
+import { WHERE_IT_LIVES } from '../../lib/mode';
 import { queryKeys } from '../../lib/queryKeys';
 
 const REASON: Record<BackupInfo['reason'], string> = {
@@ -147,7 +148,7 @@ export function BackupsList() {
           if (!open) setDeleting(null);
         }}
         title="Delete this snapshot?"
-        message="The snapshot file is removed from your backups folder. The journal itself is not touched. This can't be undone."
+        message={`The snapshot is removed from ${WHERE_IT_LIVES.snapshots}. The journal itself is not touched. This can't be undone.`}
         confirmLabel="Delete snapshot"
         danger
         onConfirm={() => {

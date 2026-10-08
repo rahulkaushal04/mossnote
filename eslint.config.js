@@ -214,6 +214,71 @@ export default tseslint.config(
     },
   },
 
+  // --- standalone: the server's logic running inside the browser -----------
+  // It reuses the app, the services and the migration runner, and replaces everything that
+  // touches a file, a socket or the native SQLite module. Importing any of those would break the
+  // build that goes to the browser, so each is named here. Nothing may import it back: the
+  // TypeScript project references already forbid that.
+  {
+    files: ['src/standalone/**/*.ts'],
+    languageOptions: { globals: globals.worker },
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: SQLITE_PATHS,
+          patterns: [
+            { group: ['node:*'], message: 'The browser has no Node APIs.' },
+            { group: ['@web/*', '**/web/**'], message: 'standalone must not import from web.' },
+            {
+              group: [
+                '@server/config',
+                '@server/boot',
+                '@server/index',
+                '@server/listener',
+                '@server/lock',
+                '@server/dataDir',
+                '@server/phone',
+                '@server/phone/*',
+                '@server/db/client',
+                '@server/db/backup',
+                '@server/db/catalog',
+                '@server/db/migrate',
+                '@server/db/folderStorage',
+                '@server/journals/manager',
+                '@server/journals/closed',
+                '@server/journals/restore',
+                '@server/journals/paths',
+                '@server/journals/ids',
+                '@server/middleware/static',
+                '@server/middleware/peer',
+                '@server/testing/*',
+              ],
+              message:
+                'That server module uses files, sockets or Node APIs. See db/types.ts and the standalone runtime.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-globals': ['error', ...NO_FETCH_GLOBALS],
+      'no-restricted-syntax': ['error', NO_PROCESS_ENV, ...NO_STRING_SQL],
+    },
+  },
+  // Test support for the browser runtime runs under Node and may use what the runtime may not.
+  {
+    files: ['src/standalone/testing/**/*.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+      'no-restricted-globals': 'off',
+      'no-restricted-syntax': 'off',
+    },
+  },
+  // The service worker source is plain script that runs in a service worker.
+  {
+    files: ['scripts/vite/sw.template.js'],
+    languageOptions: { globals: globals.serviceworker, sourceType: 'script' },
+  },
+
   // --- web ---------------------------------------------------------------
   {
     files: ['src/web/**/*.{ts,tsx}'],

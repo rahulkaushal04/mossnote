@@ -28,7 +28,7 @@ Everyone who takes part in the project: maintainers, contributors and people who
 
 ## Reporting a problem
 
-If you see or experience behaviour that breaks these rules, contact the maintainer. The contact details are on the profile of the repository owner, [@rahulkaushal04](https://github.com/rahulkaushal04). Please do not report it in a public issue.
+If you see or experience behaviour that breaks these rules, contact the maintainer, [@rahulkaushal04](https://github.com/rahulkaushal04). Use the contact details on that profile, or, if you cannot find a way, send a [private report](https://github.com/rahulkaushal04/mossnote/security/advisories/new) and say it is about conduct. Please do not report it in a public issue.
 
 Reports are read in confidence. The maintainer will look into each one, will not share who reported it, and will not hold a report against someone who made it in good faith.
 

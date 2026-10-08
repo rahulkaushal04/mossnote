@@ -21,8 +21,7 @@ import {
   type Settings,
   type SettingsPatch,
 } from '@shared/schemas/settings';
-import type { Clock } from '../db/backup';
-import type { Database } from '../db/client';
+import type { Clock, Database } from '../db/types';
 import { settings } from '../db/schema';
 import { AppError } from '../errors';
 

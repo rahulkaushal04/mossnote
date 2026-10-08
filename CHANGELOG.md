@@ -1,7 +1,24 @@
 # Changelog
 
 All notable changes to this project are written down here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Mossnote has not had a public
+release yet, so entries are grouped by date, with the latest changes under "Unreleased".
+Once releases begin they will use [Semantic Versioning](https://semver.org/).
+
+## Unreleased
+
+Two new ways to use Mossnote while you play. Your existing journals are untouched.
+
+### Added
+
+- **Phone access.** Settings → Phone lets a phone or tablet on your home network open the journal that lives on your computer. Turn it on, scan the pairing code with the phone's camera, and write notes without leaving the game. Only devices you pair can use it; you can remove them from the same screen. `mossnote --lan` or `MOSS_LAN=1` turns it on at start.
+- **A web version** that keeps the journal in the browser, for people with no computer to run Mossnote on, such as a console player with a phone. It works offline, can be added to the Home Screen, reminds you to download a backup, and says plainly when a browser cannot keep files (private windows) or another tab already has the journal. Build it with `npm run build:standalone`.
+- Export and download buttons work the same in both versions, and the data screens say whether the journal is in a folder or in the browser.
+
+### Changed
+
+- The server's code is split so the same app, services and migrations run in Node and in the browser, behind small `Sqlite` and `Storage` interfaces. The server's behaviour is unchanged; `npm run test:wasm` runs its whole test suite on the browser's SQLite.
+- Settings → Data & backup shows the data location as a folder or as browser storage (`GET /api/data/info` now returns a `location` object instead of three path fields).
 
 ## 2026-10-08
 

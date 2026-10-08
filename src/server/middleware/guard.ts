@@ -5,6 +5,8 @@ export interface GuardOptions {
   port: number;
   /** Also accept the Vite dev server origin (`npm run dev`). */
   dev: boolean;
+  /** More `Host` values to accept, read on every request: the addresses a phone uses. */
+  extraHosts?: () => ReadonlySet<string>;
 }
 
 export const CLIENT_HEADER = 'x-moss-client';
@@ -30,10 +32,11 @@ const forbidden = (message: string) => new AppError('forbidden', message);
  */
 export function guard(options: GuardOptions): MiddlewareHandler {
   const hosts = allowedHosts(options);
+  const isAllowed = (host: string) => hosts.has(host) || options.extraHosts?.().has(host) === true;
 
   return async (c, next) => {
     const host = c.req.header('host')?.toLowerCase();
-    if (!host || !hosts.has(host)) throw forbidden('This request was refused.');
+    if (!host || !isAllowed(host)) throw forbidden('This request was refused.');
 
     const method = c.req.method.toUpperCase();
     if (method === 'OPTIONS') throw forbidden('This request was refused.');

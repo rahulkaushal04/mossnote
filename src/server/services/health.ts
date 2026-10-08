@@ -1,4 +1,4 @@
-import type { Sqlite } from '../db/client';
+import type { Sqlite } from '../db/types';
 
 /** Number of applied migrations, which is this build's schema version. 0 when none applied yet. */
 export function schemaVersion(sqlite: Sqlite): number {

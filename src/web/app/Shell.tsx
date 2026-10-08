@@ -6,7 +6,9 @@ import { PlusIcon, SearchIcon } from '../components/ui/icons';
 import { Tip } from '../components/ui/Tooltip';
 import { usePalette } from '../features/search/PaletteProvider';
 import { modLabel } from '../lib/hotkeys';
+import { IS_STANDALONE } from '../lib/mode';
 import { useKeyboardInset } from '../lib/useKeyboardInset';
+import { BackupReminder } from '../standalone/BackupReminder';
 import { useIsPhone } from '../lib/useViewport';
 import { GlobalHotkeys } from './GlobalHotkeys';
 import { useSections } from '../features/settings/useLayout';
@@ -103,6 +105,7 @@ export function Shell() {
             <div
               className={`mx-auto w-full px-4 phone:px-8 ${editorRoute ? 'max-w-none' : 'max-w-[calc(var(--column)+4rem)]'}`}
             >
+              {IS_STANDALONE ? <BackupReminder /> : null}
               <main id="main" tabIndex={-1} className="pb-10 outline-none">
                 <Outlet />
               </main>

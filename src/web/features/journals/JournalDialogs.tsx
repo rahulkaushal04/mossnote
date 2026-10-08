@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { JournalInfo } from '@shared/types';
+import { DownloadLink } from '../../components/DownloadLink';
 import { Dialog } from '../../components/ui/Dialog';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched, invalidateEverywhere } from '../../lib/broadcast';
 import { showJournal } from '../../lib/journal';
+import { WHERE_IT_LIVES } from '../../lib/mode';
 import { formatBytes, plural } from '../../lib/format';
 import { queryKeys } from '../../lib/queryKeys';
 import { journalProblem } from './hooks';
@@ -206,7 +208,7 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
       }}
     >
       <p>
-        This removes the journal from this computer
+        This removes the journal from {WHERE_IT_LIVES.removeFrom}
         {counts
           ? `, with its ${plural(counts.notes, 'note')}, ${plural(counts.people, 'person', 'people')} and ${plural(counts.maps, 'map')}`
           : ''}
@@ -219,20 +221,20 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
           Mossnote.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <a
+          <DownloadLink
             className="btn tap no-underline"
-            href={`/api/journals/${journal.id}/export.json`}
-            download
+            path={`/api/journals/${journal.id}/export.json`}
+            journalId={journal.id}
           >
             Download JSON
-          </a>
-          <a
+          </DownloadLink>
+          <DownloadLink
             className="btn tap no-underline"
-            href={`/api/journals/${journal.id}/export.md`}
-            download
+            path={`/api/journals/${journal.id}/export.md`}
+            journalId={journal.id}
           >
             Download Markdown
-          </a>
+          </DownloadLink>
         </div>
       </div>
       <label className="tap flex items-start gap-3">
@@ -245,7 +247,7 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
           className="mt-1 size-4 accent-accent"
         />
         <span>
-          Keep a last copy in the backups folder
+          Keep a last copy {WHERE_IT_LIVES.lastCopy}
           <span className="block text-sm text-ink-muted">
             Recommended. It is a snapshot file you can open later or copy back.
           </span>

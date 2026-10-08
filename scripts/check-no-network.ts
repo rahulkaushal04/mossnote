@@ -29,6 +29,18 @@ export const BUILT_HOSTS = new Set([
 ]);
 
 /**
+ * Extra hosts allowed only inside the standalone web app's build: SQLite's WebAssembly library
+ * carries licence banners and comments that name its own sites, and the Emscripten tool that
+ * built it. They are text, never fetched; `tests/standalone` proves that no request leaves.
+ */
+export const STANDALONE_HOSTS = new Set([
+  ...BUILT_HOSTS,
+  'sqlite.org',
+  'emscripten.org',
+  'developer.chrome.com',
+]);
+
+/**
  * The one source file that may name a web page: links the person clicks to open in their own
  * browser (see `src/shared/links.ts`). Nothing in the app ever fetches them.
  */
@@ -89,7 +101,11 @@ function* walk(dir: string): Generator<string> {
 export function scan(root: string, dirs: string[]): Finding[] {
   const findings: Finding[] = [];
   for (const dir of dirs) {
-    const allowed = dir.startsWith('dist') ? BUILT_HOSTS : SOURCE_HOSTS;
+    const allowed = dir.startsWith('dist/standalone')
+      ? STANDALONE_HOSTS
+      : dir.startsWith('dist')
+        ? BUILT_HOSTS
+        : SOURCE_HOSTS;
     for (const file of walk(path.join(root, dir))) {
       // Tests assert on hostile URLs on purpose; they never ship.
       if (/\.test\.tsx?$/.test(file) || file.includes(`${path.sep}testing${path.sep}`)) continue;
@@ -108,7 +124,7 @@ export function scan(root: string, dirs: string[]): Finding[] {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const findings = scan(root, ['src', 'dist/web', 'dist/server']);
+  const findings = scan(root, ['src', 'dist/web', 'dist/server', 'dist/standalone']);
   if (findings.length > 0) {
     process.stderr.write('External URLs found. Mossnote must not reach the network:\n');
     for (const f of findings) process.stderr.write(`  ${f.file}:${f.line}  ${f.host}  ${f.text}\n`);

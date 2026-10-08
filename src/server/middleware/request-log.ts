@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { MiddlewareHandler } from 'hono';
 import type { Logger } from '../logger';
 import type { Env } from '../env';
@@ -9,7 +8,7 @@ import type { Env } from '../env';
  */
 export function requestLog(logger: Logger): MiddlewareHandler<Env> {
   return async (c, next) => {
-    const id = randomUUID().slice(0, 8);
+    const id = crypto.randomUUID().slice(0, 8);
     c.set('requestId', id);
     const started = performance.now();
     await next();

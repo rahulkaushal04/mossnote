@@ -550,7 +550,7 @@ describe('storage facts and backups', () => {
     await api.person({ name: 'P' });
     const before = await api.json<DataInfo>(await t.call('GET', '/api/data/info'));
     expect(before).toMatchObject({
-      dataDir: t.dir,
+      location: { kind: 'folder', dataDir: t.dir },
       counts: { notes: 1, people: 1, plantings: 0, tags: 1 },
       lastBackupAt: null,
     });

@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { IS_STANDALONE, WHERE_IT_LIVES } from '../../lib/mode';
 import { Segmented } from '../../components/ui/Segmented';
 import {
   setReadingSize,
@@ -15,6 +16,7 @@ import { CalendarSection } from './CalendarSection';
 import { JournalsSection } from '../journals/JournalsSection';
 import { DataSection } from './DataSection';
 import { LayoutSection } from './LayoutSection';
+import { PhoneSection } from './PhoneSection';
 import { TagsSection } from './TagsSection';
 import { TrashSection } from './TrashSection';
 import { useUpdateSettings } from './useSettings';
@@ -25,6 +27,7 @@ const SECTIONS = [
   { id: 'game', title: 'Template and sections' },
   { id: 'calendar', title: 'Calendar' },
   { id: 'tags', title: 'Tags' },
+  { id: 'phone', title: 'Phone' },
   { id: 'data', title: 'Data & backup' },
   { id: 'trash', title: 'Recently deleted' },
   { id: 'about', title: 'Shortcuts and about' },
@@ -121,13 +124,13 @@ export default function SettingsPage() {
     <>
       <PageHeader
         title="Settings"
-        intro="Look, feel and your data. Everything stays on this computer."
+        intro={`Look, feel and your data. Everything stays ${WHERE_IT_LIVES.place}.`}
       />
       <nav
         aria-label="Settings sections"
         className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:px-0"
       >
-        {SECTIONS.map((section) => (
+        {SECTIONS.filter((section) => !(section.id === 'phone' && IS_STANDALONE)).map((section) => (
           <a key={section.id} href={`#${section.id}`} className="pill shrink-0 no-underline">
             {section.title}
           </a>
@@ -148,6 +151,11 @@ export default function SettingsPage() {
       <Section id="tags" title="Tags">
         <TagsSection />
       </Section>
+      {IS_STANDALONE ? null : (
+        <Section id="phone" title="Phone">
+          <PhoneSection />
+        </Section>
+      )}
       <Section id="data" title="Data & backup">
         <DataSection />
       </Section>

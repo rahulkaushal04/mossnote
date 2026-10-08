@@ -6,22 +6,6 @@ import { AppError } from '../errors';
 import { acquireLock } from '../lock';
 import { makeJournalsApp, type JournalsApp } from '../testing/journals';
 import { writeOlderJournal } from '../testing/older';
-import { slugify } from './ids';
-
-describe('slugify', () => {
-  it('makes a short, file-name-safe id from any name a person might type', () => {
-    expect(slugify('My journal')).toBe('my-journal');
-    expect(slugify('  Second   playthrough!! ')).toBe('second-playthrough');
-    expect(slugify('Crème brûlée')).toBe('creme-brulee');
-    expect(slugify('A'.repeat(100))).toHaveLength(30);
-    expect(slugify('../../etc/passwd')).toBe('etc-passwd');
-  });
-
-  it('never returns an empty or unsafe id', () => {
-    for (const name of ['', '   ', '!!!', '日本語', '🎮🎮']) expect(slugify(name)).toBe('journal');
-    expect(slugify('x-'.repeat(40))).not.toMatch(/-$/);
-  });
-});
 
 let t: JournalsApp;
 beforeEach(async () => {

@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FirstRun } from '../features/journals/FirstRun';
-import { api, NetworkError } from '../lib/api';
+import { api, ApiError, NetworkError } from '../lib/api';
 import { listenForJournalSwitch } from '../lib/broadcast';
 import {
   currentJournalId,
@@ -24,12 +24,37 @@ export function Unreachable({ onRetry }: { onRetry: () => void }) {
       <p>
         Mossnote may not be running. Start it again (open the app, or run{' '}
         <code className="rounded-md bg-surface px-1.5 py-0.5">mossnote</code> in a terminal), then
-        try again. Nothing you wrote is lost.
+        try again. On a phone or tablet, check that the computer is on and that phone access is
+        still turned on. Nothing you wrote is lost.
       </p>
       <div>
         <button type="button" className="btn tap" onClick={onRetry}>
           Retry
         </button>
+      </div>
+    </main>
+  );
+}
+
+/**
+ * A phone or tablet that was removed from the computer's list of paired devices while the app
+ * was open. It is sent to the pairing page, which is the only way back in.
+ */
+function NotPaired() {
+  useEffect(() => {
+    document.title = "This device isn't paired · Mossnote";
+  }, []);
+  return (
+    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+      <h1 className="text-2xl font-semibold">This device isn&apos;t paired any more.</h1>
+      <p>
+        It was removed from the computer&apos;s list of devices, or its pairing expired. Pair it
+        again from Settings, then Phone, on the computer. Nothing you wrote is lost.
+      </p>
+      <div>
+        <a className="btn btn-primary tap no-underline" href="/pair">
+          Pair this device
+        </a>
       </div>
     </main>
   );
@@ -88,7 +113,13 @@ export function ServerGate({ children }: { children: ReactNode }) {
     if (serverJournal !== null && shown !== null && serverJournal !== shown) markJournalChanged();
   }, [serverJournal, shown]);
 
-  if (health.error instanceof NetworkError) {
+  if (health.error instanceof ApiError && health.error.status === 401) return <NotPaired />;
+  // 403: phone access was turned off, or the address changed. Treated as unreachable: retry works
+  // as soon as it is back.
+  if (
+    health.error instanceof NetworkError ||
+    (health.error instanceof ApiError && health.error.status === 403)
+  ) {
     return (
       <Unreachable
         onRetry={() => {

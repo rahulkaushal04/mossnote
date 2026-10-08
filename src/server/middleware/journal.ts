@@ -7,7 +7,7 @@ import { NO_JOURNAL, type Ctx } from '../services/ctx';
 export const JOURNAL_HEADER = 'x-moss-journal';
 
 /** Paths that work with no journal open, or while another is open. */
-const OPEN_PATHS = /^\/api\/(?:health|journals)(?:\/|$)/;
+const OPEN_PATHS = /^\/api\/(?:health|journals|phone)(?:\/|$)/;
 
 /**
  * Two guards for the open journal:

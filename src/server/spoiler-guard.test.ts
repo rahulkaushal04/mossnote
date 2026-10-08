@@ -1,7 +1,9 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { COUNTER_CALENDAR, DEFAULT_CALENDAR, SETTING_KEYS } from '@shared/constants';
 import { loadConfig } from './config';
+import { createFolderStorage } from './db/folderStorage';
 import { openJournal, type Journal } from './boot';
 import { createApp } from './app';
 import { silentLogger } from './logger';
@@ -96,6 +98,7 @@ describe('fresh database', () => {
     const app = createApp({
       db: journal.database.db,
       sqlite: journal.database.sqlite,
+      storage: createFolderStorage(config),
       clock: fakeClock(),
       config: { ...config, port: 4317, version: 'test' },
     });
@@ -108,7 +111,8 @@ describe('fresh database', () => {
   });
 
   it('writes the database inside the data folder only', () => {
-    expect(journal.database.sqlite.name).toBe(path.join(dir, 'journal.db'));
+    const [main] = journal.database.sqlite.pragma('database_list') as { file: string }[];
+    expect(main?.file).toBe(fs.realpathSync(path.join(dir, 'journal.db')));
   });
 });
 

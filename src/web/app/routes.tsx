@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, Outlet, useParams, type RouteObject } from 'react-router';
 import { CalendarProvider } from '../features/calendar/CalendarProvider';
 import { PaletteProvider } from '../features/search/PaletteProvider';
+import { BASE_PATH } from '../lib/mode';
 import { NewNoteProvider } from './NewNote';
 import { SetDateProvider } from './SetDate';
 import { DayPage } from '../features/today/DayPage';
@@ -98,4 +99,7 @@ export const routes: RouteObject[] = [
   },
 ];
 
-export const createRouter = () => createBrowserRouter(routes);
+/** The app may be served from a folder (`/mossnote/` on a project site); routes are relative to it. */
+const basename = BASE_PATH === '/' ? undefined : BASE_PATH.replace(/\/$/, '');
+
+export const createRouter = () => createBrowserRouter(routes, basename ? { basename } : {});

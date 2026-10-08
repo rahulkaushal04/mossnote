@@ -7,7 +7,6 @@ import { defineConfig, devices } from '@playwright/test';
  * hidden /dev/kit route so the Radix primitives can be exercised under the full CSP.
  */
 export default defineConfig({
-  testDir: 'tests/e2e',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -16,8 +15,27 @@ export default defineConfig({
   // Tests that care about motion turn it back on with page.emulateMedia.
   use: { trace: 'retain-on-failure', colorScheme: 'light', reducedMotion: 'reduce' },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium', testDir: 'tests/e2e', use: { ...devices['Desktop Chrome'] } },
     // WebKit smoke test (macOS CI only): npx playwright test --project=webkit --grep @smoke
-    { name: 'webkit', use: { ...devices['Desktop Safari'] }, grep: /@smoke/ },
+    {
+      name: 'webkit',
+      testDir: 'tests/e2e',
+      use: { ...devices['Desktop Safari'] },
+      grep: /@smoke/,
+    },
+    // The web app that keeps the journal in the browser, served as a static site
+    // (`npm run build:standalone` first). Chromium runs everything; WebKit only the smoke test.
+    {
+      name: 'standalone',
+      testDir: 'tests/standalone',
+      testIgnore: /webkit\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'standalone-webkit',
+      testDir: 'tests/standalone',
+      testMatch: /webkit\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
   ],
 });
