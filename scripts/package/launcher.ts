@@ -20,7 +20,7 @@ const asBuffer = (key: string): Buffer => Buffer.from(sea.getRawAsset(key));
 const HELP = (version: string) => `Mossnote ${version}
 A private journal for the games you play. It runs on this computer only.
 
-Usage: mossnote [--port <number>] [--data-dir <folder>] [--journal <name>] [--no-open]
+Usage: mossnote [--port <number>] [--data-dir <folder>] [--journal <name>] [--no-open] [--lan]
        mossnote --version
 
 Close this window, or press Ctrl+C, to stop Mossnote. Your journals are kept in your user
@@ -54,6 +54,7 @@ function main(): void {
     process.env[variable] = value;
   }
   if (args.includes('--no-open')) process.env.MOSS_OPEN_BROWSER = '0';
+  if (args.includes('--lan')) process.env.MOSS_LAN = '1';
 
   const archive = asBuffer('app');
   const id = archiveId(version, archive);

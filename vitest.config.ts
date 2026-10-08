@@ -6,7 +6,7 @@ const src = (dir: string) => fileURLToPath(new URL(`./src/${dir}`, import.meta.u
 
 export default defineConfig({
   plugins: [react()],
-  define: { __MOSS_DEV_KIT__: false },
+  define: { __MOSS_DEV_KIT__: false, __MOSS_STANDALONE__: false },
   resolve: {
     alias: {
       '@shared': src('shared'),

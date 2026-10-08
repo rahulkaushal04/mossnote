@@ -26,6 +26,7 @@ export const queryKeys = {
   trash: ['trash'] as const,
   dataInfo: ['data', 'info'] as const,
   backups: ['data', 'backups'] as const,
+  phone: ['phone'] as const,
 };
 
 /** Everything that depends on records: used after imports, restores and other broad changes. */

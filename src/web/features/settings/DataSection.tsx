@@ -1,12 +1,16 @@
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ImportSummary } from '@shared/types';
+import { DownloadLink } from '../../components/DownloadLink';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { api, ApiError } from '../../lib/api';
-import { formatBytes, formatDateTime, plural } from '../../lib/format';
+import { formatDateTime, plural } from '../../lib/format';
 import { invalidateEverywhere } from '../../lib/broadcast';
+import { IS_STANDALONE } from '../../lib/mode';
 import { ALL_DATA_KEYS, queryKeys } from '../../lib/queryKeys';
+import { StorageProtection } from '../../standalone/StorageProtection';
 import { BackupsList } from './BackupsList';
+import { DataLocation } from './DataLocation';
 import { useTerms, useUsesSection } from './useLayout';
 
 const MAX_IMPORT = 50 * 1024 * 1024;
@@ -23,9 +27,7 @@ export function DataSection() {
   const terms = useTerms();
   const usesFarm = useUsesSection('farm');
   const info = useQuery({ queryKey: queryKeys.dataInfo, queryFn: api.dataInfo });
-  const [folderMessage, setFolderMessage] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
-  const [copied, setCopied] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [problems, setProblems] = useState<ImportSummary['errors']>([]);
@@ -109,55 +111,7 @@ export function DataSection() {
             <dt className="font-semibold">Journal</dt>
             <dd className="m-0">{data.journal.name}</dd>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <dt className="font-semibold">Data folder</dt>
-            <dd className="m-0 flex flex-wrap items-center gap-2">
-              <span className="break-all">{data.dataDir}</span>
-              <button
-                type="button"
-                className="btn tap text-sm"
-                onClick={() => {
-                  navigator.clipboard
-                    .writeText(data.dataDir)
-                    .then(() => {
-                      setCopied(true);
-                    })
-                    .catch(() => {
-                      setCopied(false);
-                    });
-                }}
-              >
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-              <button
-                type="button"
-                className="btn tap text-sm"
-                onClick={() => {
-                  setFolderMessage(null);
-                  api.openDataFolder().catch(() => {
-                    setFolderMessage(
-                      "Couldn't open the folder from here. Copy the path and open it yourself.",
-                    );
-                  });
-                }}
-              >
-                Open folder
-              </button>
-            </dd>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <dt className="font-semibold">This journal&apos;s file</dt>
-            <dd className="m-0 break-all">
-              {data.databasePath} ({formatBytes(data.databaseBytes)})
-            </dd>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <dt className="font-semibold">Backups</dt>
-            <dd className="m-0">
-              {plural(data.backupCount, 'snapshot')} ({formatBytes(data.backupBytes)}) in{' '}
-              <span className="break-all">{data.backupsDir}</span>
-            </dd>
-          </div>
+          <DataLocation data={data} />
           <div className="flex gap-2">
             <dt className="font-semibold">Records</dt>
             <dd className="m-0">
@@ -177,19 +131,13 @@ export function DataSection() {
           </div>
         </dl>
       ) : null}
-      {folderMessage ? (
-        <p role="alert" className="text-danger">
-          {folderMessage}
-        </p>
-      ) : null}
-
       <div className="flex flex-wrap gap-2">
-        <a className="btn tap no-underline" href="/api/data/export.json" download>
+        <DownloadLink className="btn tap no-underline" path="/api/data/export.json">
           Export JSON
-        </a>
-        <a className="btn tap no-underline" href="/api/data/export.md" download>
+        </DownloadLink>
+        <DownloadLink className="btn tap no-underline" path="/api/data/export.md">
           Export Markdown
-        </a>
+        </DownloadLink>
         <button
           type="button"
           className="btn tap"
@@ -215,6 +163,8 @@ export function DataSection() {
       <p role="status" aria-live="polite" className="text-sm text-ink-muted">
         {backupMessage}
       </p>
+
+      {IS_STANDALONE ? <StorageProtection /> : null}
 
       <BackupsList />
 

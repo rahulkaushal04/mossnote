@@ -4,7 +4,9 @@ import { RouterProvider } from 'react-router';
 import { ToastProvider } from '../components/ui/Toast';
 import { TooltipProvider } from '../components/ui/Tooltip';
 import { listenForInvalidations } from '../lib/broadcast';
+import { IS_STANDALONE } from '../lib/mode';
 import { createQueryClient } from '../lib/queryClient';
+import { UpdateBanner } from '../standalone/UpdateBanner';
 import { applyTheme, setReadingSize, watchSystemTheme, type ReadingSize } from '../lib/theme';
 import { useSettings } from '../features/settings/useSettings';
 import { createRouter } from './routes';
@@ -38,6 +40,7 @@ export function App() {
       <TooltipProvider delayDuration={500}>
         <ToastProvider>
           <Preferences />
+          {IS_STANDALONE ? <UpdateBanner /> : null}
           <RouterProvider router={router} />
         </ToastProvider>
       </TooltipProvider>

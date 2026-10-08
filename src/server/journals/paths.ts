@@ -1,10 +1,5 @@
 import path from 'node:path';
-
-/** A journal's id is its file name stem. */
-export const JOURNAL_PATTERN = /^[A-Za-z0-9_-]{1,40}$/;
-
-/** The id of the journal that older versions kept as the only one. */
-export const LEGACY_JOURNAL_ID = 'journal';
+import { JOURNAL_PATTERN } from '@shared/journalId';
 
 export interface JournalPaths {
   journal: string;

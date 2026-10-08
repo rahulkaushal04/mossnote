@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { BASE_PATH } from './mode';
 
 /**
  * Which journal this window is showing. The server has one journal open at a time, so every
@@ -44,7 +45,7 @@ export const useJournalChanged = (): boolean =>
 export const journalNav = {
   /** Load the app afresh on whichever journal is open now. */
   show(): void {
-    window.location.assign('/');
+    window.location.assign(BASE_PATH);
   },
   /** Reload the page you are on. */
   reload(): void {

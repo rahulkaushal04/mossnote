@@ -1,15 +1,9 @@
 import fs from 'node:fs';
 import BetterSqlite3 from 'better-sqlite3';
-import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import * as schema from './schema';
+import { createDb } from './orm';
+import type { Database } from './types';
 
-export type Db = BetterSQLite3Database<typeof schema>;
-export type Sqlite = BetterSqlite3.Database;
-
-export interface Database {
-  sqlite: Sqlite;
-  db: Db;
-}
+export type { Database, Db, Sqlite } from './types';
 
 /**
  * Open the journal with the journal pragmas, set on every open.
@@ -30,7 +24,7 @@ export function openDatabase(filename: string): Database {
       // Platforms without POSIX modes: nothing to do.
     }
   }
-  return { sqlite, db: drizzle(sqlite, { schema, casing: 'snake_case' }) };
+  return { sqlite, db: createDb(sqlite) };
 }
 
 /**
@@ -39,5 +33,5 @@ export function openDatabase(filename: string): Database {
  */
 export function openDatabaseReadOnly(filename: string): Database {
   const sqlite = new BetterSqlite3(filename, { readonly: true, fileMustExist: true });
-  return { sqlite, db: drizzle(sqlite, { schema, casing: 'snake_case' }) };
+  return { sqlite, db: createDb(sqlite) };
 }

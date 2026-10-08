@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { JOURNAL_PATTERN, LEGACY_JOURNAL_ID } from '@shared/journalId';
 import { DEFAULT_TEMPLATE_ID } from '@shared/templates';
 import type { BackupInfo, JournalInfo } from '@shared/types';
 import { IntegrityError, openJournal, type Journal } from '../boot';
@@ -21,8 +22,9 @@ import {
   type ClosedEnv,
 } from './closed';
 import { freeJournalId } from './ids';
-import { JOURNAL_PATTERN, LEGACY_JOURNAL_ID, journalPaths } from './paths';
+import { journalPaths } from './paths';
 import { restoreSnapshot } from './restore';
+import type { Journals } from './types';
 
 const ACTIVE_FILE = 'active-journal';
 
@@ -43,7 +45,7 @@ export interface ManagerOptions {
  * and the previous journal stays open until the next one is ready, so a journal that cannot be
  * opened never leaves the app without one.
  */
-export class JournalManager {
+export class JournalManager implements Journals {
   private current: Journal | null = null;
   private ctx: Ctx | null = null;
   private busy: Promise<unknown> = Promise.resolve();

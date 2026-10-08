@@ -8,7 +8,6 @@ import {
 } from '@shared/schemas/export';
 import { normalizeTag } from '@shared/tags';
 import type { ImportSummary } from '@shared/types';
-import { createSnapshot } from '../db/backup';
 import { AppError } from '../errors';
 import { inTx, type Ctx } from './ctx';
 import { reindexAll } from './search-index';
@@ -251,9 +250,8 @@ export async function importJournal(ctx: Ctx, raw: unknown): Promise<ImportResul
       details: { errors: result.errors },
     });
   }
-  const snapshot = await createSnapshot({
+  const snapshot = await ctx.storage.snapshots.create({
     sqlite: ctx.sqlite,
-    backupsDir: ctx.config.backupsDir,
     journal: ctx.config.journal,
     reason: 'pre-import',
     clock: ctx.clock,

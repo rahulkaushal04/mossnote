@@ -1,9 +1,10 @@
 import { ulid } from 'ulid';
 import type { AppConfig } from '../app';
 import { AppError } from '../errors';
-import type { Clock } from '../db/backup';
-import type { Db, Sqlite } from '../db/client';
-import type { JournalManager } from '../journals/manager';
+import type { Clock, Db, Sqlite } from '../db/types';
+import type { Journals } from '../journals/types';
+import { decodeBase64Url, encodeBase64Url } from './base64url';
+import { noStorage, type Storage } from './storage';
 import { VocabCache } from './vocab';
 
 /** The open journal's handles, which `Ctx` swaps when another journal is opened. */
@@ -24,6 +25,8 @@ export interface Ctx {
   readonly sqlite: Sqlite;
   readonly vocab: VocabCache;
   readonly config: AppConfig;
+  /** Where snapshots are kept and what the storage looks like. */
+  readonly storage: Storage;
   clock: Clock;
   newId: () => string;
   /** True while a journal is open. */
@@ -31,7 +34,7 @@ export interface Ctx {
   attach(journal: Attached): void;
   detach(): void;
   /** Present in the running app; absent in tests that use one fixed in-memory journal. */
-  journals: JournalManager | undefined;
+  journals: Journals | undefined;
   /** Show the data folder in the system file manager. */
   openFolder: (dir: string) => Promise<void>;
 }
@@ -42,7 +45,9 @@ export interface CtxInput {
   clock: Clock;
   config: AppConfig;
   ids?: () => string;
-  journals?: JournalManager;
+  /** Defaults to {@link noStorage}, for contexts that never touch snapshots. */
+  storage?: Storage;
+  journals?: Journals;
   openFolder?: (dir: string) => Promise<void>;
 }
 
@@ -76,6 +81,7 @@ export function createCtx(input: CtxInput): Ctx {
         ? { ...input.config, journal: current.journal, dbPath: current.dbPath }
         : { ...input.config, journal: '', dbPath: '' };
     },
+    storage: input.storage ?? noStorage,
     clock: input.clock,
     newId: input.ids ?? (() => ulid(input.clock.now())),
     get attached() {
@@ -105,12 +111,12 @@ export const iso = (ms: number): string => new Date(ms).toISOString();
 
 /** Opaque cursor: base64url JSON. */
 export function encodeCursor(value: unknown): string {
-  return Buffer.from(JSON.stringify(value)).toString('base64url');
+  return encodeBase64Url(JSON.stringify(value));
 }
 
 export function decodeCursor<T>(cursor: string, valid: (v: unknown) => v is T): T {
   try {
-    const parsed: unknown = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
+    const parsed: unknown = JSON.parse(decodeBase64Url(cursor));
     if (valid(parsed)) return parsed;
   } catch {
     // Fall through to the error below.

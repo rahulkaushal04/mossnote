@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { MapMarkerType } from '@shared/schemas/map';
+import { saveBlob } from '../../../lib/saveFile';
 import { SceneView } from '../render/SceneView';
 import { EXPORT_INK, EXPORT_PAPER, exportColor } from '../render/colors';
 import { contentBox, objectsOf, type Doc } from './doc';
@@ -133,18 +134,7 @@ export function buildPdf(jpeg: Uint8Array, pxW: number, pxH: number): Blob {
   return new Blob(parts as BlobPart[], { type: 'application/pdf' });
 }
 
-export function download(blob: Blob, name: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  }, 2000);
-}
+export const download = saveBlob;
 
 /** A safe file name from a map name. */
 export const fileStem = (name: string): string =>

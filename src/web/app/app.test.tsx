@@ -393,6 +393,31 @@ describe('server unreachable', () => {
   });
 });
 
+describe('a phone or tablet that is no longer welcome', () => {
+  it('is told it was unpaired, with the way back', async () => {
+    vi.spyOn(api, 'getHealth').mockRejectedValue(
+      new ApiError(401, { code: 'unauthorized', message: 'This device is not paired.' }),
+    );
+    renderApp('/');
+
+    expect(
+      await screen.findByRole('heading', { name: "This device isn't paired any more." }),
+    ).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Pair this device' }).getAttribute('href')).toBe(
+      '/pair',
+    );
+  });
+
+  it('is told it cannot reach the journal when phone access was switched off', async () => {
+    vi.spyOn(api, 'getHealth').mockRejectedValue(
+      new ApiError(403, { code: 'forbidden', message: 'This request was refused.' }),
+    );
+    renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: "Can't reach your journal." })).toBeTruthy();
+  });
+});
+
 describe('route error boundary', () => {
   it('shows a calm message with Reload and Copy details', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);

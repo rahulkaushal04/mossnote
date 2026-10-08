@@ -21,7 +21,9 @@ import type {
   Note,
   NoteDetail,
   Page,
+  PairingCode,
   Person,
+  PhoneStatus,
   PickItem,
   PinRef,
   Planting,
@@ -56,6 +58,19 @@ export class ApiError extends Error {
 }
 
 /**
+ * How requests reach the journal. By default the browser's own `fetch`, which talks to the
+ * server. The standalone build replaces it with one that asks the worker holding the journal.
+ */
+let transport: typeof fetch | null = null;
+
+export function setApiTransport(next: typeof fetch | null): void {
+  transport = next;
+}
+
+const send = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> =>
+  (transport ?? fetch)(input, init);
+
+/**
  * The only module that knows about HTTP. Every request carries the
  * `X-Moss-Client` header the server's guard requires. A desktop wrapper replaces this file.
  */
@@ -70,7 +85,7 @@ const client = hc<AppType>('/', {
   }),
   fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
     try {
-      return await fetch(input, init);
+      return await send(input, init);
     } catch {
       throw new NetworkError();
     }
@@ -259,7 +274,7 @@ export const api = {
     ),
   /** A last-chance save while the page is going away; `keepalive` lets it finish after unload. */
   saveMapChangesOnExit: (id: string, changes: MapChanges) => {
-    fetch(`/api/maps/${id}/changes`, {
+    send(`/api/maps/${id}/changes`, {
       method: 'POST',
       keepalive: true,
       headers: {
@@ -374,6 +389,7 @@ export const api = {
   deleteBackup: async (name: string) =>
     unwrapEmpty(await client.api.data.backups[':name'].$delete({ param: { name } })),
   openDataFolder: async () => unwrapEmpty(await client.api.data['open-folder'].$post()),
+
   importDryRun: async (file: unknown) =>
     unwrap<ImportSummary>(
       await client.api.data.import.$post({ query: { dryRun: '1' }, ...withBody(file as object) }),
@@ -390,7 +406,41 @@ export const api = {
   deleteForever: async (kind: TrashItem['kind'], id: string) =>
     unwrapEmpty(await client.api.trash[':kind'][':id'].$delete({ param: { kind, id } })),
   emptyTrash: async () => unwrap<{ removed: number }>(await client.api.trash.$delete()),
+
+  // phone access (from the computer itself)
+  getPhone: async () => unwrap<PhoneStatus>(await client.api.phone.$get()),
+  setPhoneAccess: async (enabled: boolean) =>
+    unwrap<PhoneStatus>(await client.api.phone.$put({ json: { enabled } })),
+  makePairingCode: async () => unwrap<PairingCode>(await client.api.phone.code.$post()),
+  removeDevice: async (id: string) =>
+    unwrapEmpty(await client.api.phone.devices[':id'].$delete({ param: { id } })),
+  removeAllDevices: async () =>
+    unwrap<{ removed: number }>(await client.api.phone.devices.$delete()),
+
+  // files
+  /** Fetch an export (`/api/data/export.json` and the like) as a file to save. */
+  download: async (path: string): Promise<DownloadedFile> => {
+    let response: Response;
+    try {
+      response = await send(path, { headers: { 'X-Moss-Client': 'web', ...journalHeader() } });
+    } catch {
+      throw new NetworkError();
+    }
+    if (!response.ok) return failure(response);
+    return { blob: await response.blob(), filename: filenameOf(response) };
+  },
 };
+
+export interface DownloadedFile {
+  blob: Blob;
+  filename: string;
+}
+
+/** The file name the server suggests in `Content-Disposition`, or a plain fallback. */
+function filenameOf(response: Response): string {
+  const header = response.headers.get('content-disposition') ?? '';
+  return /filename="([^"]+)"/.exec(header)?.[1] ?? 'mossnote-export';
+}
 
 function stripUndefined(value: Record<string, string | undefined>): Record<string, string> {
   return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Record<

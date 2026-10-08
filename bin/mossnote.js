@@ -18,6 +18,7 @@ Options:
   --data-dir <folder>  Where journals are kept (MOSS_DATA_DIR)
   --journal <name>     Open this journal's file name at start (MOSS_JOURNAL)
   --no-open            Do not open the browser (MOSS_OPEN_BROWSER=0)
+  --lan                Let paired phones and tablets on your network use it (MOSS_LAN=1)
   --version, -v        Print the version
   --help, -h           Print this help
 
@@ -71,5 +72,6 @@ if (dataDir !== undefined) process.env.MOSS_DATA_DIR = dataDir;
 const journal = take('--journal');
 if (journal !== undefined) process.env.MOSS_JOURNAL = journal;
 if (args.includes('--no-open')) process.env.MOSS_OPEN_BROWSER = '0';
+if (args.includes('--lan')) process.env.MOSS_LAN = '1';
 
 await import('../dist/server/index.js');

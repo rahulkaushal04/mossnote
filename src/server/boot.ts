@@ -8,6 +8,7 @@ import {
   type Snapshot,
 } from './db/backup';
 import { openDatabase, type Database } from './db/client';
+import { isCorruption } from './db/corruption';
 import { knownMigrations, peekSchema } from './db/catalog';
 import {
   MigrationFailedError,
@@ -21,14 +22,6 @@ import { createCtx } from './services/ctx';
 import { reindexAll } from './services/search-index';
 import { ensureSettings } from './services/settings';
 import { purgeOldTrash } from './services/trash';
-
-const CORRUPTION_CODES = new Set(['SQLITE_CORRUPT', 'SQLITE_NOTADB', 'SQLITE_CORRUPT_VTAB']);
-
-/** SQLite reports a damaged file either from `integrity_check` or as an error while opening it. */
-function isCorruption(error: unknown): boolean {
-  const code = (error as { code?: unknown } | null)?.code;
-  return typeof code === 'string' && CORRUPTION_CODES.has(code);
-}
 
 /** `PRAGMA integrity_check` failed. The server refuses to start. */
 export class IntegrityError extends Error {

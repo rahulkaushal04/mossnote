@@ -2,16 +2,16 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { LIMITS } from '@shared/constants';
 import type { Config } from './config';
-import type { Db, Sqlite } from './db/client';
-import type { JournalManager } from './journals/manager';
-import type { Clock } from './db/backup';
+import type { Clock, Db, Sqlite } from './db/types';
+import type { Journals } from './journals/types';
 import type { Env } from './env';
+import type { PhoneAccess } from './phone/types';
 import { silentLogger, type Logger } from './logger';
 import { errorHandler, notFoundHandler } from './middleware/errors';
+import { access } from './middleware/access';
 import { guard } from './middleware/guard';
 import { requestLog } from './middleware/request-log';
 import { securityHeaders } from './middleware/security-headers';
-import { serveWeb } from './middleware/static';
 import { AppError } from './errors';
 import { dataRoutes } from './routes/data';
 import { trashRoutes } from './routes/trash';
@@ -19,11 +19,14 @@ import { fieldLabelRoutes } from './routes/field-labels';
 import { healthRoutes } from './routes/health';
 import { mapRoutes } from './routes/maps';
 import { noteRoutes } from './routes/notes';
+import { pairRoutes } from './routes/pair';
 import { peopleRoutes } from './routes/people';
+import { phoneRoutes } from './routes/phone';
 import { plantingRoutes } from './routes/plantings';
 import { pickRoutes, searchRoutes } from './routes/search';
 import { tagRoutes } from './routes/tags';
 import { createCtx } from './services/ctx';
+import type { Storage } from './services/storage';
 import { settingsRoutes } from './routes/settings';
 import { journalRoutes } from './routes/journals';
 import { requireJournal } from './middleware/journal';
@@ -38,8 +41,10 @@ export interface AppDeps {
   /** The open journal. Omit both when the app starts without one (a first run). */
   db?: Db;
   sqlite?: Sqlite;
-  /** Owns the journals in the data folder. Absent in tests that use one fixed journal. */
-  journals?: JournalManager;
+  /** Owns the journals. Absent in tests that use one fixed journal. */
+  journals?: Journals;
+  /** Where snapshots are kept; see {@link Storage}. */
+  storage: Storage;
   /** Opens the data folder in the system file manager. */
   openFolder?: (dir: string) => Promise<void>;
   clock: Clock;
@@ -47,8 +52,19 @@ export interface AppDeps {
   logger?: Logger;
   /** Id generator; tests pass a deterministic one. Defaults to ULIDs. */
   ids?: () => string;
-  /** Built web app to serve (`dist/web`). Omit in tests and in development. */
-  webRoot?: string;
+  /**
+   * Lets phones and tablets on the same network use this journal. Absent in tests and in the
+   * browser, where there is no network side to defend or to open.
+   */
+  phone?: PhoneAccess;
+  /** Serves the built web app (`middleware/static.ts`). Omit in tests, in development and in the browser. */
+  web?: MiddlewareHandler<Env>;
+  /**
+   * True when the app runs inside the browser and only its own page can send it requests. There
+   * is no network to defend against, so the Host, Origin and header checks and the security
+   * headers are left out.
+   */
+  embedded?: boolean;
 }
 
 const IMPORT_PATH = '/api/data/import';
@@ -82,12 +98,25 @@ export function createApp(deps: AppDeps) {
     .route('/search', searchRoutes(ctx))
     .route('/pick', pickRoutes(ctx))
     .route('/data', dataRoutes(ctx))
-    .route('/trash', trashRoutes(ctx));
+    .route('/trash', trashRoutes(ctx))
+    .route('/phone', phoneRoutes(deps.phone, deps.config.port));
 
+  const passThrough: MiddlewareHandler<Env> = (_c, next) => next();
+  const { phone } = deps;
   const app = new Hono<Env>()
     .use('*', requestLog(logger))
-    .use('*', securityHeaders({ dev: deps.config.dev }))
-    .use('*', guard({ port: deps.config.port, dev: deps.config.dev }))
+    .use('*', deps.embedded ? passThrough : securityHeaders({ dev: deps.config.dev }))
+    .use(
+      '*',
+      deps.embedded
+        ? passThrough
+        : guard({
+            port: deps.config.port,
+            dev: deps.config.dev,
+            ...(phone ? { extraHosts: () => phone.allowedHosts() } : {}),
+          }),
+    )
+    .use('*', phone ? access(phone) : passThrough)
     // Request bodies are limited to 1 MB, except the import upload (50 MB).
     .use('/api/*', (c, next) => {
       const handler = new URL(c.req.url).pathname === IMPORT_PATH ? importLimit : smallLimit;
@@ -98,8 +127,9 @@ export function createApp(deps: AppDeps) {
     // still showing another one is told so instead of writing into the wrong journal.
     .use('/api/*', requireJournal(ctx))
     .route('/api', api);
+  if (phone) app.route('/pair', pairRoutes(phone));
 
-  if (deps.webRoot) app.use('*', serveWeb(deps.webRoot));
+  if (deps.web) app.use('*', deps.web);
 
   app.onError(errorHandler(logger));
   app.notFound(notFoundHandler);

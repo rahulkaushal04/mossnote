@@ -84,5 +84,16 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...base, MOSS_BACKUP_KEEP: '0' })).toThrow(ConfigError);
     expect(() => loadConfig({ ...base, MOSS_OPEN_BROWSER: 'yes' })).toThrow(ConfigError);
     expect(() => loadConfig({ ...base, MOSS_LOG_LEVEL: 'loud' })).toThrow(ConfigError);
+    expect(() => loadConfig({ ...base, MOSS_LAN: 'yes' })).toThrow(ConfigError);
+  });
+
+  it('leaves phone access to the saved choice unless MOSS_LAN says otherwise', () => {
+    expect(loadConfig(base).lan).toBe('saved');
+    expect(loadConfig({ ...base, MOSS_LAN: '1' }).lan).toBe('on');
+    expect(loadConfig({ ...base, MOSS_LAN: '0' }).lan).toBe('off');
+  });
+
+  it('keeps listening on loopback however phone access is set', () => {
+    expect(loadConfig({ ...base, MOSS_LAN: '1' }).host).toBe('127.0.0.1');
   });
 });

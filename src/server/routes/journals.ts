@@ -6,10 +6,10 @@ import {
   journalDeleteSchema,
   journalPatchSchema,
 } from '@shared/schemas/journal';
+import { JOURNAL_PATTERN } from '@shared/journalId';
 import type { JournalList } from '@shared/types';
 import type { Env } from '../env';
 import { AppError } from '../errors';
-import { JOURNAL_PATTERN } from '../journals/paths';
 import { fromZod } from '../middleware/errors';
 import { validateJson } from '../middleware/validate';
 import type { Ctx } from '../services/ctx';

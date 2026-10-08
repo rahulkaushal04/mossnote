@@ -76,9 +76,12 @@ export function mockApi(
       partial: false,
     },
     dataInfo: {
-      dataDir: '/data/Mossnote',
-      backupsDir: '/data/Mossnote/backups',
-      databasePath: '/data/Mossnote/journal.db',
+      location: {
+        kind: 'folder',
+        dataDir: '/data/Mossnote',
+        backupsDir: '/data/Mossnote/backups',
+        databasePath: '/data/Mossnote/journal.db',
+      },
       databaseBytes: 4096,
       journal: { id: 'journal', name: 'My journal' },
       counts: { notes: 0, people: 0, plantings: 0, tags: 0, maps: 0 },
@@ -87,6 +90,7 @@ export function mockApi(
       backupBytes: 0,
     },
     backups: { items: [] },
+    getPhone: { enabled: false, port: 4317, addresses: [], devices: [] },
     trash: { items: [] },
     ...overrides,
   };

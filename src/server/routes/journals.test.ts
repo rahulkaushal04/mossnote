@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { COUNTER_CALENDAR, DEFAULT_CALENDAR } from '@shared/constants';
 import type { ApiErrorBody } from '@shared/errors';
 import type { Settings } from '@shared/schemas/settings';
-import type { BackupInfo, JournalInfo, JournalList } from '@shared/types';
+import type { BackupInfo, JournalInfo, JournalList, StorageLocation } from '@shared/types';
 import { openDatabase } from '../db/client';
 import { makeJournalsApp, type JournalsApp } from '../testing/journals';
 
@@ -344,17 +344,18 @@ describe('data location', () => {
     await make('Located', 'default');
     await t.call('POST', '/api/data/backup');
     const info = await json<{
-      dataDir: string;
-      backupsDir: string;
-      databasePath: string;
+      location: StorageLocation;
       journal: { id: string; name: string };
       backupCount: number;
       backupBytes: number;
     }>(await t.call('GET', '/api/data/info'));
     expect(info).toMatchObject({
-      dataDir: t.config.dataDir,
-      backupsDir: t.config.backupsDir,
-      databasePath: path.join(t.config.dataDir, 'located.db'),
+      location: {
+        kind: 'folder',
+        dataDir: t.config.dataDir,
+        backupsDir: t.config.backupsDir,
+        databasePath: path.join(t.config.dataDir, 'located.db'),
+      },
       journal: { id: 'located', name: 'Located' },
     });
     expect(info.backupCount).toBeGreaterThanOrEqual(1);

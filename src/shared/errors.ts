@@ -2,10 +2,12 @@
 
 export const ERROR_STATUS = {
   validation_failed: 400,
+  unauthorized: 401,
   forbidden: 403,
   not_found: 404,
   conflict: 409,
   too_large: 413,
+  rate_limited: 429,
   internal: 500,
   storage_full: 500,
 } as const;

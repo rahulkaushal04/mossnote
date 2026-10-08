@@ -39,14 +39,18 @@ jobs:
         run: npm run typecheck
       - name: Unit and integration tests
         run: npm test
+      - name: Server tests on SQLite in WebAssembly (the browser's database)
+        run: npm run test:wasm
       - name: Build
         run: npm run build
+      - name: Build the web version
+        run: npm run build:standalone
       - name: Check for outbound URLs
         run: npm run check:network
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: End-to-end and accessibility tests (production build, full CSP)
-        run: npm run test:e2e -- --project=chromium
+      - name: End-to-end and accessibility tests (production build, full CSP, and the web version)
+        run: npm run test:e2e -- --project=chromium --project=standalone
       - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -71,8 +75,8 @@ jobs:
         run: npm ci
       - name: Install WebKit
         run: npx playwright install webkit
-      - name: Smoke tests in WebKit
-        run: npm run test:e2e -- --project=webkit --grep @smoke
+      - name: Smoke tests in WebKit (the server's app and the web version)
+        run: npm run test:e2e -- --project=webkit --project=standalone-webkit --grep @smoke
       - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

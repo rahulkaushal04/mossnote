@@ -1,4 +1,4 @@
-import type { Sqlite } from '../db/client';
+import type { Sqlite } from '../db/types';
 
 /** Refresh the vocabulary after this many index writes. */
 export const VOCAB_REFRESH_WRITES = 50;

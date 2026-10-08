@@ -6,6 +6,7 @@ import type { MapMarkerType } from '@shared/schemas/map';
 import type { MapDetail } from '@shared/types';
 import { useToast } from '../../../components/ui/Toast';
 import { api } from '../../../lib/api';
+import { saveBlob } from '../../../lib/saveFile';
 import type { Doc } from '../engine/doc';
 import { refreshMaps } from '../hooks';
 
@@ -33,9 +34,8 @@ export function useMapFileActions({ map, docRef, markerTypes, saveNow }: Options
       await saveNow();
       if (kind === 'json') {
         // The project file comes from the server, so it matches what is saved.
-        const link = document.createElement('a');
-        link.href = `/api/maps/${map.id}/export.json`;
-        link.click();
+        const { blob, filename } = await api.download(`/api/maps/${map.id}/export.json`);
+        saveBlob(blob, filename);
         return;
       }
       // Loaded on demand: the exporter is large and most sessions never use it.

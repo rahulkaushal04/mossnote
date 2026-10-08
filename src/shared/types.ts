@@ -115,10 +115,13 @@ export interface PickItem {
   detail: string | null;
 }
 
+/** Where a journal's data is kept: a folder on this computer, or this browser's own storage. */
+export type StorageLocation =
+  | { kind: 'folder'; dataDir: string; backupsDir: string; databasePath: string }
+  | { kind: 'browser' };
+
 export interface DataInfo {
-  dataDir: string;
-  backupsDir: string;
-  databasePath: string;
+  location: StorageLocation;
   databaseBytes: number;
   /** Id and name of the journal these facts are about. */
   journal: { id: string; name: string };
@@ -221,4 +224,31 @@ export interface MapVersionInfo {
   shapes: number;
   pins: number;
   createdAt: string;
+}
+
+/** A phone, tablet or other browser that was paired with this computer (see Settings → Phone). */
+export interface PairedDevice {
+  id: string;
+  /** A short description made from the browser's user agent, for example "iPhone (Safari)". */
+  name: string;
+  pairedAt: string;
+  lastSeenAt: string;
+}
+
+/** The state of phone access, as the computer's own browser sees it. */
+export interface PhoneStatus {
+  enabled: boolean;
+  port: number;
+  /** Where a phone on the same network can reach this computer, such as `http://192.168.1.20:4317`. */
+  addresses: string[];
+  devices: PairedDevice[];
+}
+
+/** A one-time code that pairs one phone. Shown as a QR code and as text. */
+export interface PairingCode {
+  /** The code to type on the phone, in groups of five. */
+  code: string;
+  expiresAt: string;
+  /** One pairing link per address, to turn into QR codes. */
+  urls: string[];
 }

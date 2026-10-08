@@ -2,12 +2,14 @@ import path from 'node:path';
 import os from 'node:os';
 import envPaths from 'env-paths';
 import { DEFAULT_PORT } from '@shared/constants';
-import { JOURNAL_PATTERN, LEGACY_JOURNAL_ID, journalPaths } from './journals/paths';
+import { JOURNAL_PATTERN, LEGACY_JOURNAL_ID } from '@shared/journalId';
+import { journalPaths } from './journals/paths';
 
 /** Raised for any bad configuration. The message is printed to the terminal as is. */
 export class ConfigError extends Error {}
 
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+export type LanSetting = 'on' | 'off' | 'saved';
 
 export interface Config {
   host: string;
@@ -25,6 +27,11 @@ export interface Config {
   openBrowser: boolean;
   logLevel: LogLevel;
   allowRemote: boolean;
+  /**
+   * Whether phones and tablets on the local network may use the journal: `on` and `off` come
+   * from `MOSS_LAN` and win; `saved` uses the choice made in Settings, which starts off.
+   */
+  lan: LanSetting;
   /** True under `npm run dev`: the guard also accepts the Vite dev server origin. */
   dev: boolean;
   version: string;
@@ -92,6 +99,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     throw new ConfigError(`MOSS_LOG_LEVEL must be one of ${LOG_LEVELS.join(', ')}.`);
   }
 
+  const lanRaw = env.MOSS_LAN;
+  if (lanRaw !== undefined && lanRaw !== '0' && lanRaw !== '1') {
+    throw new ConfigError(`MOSS_LAN must be 0 or 1, got "${lanRaw}".`);
+  }
+  const lan: LanSetting = lanRaw === undefined ? 'saved' : lanRaw === '1' ? 'on' : 'off';
+
   const dataDir = path.resolve(env.MOSS_DATA_DIR ?? defaultDataDir(env));
 
   return {
@@ -105,6 +118,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     openBrowser: openRaw === '1',
     logLevel,
     allowRemote,
+    lan,
     dev: env.NODE_ENV === 'development',
     version: env.npm_package_version ?? '0.1.0',
   };

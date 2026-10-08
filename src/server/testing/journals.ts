@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { createApp } from '../app';
 import { loadConfig, type Config } from '../config';
+import { createFolderStorage } from '../db/folderStorage';
 import { JournalManager } from '../journals/manager';
 import { silentLogger } from '../logger';
 import { TEST_HOST } from './app';
@@ -55,6 +56,7 @@ export async function makeJournalsApp(
   const opened: string[] = [];
   const app = createApp({
     journals: manager,
+    storage: createFolderStorage(config),
     openFolder: (folder) => {
       opened.push(folder);
       return Promise.resolve();

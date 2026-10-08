@@ -1,14 +1,14 @@
 # Mossnote
 
-A private journal for one player and one game, kept on your own computer.
+A private journal for one player and one game, kept on your own computer, or in your own browser.
 
 You write down what you find out, in your own words. Mossnote only remembers it for you. It ships with no information about any game, so it can never spoil anything.
 
 ## What it promises
 
 - **No spoilers.** There are no names, items, places or mechanics anywhere in the app. A new journal is empty. A template only changes wording and structure, and the only calendar that looks like a game (four editable seasons) belongs to the Stardew Valley template alone.
-- **Your data stays with you.** Each journal is one SQLite file in a folder on your machine, and upgrading or reinstalling Mossnote never touches that folder.
-- **No network.** The server listens on loopback only and makes no outgoing connections. There are no accounts, analytics, crash reports or update checks. Fonts and other assets are bundled.
+- **Your data stays with you.** Each journal is one SQLite file in a folder on your machine (or one database in your browser, in the web version), and upgrading or reinstalling Mossnote never touches it.
+- **No network.** The server listens on loopback only and makes no outgoing connections. There are no accounts, analytics, crash reports or update checks. Fonts and other assets are bundled. The one exception is a switch you turn on yourself: [phone access](#using-a-phone-or-tablet-while-you-play) lets paired devices on your home network open the journal.
 
 ## Quick start
 
@@ -22,7 +22,7 @@ npm install -g mossnote     # or install it, then run:
 mossnote
 ```
 
-`mossnote --help` lists the options: `--port`, `--data-dir`, `--journal`, `--no-open`.
+`mossnote --help` lists the options: `--port`, `--data-dir`, `--journal`, `--no-open`, `--lan`.
 
 **Without Node:** download the program for your system from the [releases page](https://github.com/rahulkaushal04/mossnote/releases), check it against its `.sha256` file, and run it.
 
@@ -45,6 +45,42 @@ npm start
 `npm start` builds the app if it has to, starts the server and opens your browser.
 
 The first time you open Mossnote it asks one question, **Which template?** Default fits any game; Stardew Valley adds a Farm section, a calendar of seasons and a few one-tap actions. Pick one, give the journal a name, and you are writing. Don't see your game? The same screen links to a form for requesting a template.
+
+## Where to run it
+
+Mossnote is meant for taking notes next to a game, so it runs wherever your notes screen is.
+
+| You play on                     | Use                                                        | Your journal is kept        |
+| ------------------------------- | ---------------------------------------------------------- | --------------------------- |
+| A PC or laptop, notes on it too | Node, or the Windows and Linux program (above)             | In a folder on the computer |
+| A PC or laptop, notes on phone  | The same, with **phone access** switched on                | In a folder on the computer |
+| A console, notes on a phone     | The **web version** on the phone, added to its Home Screen | In the phone's browser      |
+| A console, notes on a tablet    | The same on the tablet                                     | In the tablet's browser     |
+
+The two kinds of journal never mix. A phone that opens your computer's Mossnote shows the computer's journals; the web version on the same phone has journals of its own. To move a journal from one to the other, export it (Settings → Data & backup) and import the file on the other side.
+
+## Using a phone or tablet while you play
+
+If you play on the computer that runs Mossnote, you can write in your journal on a phone or tablet instead of switching windows. The journal stays on the computer; the phone opens it over your home network.
+
+1. Start Mossnote on the computer (`mossnote`, or the program), and open **Settings → Phone**.
+2. Turn on **Let phones and tablets on my network open Mossnote**. If the computer asks about a firewall, allow Mossnote on private networks.
+3. Choose **Show pairing code**. On the phone, on the same Wi-Fi, scan the QR code with the camera and open the link. Or open the address shown and type the code.
+4. The phone is now paired. Add it to the Home Screen if you like. Remove a phone later from the same screen.
+
+Only paired devices can use it. A pairing code works once and expires after ten minutes, a wrong code is refused (ten wrong tries lock pairing for a minute), and the pairing is a cookie that the page's scripts cannot read. The connection is plain HTTP, so use it on a network you trust. `mossnote --lan` (or `MOSS_LAN=1`) turns it on at start; `MOSS_LAN=0` keeps it off whatever Settings says. Paired phones can use your journals but cannot change phone access.
+
+The phone needs the computer to be on and Mossnote to be running. If your phone cannot reach the computer, a guest or "client isolation" Wi-Fi network is the usual cause.
+
+## The web version
+
+The web version is the same app with the server built into the page: your journals are kept in the browser's own storage, nothing is sent anywhere, and it works offline once opened. It is for people with no computer to run Mossnote on, such as a console player with a phone, and for a quick look without installing anything. Build it with `npm run build:standalone` and put `dist/standalone` on any static host (for a project site set `MOSS_BASE=/repository-name/` first); open it in Safari, Chrome, Edge or Firefox.
+
+- **Add it to the Home Screen** (Share, then Add to Home Screen on iPhone and iPad; the install prompt on Android). Browsers keep the data of an installed app more carefully.
+- **Back it up.** The journal lives only in that browser on that device. Clearing the site's data, or losing the device, loses it. Download a copy now and then (Settings → Data & backup); Mossnote reminds you.
+- **One tab at a time.** The journal's files can have one owner, so a second tab says so instead of risking two writers.
+- **Private windows cannot keep files** and are refused with a message saying so.
+- There is no sync between devices. Move a journal by exporting it and importing the file.
 
 ## Journals and templates
 
@@ -146,6 +182,7 @@ All settings are environment variables that start with `MOSS_`. None are require
 | Variable            | Default          | What it does                                                                                                                            |
 | ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `MOSS_HOST`         | `127.0.0.1`      | Address to listen on. Must be loopback                                                                                                  |
+| `MOSS_LAN`          | not set          | `1` lets paired phones and tablets use Mossnote, `0` never does. Unset: the choice saved in Settings, which starts off                  |
 | `MOSS_PORT`         | `4317`           | HTTP port                                                                                                                               |
 | `MOSS_DATA_DIR`     | platform default | Where the data folder is                                                                                                                |
 | `MOSS_JOURNAL`      | not set          | File name without `.db` of the journal to open at start (made from Default if missing). Unset, Mossnote opens the journal you used last |
@@ -185,14 +222,21 @@ npm run build        # typecheck, then build the web app and the server
 | `npm run db:studio`                                   | Opens Drizzle Studio on the development database only                                   |
 | `npm run db:vacuum`                                   | Vacuums every journal (or `MOSS_JOURNAL`). Stop the app first                           |
 | `npm run package:binary`, `package:smoke`             | Build and test the standalone program for this system                                   |
+| `npm run build:standalone`                            | Builds the web version (journal in the browser) into `dist/standalone`                  |
+| `npm run test:wasm`                                   | Runs the server's tests on SQLite in WebAssembly, the browser's database                |
+| `npx playwright test --project=standalone`            | End-to-end tests of the web version (build it first; add `-webkit` for Safari's engine) |
 
-It is one npm package with three source folders. ESLint enforces who may import whom:
+It is one npm package with four source folders. ESLint and the TypeScript project references enforce who may import whom:
 
 ```text
-src/shared   zod schemas, game dates, constants. No Node or DOM APIs
-src/server   Hono API, SQLite, migrations, snapshots. Imports shared only
-src/web      React app. Imports shared, plus the AppType type from server/app
+src/shared      zod schemas, game dates, constants. No Node or DOM APIs
+src/server      Hono API, SQLite, migrations, snapshots. Imports shared only
+src/standalone  The server's app and services running in a browser worker, on SQLite in WebAssembly.
+                Imports shared and the portable part of server (never files, sockets or Node APIs)
+src/web         React app. Imports shared, plus the AppType type from server/app
 ```
+
+The app, the services and the migration runner are written once and run in both places. What differs is behind two small interfaces: `Sqlite` (the connection) and `Storage` (where snapshots and journals live), with a Node implementation in `src/server` and a browser one in `src/standalone`. `npm run test:wasm` runs the whole server test suite on the browser's SQLite to prove they behave alike.
 
 ## What is in it
 
@@ -205,6 +249,7 @@ src/web      React app. Imports shared, plus the AppType type from server/app
 | Maps and templates | Maps, markers, Places, "On maps", game templates, section rename, hide and reorder, quick actions   |
 | Journals           | Many journals side by side, a template for each, switcher, rename, delete with a typed name         |
 | Distribution       | `npx mossnote`, an npm package, standalone Windows and Linux programs, a release workflow           |
+| Phone and web      | Phone access with pairing, a web version that keeps the journal in the browser, works offline       |
 | Upgrades           | Automatic migration after a snapshot, newer journals left untouched, earlier layout loads as it was |
 | Map editor         | Objects, layers, smart drawing, snapping, connectors, markers, exploring mode, history, exports     |
 | Safety             | Export, import, settings, snapshots you can restore and delete, Recently deleted                    |
@@ -215,8 +260,8 @@ These are left out on purpose: image attachments, imported map images, tag colou
 
 ## Privacy
 
-- Mossnote never connects to the internet.
-- What you write is stored in one file per journal on your computer. Settings shows the path.
+- Mossnote never connects to the internet. Phone access, which you must turn on, only lets devices you paired reach your own computer over your own network.
+- What you write is stored in one file per journal on your computer (or in your browser, in the web version). Settings shows where.
 - Nothing is shared unless you export a file and send it yourself.
 - The database is plain SQLite and is not encrypted. Use your operating system's disk encryption, such as FileVault on macOS.
 

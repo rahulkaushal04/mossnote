@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { useNewNote } from '../../app/NewNote';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
+import { downloadExport } from '../../lib/exports';
 import { showJournal } from '../../lib/journal';
 import { useJournals } from '../journals/hooks';
 import { useTerms, useUsesSection } from '../settings/useLayout';
@@ -141,7 +142,7 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
       label: 'Export JSON',
       keywords: 'backup download data',
       run: () => {
-        window.location.assign('/api/data/export.json');
+        void downloadExport('/api/data/export.json');
       },
     },
   ];
