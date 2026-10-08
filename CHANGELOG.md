@@ -1,7 +1,9 @@
 # Changelog
 
 All notable changes to this project are written down here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Mossnote has not had a public
+release yet, so entries are grouped by date, with the latest changes under "Unreleased".
+Once releases begin they will use [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 

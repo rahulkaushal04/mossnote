@@ -11,17 +11,17 @@ A useful report has:
 - what the problem is and which part of the app it touches
 - steps to reproduce it, or a small proof of concept
 - what an attacker could do with it
-- the commit you tested, and your operating system and Node version
+- the commit or version you tested, and your operating system, browser and Node version
 
 This is a volunteer project. I will aim to reply within a week and to fix serious problems first, but I cannot promise a timetable. If you want credit when the fix is published, say so in your report.
 
-## Which code gets fixes
+## Supported versions
 
-Fixes go to `main`. Run the latest `main` to get them.
+Mossnote has no public release yet. Fixes go to `main`, and once releases exist, to the latest release. Run the newest version to get them.
 
 ## What Mossnote is, and what it is not
 
-Mossnote is a single-user tool that runs on your own computer. That shapes what counts as a vulnerability.
+Mossnote is a single-user tool that runs on your own computer, or in your own browser. That shapes what counts as a vulnerability.
 
 By default the server listens on loopback (`127.0.0.1`) only and has no login. It refuses to start on any other address unless you set `MOSS_ALLOW_REMOTE=1`, which prints a warning and is not supported. Do not expose it to a network that way.
 
