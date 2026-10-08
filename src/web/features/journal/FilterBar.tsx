@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { CloseIcon, SparkIcon } from '../../components/ui/icons';
+import { Chip } from '../../components/ui/Chip';
+import { CloseIcon, FilterIcon, SparkIcon } from '../../components/ui/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/Popover';
 import { useTags } from '../tags/hooks';
 import type { FlagFilter, JournalFilters, QuestionState } from './useJournalFilters';
-
-const SEGMENT =
-  'tap px-3 text-sm first:rounded-l-control last:rounded-r-control border border-ink-muted -ml-px first:ml-0 aria-checked:bg-accent aria-checked:text-accent-ink aria-checked:border-accent hover:bg-surface aria-checked:hover:bg-accent';
 
 function Segmented<T extends string>({
   label,
@@ -19,7 +17,7 @@ function Segmented<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex">
+    <div role="radiogroup" aria-label={label} className="segmented shrink-0">
       {options.map((option) => (
         <button
           key={option.value}
@@ -27,7 +25,7 @@ function Segmented<T extends string>({
           role="radio"
           aria-checked={value === option.value}
           aria-label={option.name}
-          className={SEGMENT}
+          className="segmented-option"
           onClick={() => {
             onChange(option.value);
           }}
@@ -54,19 +52,20 @@ export function TagPicker({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button type="button" className="btn tap text-sm">
+        <button type="button" className="chip chip-toggle shrink-0">
+          <FilterIcon className="size-4" />
           Tag
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold">Find a tag</span>
+          <span className="font-medium">Find a tag</span>
           <input
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
             }}
-            className="tap rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input"
           />
         </label>
         {list.length === 0 ? (
@@ -75,7 +74,7 @@ export function TagPicker({
           <ul className="m-0 mt-2 max-h-60 list-none overflow-y-auto p-0">
             {list.map((tag) => (
               <li key={tag.id}>
-                <label className="tap flex items-center gap-2">
+                <label className="flex min-h-11 items-center gap-2">
                   <input
                     type="checkbox"
                     checked={selected.some((s) => s.toLowerCase() === tag.name.toLowerCase())}
@@ -116,7 +115,7 @@ export function FilterBar({
 
   return (
     <div
-      className="flex items-center gap-3 overflow-x-auto py-3 wide:flex-wrap wide:overflow-visible"
+      className="scroll-row -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
       role="group"
       aria-label="Journal filters"
     >
@@ -167,44 +166,42 @@ export function FilterBar({
         <button
           key={tag}
           type="button"
-          className="tap inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
+          className="chip chip-toggle chip-selected shrink-0"
           aria-label={`Remove tag filter ${tag}`}
           onClick={() => {
             toggleTag(tag);
           }}
         >
-          #{tag} <CloseIcon />
+          #{tag} <CloseIcon className="size-3.5" />
         </button>
       ))}
       {pinned
         .filter((t) => !has(t.name))
         .map((tag) => (
-          <button
+          <Chip
             key={tag.id}
-            type="button"
-            aria-pressed={false}
-            className="tap rounded-control border border-rule px-2 text-sm text-ink-muted hover:bg-surface"
-            onClick={() => {
+            selected={false}
+            className="shrink-0"
+            onToggle={() => {
               toggleTag(tag.name);
             }}
           >
             #{tag.name}
-          </button>
+          </Chip>
         ))}
-      <button
-        type="button"
-        aria-pressed={filters.undated}
-        className="btn tap text-sm aria-pressed:bg-surface aria-pressed:font-semibold"
-        onClick={() => {
+      <Chip
+        selected={filters.undated}
+        className="shrink-0"
+        onToggle={() => {
           onChange({ undated: !filters.undated });
         }}
       >
         Not dated
-      </button>
+      </Chip>
       <button
         type="button"
         aria-pressed={filters.order === 'asc'}
-        className="btn tap ml-auto text-sm"
+        className="btn btn-ghost ml-auto shrink-0"
         onClick={() => {
           onChange({ order: filters.order === 'asc' ? 'desc' : 'asc' });
         }}

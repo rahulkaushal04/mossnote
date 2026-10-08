@@ -15,7 +15,7 @@ const KIND: Record<TrashItem['kind'], string> = {
   planting: 'Entry',
   map: 'Map',
 };
-const ACTION = 'tap rounded-control px-2 text-sm underline';
+const ACTION = 'tap rounded-md px-2 text-sm underline';
 
 /** Settings → Recently deleted. Records are purged 30 days after deletion. */
 export function TrashSection() {
@@ -68,7 +68,7 @@ export function TrashSection() {
         {items.map((item) => (
           <li
             key={`${item.kind}:${item.id}`}
-            className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-rule py-2"
+            className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-line py-2"
           >
             <span className="text-sm text-ink-muted">{kindLabel(item.kind)}</span>
             <span className="min-w-0 flex-1 truncate">{item.label || '(untitled)'}</span>

@@ -130,7 +130,7 @@ export function Composer({
   };
 
   return (
-    <section aria-label="New note" className="rounded-panel bg-surface p-4">
+    <section aria-label="New note" className="rounded-lg border border-line bg-raised p-4 shadow-1">
       <QuickActions
         value={draft}
         onChange={(next) => {
@@ -149,12 +149,7 @@ export function Composer({
         textareaRef={area}
         describedBy={error || tooLong ? 'composer-message' : undefined}
         actions={
-          <button
-            type="button"
-            className="btn btn-primary tap"
-            disabled={!savable}
-            onClick={submit}
-          >
+          <button type="button" className="btn btn-primary" disabled={!savable} onClick={submit}>
             Save
             <span className="text-sm opacity-80" aria-hidden="true">
               {modLabel()}↵

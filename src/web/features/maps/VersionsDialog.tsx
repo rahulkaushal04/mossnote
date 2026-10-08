@@ -93,7 +93,7 @@ export function VersionsDialog({
             onChange={(e) => {
               setName(e.target.value);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-3"
+            className="field-input w-full"
           />
         </label>
         <button type="submit" className="btn btn-primary tap" disabled={save.isPending}>
@@ -115,7 +115,7 @@ export function VersionsDialog({
         {(list.data ?? []).map((v) => (
           <li
             key={v.id}
-            className="flex flex-wrap items-center justify-between gap-2 border-b border-rule py-2"
+            className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-2"
           >
             <span>
               <span className="block font-semibold">
@@ -139,7 +139,7 @@ export function VersionsDialog({
               </button>
               <button
                 type="button"
-                className="tap rounded-control px-2 text-sm text-danger underline"
+                className="tap rounded-md px-2 text-sm text-danger underline"
                 aria-label={`Delete version from ${formatDateTime(v.createdAt)}`}
                 onClick={() => {
                   remove.mutate(v);

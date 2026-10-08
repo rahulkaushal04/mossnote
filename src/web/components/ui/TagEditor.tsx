@@ -64,7 +64,7 @@ export function TagEditor({
               add(text);
             }
           }}
-          className="tap w-64 max-w-full rounded-control border border-ink-muted bg-paper px-2"
+          className="field-input w-64 max-w-full"
         />
         <datalist id={listId}>
           {(suggestions.data?.items ?? []).map((item) => (

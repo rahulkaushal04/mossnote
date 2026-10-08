@@ -30,8 +30,8 @@ export function ListSkeleton({ pending }: { pending: boolean }) {
     <div role="status" aria-label="Loading" className="flex flex-col gap-4 py-6">
       {[0, 1, 2].map((i) => (
         <div key={i} className="flex flex-col gap-2">
-          <div className="h-4 w-3/4 rounded-control bg-surface" />
-          <div className="h-4 w-1/2 rounded-control bg-surface" />
+          <div className="h-4 w-3/4 rounded-md bg-surface" />
+          <div className="h-4 w-1/2 rounded-md bg-surface" />
         </div>
       ))}
     </div>

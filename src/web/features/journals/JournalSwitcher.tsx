@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../../components/ui/Menu';
-import { api } from '../../lib/api';
-import { broadcastJournalSwitched } from '../../lib/broadcast';
-import { showJournal } from '../../lib/journal';
 import { templateById } from '@shared/templates';
-import { useJournals, journalProblem } from './hooks';
+import { useJournals, useSwitchJournal } from './hooks';
 import { NewJournalDialog, RenameJournalDialog } from './JournalDialogs';
-import { useToast } from '../../components/ui/Toast';
 
 /**
  * The journal name in the navigation, as a menu: switch, make a new one, rename this one or go to
@@ -16,7 +12,7 @@ import { useToast } from '../../components/ui/Toast';
  */
 export function JournalSwitcher({ className = '' }: { className?: string }) {
   const journals = useJournals();
-  const toast = useToast();
+  const switchTo = useSwitchJournal();
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const list = journals.data;
@@ -26,18 +22,6 @@ export function JournalSwitcher({ className = '' }: { className?: string }) {
   // Radix returns focus to the trigger as a menu closes; the dialog notes its opener right after.
   const later = (fn: () => void) => () => {
     setTimeout(fn, 0);
-  };
-
-  const switchTo = (id: string) => {
-    api
-      .activateJournal(id)
-      .then(() => {
-        broadcastJournalSwitched(id);
-        showJournal();
-      })
-      .catch((e: unknown) => {
-        toast.show({ message: journalProblem(e, "Couldn't switch journals."), tone: 'alert' });
-      });
   };
 
   return (

@@ -22,7 +22,7 @@ export function Tip({
       <RadixTooltip.Portal>
         <RadixTooltip.Content
           sideOffset={6}
-          className="z-[70] rounded-control bg-ink px-2 py-1 text-sm text-paper"
+          className="z-[70] rounded-md bg-ink px-2 py-1 text-sm text-paper"
         >
           {label}
           {keys ? <span className="ml-2 opacity-80">{keys}</span> : null}

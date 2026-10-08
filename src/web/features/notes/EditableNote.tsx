@@ -197,7 +197,7 @@ export function EditableNote({
       ) : null}
 
       {conflict ? (
-        <div role="alert" className="rounded-control border border-danger p-3 text-sm">
+        <div role="alert" className="rounded-md border border-danger p-3 text-sm">
           <p className="font-semibold">This note changed in another window.</p>
           <div className="mt-2 flex gap-2">
             <button

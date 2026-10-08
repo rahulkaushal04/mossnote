@@ -50,7 +50,7 @@ The first time you open Mossnote it asks one question, **Which template?** Defau
 
 Keep one journal for each game, or each playthrough. Every journal has its own notes, people, maps, calendar and sections, and its own template, and they sit side by side in your data folder.
 
-- The journal switcher is at the top of the navigation. It lists your journals and lets you switch, make a new one, or rename the current one. Settings → Journals lists them all with Open, Rename, Download and Delete.
+- The journal switcher is at the top of the left rail. In a narrow window (a phone-sized browser) it is under the **More** tab, with Settings. It lists your journals and lets you switch, make a new one, or rename the current one. Settings → Journals lists them all with Open, Rename, Download and Delete.
 - A **template** is chosen when a journal is made and stays with it. **Default** has Today, Journal, People and Maps and counts days ("Day 12"). **Stardew Valley** adds a Farm section, a calendar of four seasons, and quick actions and suggested tags. Neither carries any facts about a game, only wording and structure. To use another template, make another journal.
 - Deleting a journal asks you to type its name, offers a copy to download first, and keeps a last copy in your backups folder unless you switch that off.
 - Journals made by earlier versions open as they were. They are read as Stardew Valley journals, because the seasons and the Farm section they used now belong to that template.
@@ -74,6 +74,7 @@ Keep one journal for each game, or each playthrough. Every journal has its own n
 - Snapping, guides, a grid, rulers, a minimap, copy and paste, grouping, alignment and undo.
 - Markers have an icon, a status, tags and fields, and can link to a note, a person or a farm entry. That page then lists the marker under "On maps". You can define your own marker types.
 - Exploring mode is for flipping between the game and the map.
+- In a narrow or touch window the editor uses the whole screen, with an icon toolbar you can hide, pinch to zoom, and handles that are easy to grab.
 - Version history, duplicate a map, and export to PNG, SVG, PDF or an editable project file.
 
 The maps are your own drawings. Nothing about any game comes with them.

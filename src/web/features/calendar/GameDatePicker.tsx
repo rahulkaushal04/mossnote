@@ -12,7 +12,7 @@ import { COUNTER_MAX, dayNumber, decode, encode, fromDayNumber } from '@shared/g
 import { LIMITS } from '@shared/constants';
 import { Dialog } from '../../components/ui/Dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/Popover';
-import { useIsNarrow } from '../../lib/useIsNarrow';
+import { useIsNarrow } from '../../lib/useViewport';
 import { useCalendar } from './CalendarProvider';
 
 export interface GameDatePickerProps {
@@ -91,7 +91,7 @@ function CounterPickerBody({ value, onChange, clearLabel, close }: BodyProps) {
             const n = Number(e.target.value);
             if (Number.isInteger(n) && n >= 1 && n <= COUNTER_MAX) setDay(n);
           }}
-          className="tap w-28 rounded-control border border-ink-muted bg-paper px-2 text-center"
+          className="field-input w-28 text-center"
         />
         <button
           type="button"
@@ -264,7 +264,7 @@ function SeasonPickerBody({ value, onChange, clearLabel, close }: BodyProps) {
             const n = Number(e.target.value);
             if (Number.isInteger(n) && n >= 1 && n <= LIMITS.yearMax) setYear(n);
           }}
-          className="tap w-24 rounded-control border border-ink-muted bg-paper px-2 text-center"
+          className="field-input w-24 text-center"
         />
         <button
           type="button"
@@ -323,7 +323,7 @@ function SeasonPickerBody({ value, onChange, clearLabel, close }: BodyProps) {
               onKeyDown={(e) => {
                 onGridKey(e, d);
               }}
-              className={`tap rounded-control text-center ${
+              className={`tap rounded-md text-center ${
                 d === clampedDay ? 'bg-accent font-semibold text-accent-ink' : 'hover:bg-surface'
               }`}
             >

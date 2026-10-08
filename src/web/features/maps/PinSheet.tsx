@@ -19,7 +19,7 @@ import { pinLook } from './render/colors';
 
 const KIND_LABEL = { note: 'Note', person: 'Person', planting: 'Farm entry', tag: 'Tag' } as const;
 const LINK_PATH = { note: '/notes/', person: '/people/', planting: '/farm/' } as const;
-const FIELD = 'tap w-full rounded-control border border-ink-muted bg-paper px-3';
+const FIELD = 'field-input w-full';
 
 /**
  * Link a marker to something already written, or write a new note on the spot: whatever is typed
@@ -79,7 +79,7 @@ export function LinkPicker({ onLink }: { onLink: (target: LinkRef) => void }) {
             <li key={`${item.kind}:${item.id}`}>
               <button
                 type="button"
-                className="tap flex w-full items-baseline justify-between gap-3 rounded-control px-2 text-left hover:bg-surface"
+                className="tap flex w-full items-baseline justify-between gap-3 rounded-md px-2 text-left hover:bg-surface"
                 onClick={() => {
                   if (item.kind !== 'tag')
                     onLink({ type: item.kind, id: item.id, label: item.label });
@@ -94,7 +94,7 @@ export function LinkPicker({ onLink }: { onLink: (target: LinkRef) => void }) {
             <button
               type="button"
               disabled={busy}
-              className="tap w-full rounded-control px-2 text-left underline hover:bg-surface"
+              className="tap w-full rounded-md px-2 text-left underline hover:bg-surface"
               onClick={() => void createNote()}
             >
               Save “{q.length > 40 ? `${q.slice(0, 40)}…` : q}” as a new note and link it
@@ -208,7 +208,7 @@ function PinForm({
           </label>
           <button
             type="button"
-            className="tap rounded-control px-2 text-sm underline"
+            className="tap rounded-md px-2 text-sm underline"
             onClick={onManageTypes}
           >
             Edit types
@@ -250,7 +250,7 @@ function PinForm({
               onClick={() => {
                 onProps(pin.id, { icon });
               }}
-              className={`tap flex size-9 items-center justify-center rounded-control border ${look.icon === icon ? 'border-accent bg-surface' : 'border-rule'}`}
+              className={`tap flex size-9 items-center justify-center rounded-md border ${look.icon === icon ? 'border-accent bg-surface' : 'border-line'}`}
             >
               <svg width={22} height={22} viewBox="-12 -12 24 24" aria-hidden="true">
                 <g color="var(--ink)">
@@ -300,7 +300,7 @@ function PinForm({
           {tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
+              className="inline-flex items-center gap-1 rounded-md border border-line px-2 text-sm"
             >
               #{t}
               <button
@@ -329,7 +329,7 @@ function PinForm({
               }
             }}
             onBlur={addTag}
-            className="tap w-28 rounded-control border border-rule bg-paper px-2 text-sm"
+            className="tap w-28 rounded-md border border-line bg-paper px-2 text-sm"
           />
         </div>
       </div>
@@ -346,7 +346,7 @@ function PinForm({
           onBlur={() => {
             if (note !== pin.note) onChange(pin.id, { note });
           }}
-          className="w-full rounded-control border border-ink-muted bg-paper px-3 py-2"
+          className="field-input w-full"
         />
       </label>
 
@@ -359,7 +359,7 @@ function PinForm({
               defaultValue={f.label}
               maxLength={LIMITS.customFieldLabel}
               placeholder="Label"
-              className="tap w-2/5 rounded-control border border-rule bg-paper px-2"
+              className="tap w-2/5 rounded-md border border-line bg-paper px-2"
               onBlur={(e) => {
                 const next = fields
                   .map((x, j) => (j === i ? { ...x, label: e.target.value.trim() } : x))
@@ -372,7 +372,7 @@ function PinForm({
               defaultValue={f.value}
               maxLength={LIMITS.customFieldValue}
               placeholder="Value"
-              className="tap flex-1 rounded-control border border-rule bg-paper px-2"
+              className="tap flex-1 rounded-md border border-line bg-paper px-2"
               onBlur={(e) => {
                 setFields(fields.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)));
               }}
@@ -427,7 +427,7 @@ function PinForm({
           <Link to={`${LINK_PATH[pin.target.type]}${pin.target.id}`}>{pin.target.label}</Link>
           <button
             type="button"
-            className="tap rounded-control px-2 text-sm underline"
+            className="tap rounded-md px-2 text-sm underline"
             onClick={() => {
               onLink(pin, null);
             }}
@@ -449,7 +449,7 @@ function PinForm({
         </button>
         <button
           type="button"
-          className="tap rounded-control px-2 text-danger underline"
+          className="tap rounded-md px-2 text-danger underline"
           onClick={() => {
             onDelete(pin.id);
             onClose();

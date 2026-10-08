@@ -37,10 +37,7 @@ export function NotePage() {
           </ul>
           {query.data.linkedFrom.length > 0 ? (
             <section aria-labelledby="linked-from" className="mt-8">
-              <h2
-                id="linked-from"
-                className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase"
-              >
+              <h2 id="linked-from" className="text-sm font-semibold text-ink-2">
                 Linked from
               </h2>
               <ul className="m-0 mt-2 flex list-none flex-col gap-1 p-0">

@@ -36,7 +36,7 @@ function SectionRow({
   const [name, setName] = useState(section.label);
   const locked = ALWAYS_VISIBLE.includes(section.id);
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-rule py-2">
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2">
       <label className="flex min-w-40 flex-1 flex-col text-sm">
         <span className="sr-only">Name of {section.templateLabel}</span>
         <input
@@ -54,7 +54,7 @@ function SectionRow({
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className="tap rounded-control border border-ink-muted bg-paper px-3"
+          className="field-input"
         />
       </label>
       <label className="tap flex items-center gap-2 text-sm">

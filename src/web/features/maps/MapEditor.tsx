@@ -10,7 +10,7 @@ import type { MapShape } from '@shared/schemas/map';
 import { SUGGESTED_LAYERS } from '@shared/mapDefaults';
 import type { LinkRef, MapDetail, MapPin } from '@shared/types';
 import { SavedIndicator } from '../../components/ui/SavedIndicator';
-import { useIsNarrow } from '../../lib/useIsNarrow';
+import { useIsNarrow, useIsPhone } from '../../lib/useViewport';
 import { useMarkerTypes } from '../settings/useMarkerTypes';
 import { Canvas } from './Canvas';
 import { ContextMenu, type MenuItems } from './ContextMenu';
@@ -60,6 +60,7 @@ interface CleanupOffer {
 export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?: string | null }) {
   const client = useQueryClient();
   const narrow = useIsNarrow();
+  const phone = useIsPhone();
   const markerTypes = useMarkerTypes();
   const store = useMapDoc(map);
   const { doc, docRef, commit } = store;
@@ -76,6 +77,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
   const [panelTab, setPanelTab] = useState<PanelTab>('inspect');
   const [panelOpen, setPanelOpen] = useState(() => !narrow);
   const [fullscreen, setFullscreen] = useState(false);
+  const [toolsCollapsed, setToolsCollapsed] = useState(false);
   const [explore, setExplore] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
   const [lastMarker, setLastMarker] = useState<string | null>(null);
@@ -350,9 +352,15 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
     />
   );
 
+  // On a phone the shell's bars are hidden on this screen (see Shell), so the canvas takes what
+  // is left under the name row and the toolbar rows.
   const canvasHeight = fullscreen
     ? 'min-h-0 flex-1'
-    : 'h-[calc(100dvh-21rem)] min-h-[360px] wide:h-[calc(100dvh-16rem)]';
+    : phone
+      ? toolsCollapsed
+        ? 'h-[calc(100dvh-7.75rem)] min-h-[300px]'
+        : 'h-[calc(100dvh-11rem)] min-h-[300px]'
+      : 'h-[calc(100dvh-21rem)] min-h-[360px] wide:h-[calc(100dvh-16rem)]';
 
   return (
     <div
@@ -390,11 +398,13 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
         onMarkerTypes={() => {
           setTypesOpen(true);
         }}
+        collapsed={toolsCollapsed}
+        onCollapsed={setToolsCollapsed}
       />
       <div className={`flex gap-2 ${canvasHeight}`}>
         <div
           ref={wrap}
-          className="relative min-w-0 flex-1 overflow-hidden rounded-panel border border-rule"
+          className="relative min-w-0 flex-1 overflow-hidden rounded-lg border border-line"
         >
           {size.w > 0 ? <Canvas ed={canvasApi} /> : null}
           {settings.compass ? <Compass /> : null}
@@ -495,11 +505,15 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
           />
           {panelOpen && narrow ? (
             <div
-              className="absolute inset-x-0 bottom-0 z-30 max-h-[60%] overflow-y-auto rounded-t-panel border-t border-rule bg-raised p-3 shadow-float"
+              className="rounded-t-panel absolute inset-x-0 bottom-0 z-30 max-h-[60%] overflow-y-auto border-t border-line bg-raised p-3 shadow-2"
               onPointerDown={(e) => {
                 e.stopPropagation();
               }}
             >
+              <div
+                aria-hidden="true"
+                className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-control"
+              />
               {sidePanel}
             </div>
           ) : null}
@@ -507,7 +521,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
         {panelOpen && !narrow ? (
           <aside
             aria-label="Map details"
-            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-panel border border-rule bg-raised p-3"
+            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-line bg-raised p-3"
           >
             {sidePanel}
           </aside>

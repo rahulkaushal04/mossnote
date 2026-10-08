@@ -55,7 +55,7 @@ export function NewJournalForm({
           onChange={(e) => {
             setName(e.target.value);
           }}
-          className="tap rounded-control border border-ink-muted bg-paper px-3"
+          className="field-input"
         />
         {touched && empty ? (
           <p id={`${idPrefix}-name-error`} className="text-sm text-danger">

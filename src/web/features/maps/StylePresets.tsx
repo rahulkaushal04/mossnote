@@ -87,7 +87,7 @@ export function StylePresets({
             onChange={(e) => {
               setName(e.target.value);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-2 text-sm"
+            className="field-input w-full text-sm"
           />
         </label>
         <button type="submit" className="btn tap px-2 text-sm" disabled={name.trim() === ''}>
@@ -127,7 +127,7 @@ export function StylePresets({
               </button>
               <button
                 type="button"
-                className="tap rounded-control px-2 text-sm text-danger"
+                className="tap rounded-md px-2 text-sm text-danger"
                 aria-label={`Delete style ${p.name}`}
                 onClick={() => {
                   remove(p.name);

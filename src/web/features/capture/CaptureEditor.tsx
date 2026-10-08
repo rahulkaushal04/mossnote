@@ -39,10 +39,9 @@ export interface CaptureEditorProps {
   describedBy?: string | undefined;
 }
 
-const TEXT_BUTTON =
-  'tap rounded-control px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
+const TEXT_BUTTON = 'tap rounded-md px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
 const TOGGLE =
-  'tap inline-flex items-center justify-center rounded-control px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
+  'tap inline-flex items-center justify-center rounded-md px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
 
 /**
  * The shared text area, chips, flags and trigger handling used by the composer and by inline
@@ -280,7 +279,7 @@ export function CaptureEditor({
               area.current?.focus();
             }
           }}
-          className="reading w-full border-0 border-b border-rule bg-transparent pb-1 font-semibold outline-offset-4 placeholder:text-ink-muted"
+          className="reading w-full border-0 border-b border-line bg-transparent pb-1 font-semibold outline-offset-4 placeholder:text-ink-muted"
         />
       ) : null}
 

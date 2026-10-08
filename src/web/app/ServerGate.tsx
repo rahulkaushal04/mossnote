@@ -23,8 +23,8 @@ export function Unreachable({ onRetry }: { onRetry: () => void }) {
       <h1 className="text-2xl font-semibold">Can&apos;t reach your journal.</h1>
       <p>
         Mossnote may not be running. Start it again (open the app, or run{' '}
-        <code className="rounded-control bg-surface px-1.5 py-0.5">mossnote</code> in a terminal),
-        then try again. Nothing you wrote is lost.
+        <code className="rounded-md bg-surface px-1.5 py-0.5">mossnote</code> in a terminal), then
+        try again. Nothing you wrote is lost.
       </p>
       <div>
         <button type="button" className="btn tap" onClick={onRetry}>
@@ -40,7 +40,7 @@ function JournalChanged() {
   return (
     <div
       role="alert"
-      className="fixed inset-x-0 top-0 z-50 flex flex-wrap items-center justify-center gap-3 bg-raised p-3 text-ink shadow-float"
+      className="fixed inset-x-0 top-0 z-50 flex flex-wrap items-center justify-center gap-3 bg-raised p-3 text-ink shadow-2"
     >
       <span>You switched journals in another window. Reload to keep working here.</span>
       <button

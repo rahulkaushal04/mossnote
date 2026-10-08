@@ -219,7 +219,7 @@ export function DataSection() {
       <BackupsList />
 
       {problems.length > 0 ? (
-        <div role="alert" className="rounded-control border border-danger p-3">
+        <div role="alert" className="rounded-md border border-danger p-3">
           <p className="font-semibold">This file can&apos;t be imported. Nothing was changed.</p>
           <ul className="m-0 mt-2 list-none p-0 text-sm">
             {problems.slice(0, SHOWN_ERRORS).map((p, i) => (
@@ -241,7 +241,7 @@ export function DataSection() {
       ) : null}
 
       {pending && counts ? (
-        <div className="rounded-control border border-rule p-3">
+        <div className="rounded-md border border-line p-3">
           <p>
             Contains {plural(counts.notes, 'note')},{' '}
             {plural(counts.people, terms.people.one, terms.people.many)},{' '}

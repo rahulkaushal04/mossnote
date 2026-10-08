@@ -27,7 +27,7 @@ export function StatusBar({
       type="button"
       aria-pressed={on}
       title={title}
-      className={`tap rounded-control px-2 text-xs ${on ? 'bg-surface font-semibold' : 'text-ink-muted'}`}
+      className={`tap rounded-md px-2 text-xs ${on ? 'bg-surface font-semibold' : 'text-ink-muted'}`}
       onClick={flip}
     >
       {label}
@@ -35,7 +35,7 @@ export function StatusBar({
   );
   return (
     <div
-      className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-2 border-t border-rule bg-raised/90 px-2 text-xs text-ink-muted"
+      className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-2 border-t border-line bg-raised/90 px-2 text-xs text-ink-muted"
       onPointerDown={(e) => {
         e.stopPropagation();
       }}
@@ -46,7 +46,7 @@ export function StatusBar({
         </span>
         <button
           type="button"
-          className="tap rounded-control px-1 hover:bg-surface"
+          className="tap rounded-md px-1 hover:bg-surface"
           title="Reset zoom to 100%"
           onClick={onZoomReset}
         >
@@ -95,7 +95,7 @@ export function Compass() {
       aria-label="North is up"
       className="pointer-events-none absolute top-2 right-2 z-10"
     >
-      <circle r={15} fill="var(--raised)" fillOpacity={0.85} stroke="var(--rule)" />
+      <circle r={15} fill="var(--raised)" fillOpacity={0.85} stroke="var(--line)" />
       <path d="M0 -12 L4 2 L0 -1 L-4 2 Z" fill="var(--danger)" />
       <path d="M0 12 L4 -2 L0 1 L-4 -2 Z" fill="var(--ink-muted)" opacity={0.6} />
       <text

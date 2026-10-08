@@ -61,7 +61,7 @@ export function ContextMenu({
       role="menu"
       tabIndex={-1}
       aria-label="Map actions"
-      className="fixed z-50 min-w-52 rounded-panel border border-rule bg-raised p-1 text-ink shadow-float"
+      className="fixed z-50 min-w-52 rounded-lg border border-line bg-raised p-1 text-ink shadow-2"
       style={{ left: at.x, top: at.y }}
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') {
@@ -82,14 +82,14 @@ export function ContextMenu({
     >
       {items.map((item, i) =>
         item === 'sep' ? (
-          <div key={i} role="separator" className="my-1 h-px bg-rule" />
+          <div key={i} role="separator" className="my-1 h-px bg-line" />
         ) : (
           <button
             key={item.label}
             type="button"
             role="menuitem"
             disabled={item.disabled}
-            className={`tap flex w-full items-center justify-between gap-6 rounded-control px-3 py-1.5 text-left outline-none focus:bg-surface enabled:hover:bg-surface disabled:opacity-45 ${item.danger ? 'text-danger' : ''}`}
+            className={`tap flex w-full items-center justify-between gap-6 rounded-md px-3 py-1.5 text-left outline-none focus:bg-surface enabled:hover:bg-surface disabled:opacity-45 ${item.danger ? 'text-danger' : ''}`}
             onClick={() => {
               onClose();
               item.run();

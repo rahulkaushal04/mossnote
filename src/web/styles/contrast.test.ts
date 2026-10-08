@@ -3,16 +3,16 @@ import { describe, expect, it } from 'vitest';
 
 /**
  * Contrast check for the design tokens: text at least 4.5:1, interface
- * components and graphics at least 3:1, in both themes. The tokens are read from index.css, so
+ * components and graphics at least 3:1, in both themes. The tokens are read from tokens.css, so
  * this test checks the values that actually ship.
  */
-const css = fs.readFileSync(new URL('./index.css', import.meta.url), 'utf8');
+const css = fs.readFileSync(new URL('./tokens.css', import.meta.url), 'utf8');
 
 function readTokens(selector: string): Record<string, string> {
   const start = css.indexOf(`${selector} {`);
   const body = css.slice(start, css.indexOf('}', start));
   const tokens: Record<string, string> = {};
-  for (const match of body.matchAll(/--([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)) {
+  for (const match of body.matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)) {
     tokens[match[1] ?? ''] = (match[2] ?? '').toLowerCase();
   }
   return tokens;
@@ -40,9 +40,20 @@ export function contrast(a: string, b: string): number {
 
 const SURFACES = ['paper', 'surface', 'raised'] as const;
 // Everything that renders as text, including the ✦ and ? marks' labels, links and errors.
-const TEXT = ['ink', 'ink-muted', 'accent', 'discovery', 'question', 'danger'] as const;
-// Marks, focus ring and control outlines.
-const GRAPHICS = ['accent', 'discovery', 'question', 'danger', 'ink-muted'] as const;
+const TEXT = [
+  'ink',
+  'ink-2',
+  'ink-muted',
+  'accent',
+  'discovery',
+  'question',
+  'danger',
+  'success',
+] as const;
+// Marks, focus ring and control outlines (WCAG 1.4.11).
+const GRAPHICS = ['accent', 'discovery', 'question', 'danger', 'control'] as const;
+// Body text and headings are held to the stricter AAA bar.
+const BODY = ['ink'] as const;
 
 describe('tokens are present in both themes', () => {
   for (const [name, tokens] of Object.entries(themes)) {
@@ -52,10 +63,14 @@ describe('tokens are present in both themes', () => {
         'surface',
         'raised',
         'ink',
+        'ink-2',
         'ink-muted',
-        'rule',
+        'line',
+        'control',
         'accent',
         'accent-ink',
+        'accent-soft',
+        'success',
         'discovery',
         'question',
         'danger',
@@ -84,6 +99,19 @@ for (const [name, tokens] of Object.entries(themes)) {
         });
       }
     }
+    for (const fg of BODY) {
+      for (const bg of SURFACES) {
+        it(`body text: ${fg} on ${bg} is at least 7:1`, () => {
+          const ratio = contrast(tokens[fg] ?? '', tokens[bg] ?? '');
+          expect(ratio, `${fg} on ${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(7);
+        });
+      }
+    }
+    it('accent text on a selected (accent-soft) row is at least 4.5:1', () => {
+      expect(contrast(tokens.accent ?? '', tokens['accent-soft'] ?? '')).toBeGreaterThanOrEqual(
+        4.5,
+      );
+    });
     it('text on accent fills (accent-ink on accent) is at least 4.5:1', () => {
       expect(contrast(tokens['accent-ink'] ?? '', tokens.accent ?? '')).toBeGreaterThanOrEqual(4.5);
     });

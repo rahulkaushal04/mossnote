@@ -88,7 +88,9 @@ export function Marks({
   question: 'open' | 'solved' | null;
 }) {
   return (
-    <span className="flex w-6 shrink-0 flex-col items-center gap-1 pt-1">
+    // On a phone the marks sit in a row above the note, and take no room when there are none; from
+    // 640px up they are a fixed gutter so every note's text lines up.
+    <span className="flex shrink-0 flex-row items-center gap-1 empty:hidden phone:w-6 phone:flex-col phone:pt-1 phone:empty:flex">
       {discovery ? (
         <span role="img" aria-label="Discovery" className="text-discovery">
           <SparkIcon />

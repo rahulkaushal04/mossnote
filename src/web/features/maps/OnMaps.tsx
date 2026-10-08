@@ -12,10 +12,7 @@ export function OnMaps({ type, id }: { type: LinkType; id: string }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby={`on-maps-${id}`} className="mt-8">
-      <h2
-        id={`on-maps-${id}`}
-        className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase"
-      >
+      <h2 id={`on-maps-${id}`} className="text-sm font-semibold text-ink-2">
         On maps
       </h2>
       <ul className="m-0 mt-2 flex list-none flex-col gap-1 p-0">

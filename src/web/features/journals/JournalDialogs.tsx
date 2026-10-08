@@ -133,7 +133,7 @@ function RenameForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
           onChange={(e) => {
             setName(e.target.value);
           }}
-          className="tap rounded-control border border-ink-muted bg-paper px-3"
+          className="field-input"
         />
       </div>
       {error ? (
@@ -263,7 +263,7 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
           onChange={(e) => {
             setTyped(e.target.value);
           }}
-          className="tap rounded-control border border-ink-muted bg-paper px-3"
+          className="field-input"
         />
         <p id="confirm-journal-hint" className="text-sm text-ink-muted">
           Type <strong>{journal.name}</strong> exactly.

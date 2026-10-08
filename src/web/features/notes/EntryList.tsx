@@ -7,11 +7,7 @@ import { NoteEntry } from './NoteEntry';
 
 /** Small capitals followed by a hairline: the one decorative gesture. */
 function DayHeader({ children, to }: { children: string; to?: string }) {
-  const label = (
-    <span className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">
-      {children}
-    </span>
-  );
+  const label = <span className="text-sm font-semibold text-ink-2">{children}</span>;
   return (
     <li className="flex items-center gap-3 pt-6" aria-hidden={to ? undefined : true}>
       {to ? (
@@ -21,7 +17,7 @@ function DayHeader({ children, to }: { children: string; to?: string }) {
       ) : (
         label
       )}
-      <span className="h-px flex-1 bg-rule" aria-hidden="true" />
+      <span className="h-px flex-1 bg-line" aria-hidden="true" />
     </li>
   );
 }
@@ -29,7 +25,7 @@ function DayHeader({ children, to }: { children: string; to?: string }) {
 function YearHeader({ year }: { year: number }) {
   return (
     <li className="pt-8" aria-hidden="true">
-      <span className="text-sm font-semibold tracking-[0.08em] uppercase">Year {year}</span>
+      <span className="font-serif text-lg font-semibold">Year {year}</span>
     </li>
   );
 }

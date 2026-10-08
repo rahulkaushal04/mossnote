@@ -180,7 +180,7 @@ export function NoteSection({
         onBlur={(e) => {
           if (e.target.value !== noteValue) onSaveNote(e.target.value);
         }}
-        className="w-full rounded-control border border-ink-muted bg-paper px-2 py-1 text-sm"
+        className="field-input w-full text-sm"
       />
       {canHaveNoteCard ? (
         <button

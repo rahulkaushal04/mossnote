@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { JournalIcon } from '../../components/ui/icons';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { plural } from '../../lib/format';
@@ -53,17 +55,20 @@ export function JournalPage() {
   if (!notes.isPending && !notes.isError && list.length === 0) {
     if (total === 0) {
       empty = (
-        <EmptyState>
-          Your journal starts with your first note.{' '}
-          <button
-            type="button"
-            className="tap underline"
-            onClick={() => {
-              newNote.requestNewNote();
-            }}
-          >
-            Write a note
-          </button>
+        <EmptyState
+          icon={<JournalIcon />}
+          action={
+            <Button
+              variant="primary"
+              onClick={() => {
+                newNote.requestNewNote();
+              }}
+            >
+              Write a note
+            </Button>
+          }
+        >
+          Your journal starts with your first note.
         </EmptyState>
       );
     } else {
@@ -76,7 +81,7 @@ export function JournalPage() {
       ) : (
         <EmptyState>
           Nothing matches these filters.{' '}
-          <button type="button" className="tap underline" onClick={clear}>
+          <button type="button" className="btn btn-ghost underline" onClick={clear}>
             Clear filters
           </button>
         </EmptyState>

@@ -36,7 +36,7 @@ export function TemplatePicker({
         {TEMPLATES.map((template) => (
           <label
             key={template.id}
-            className="tap grid cursor-pointer grid-cols-[1rem_1fr] gap-x-3 rounded-panel border border-rule p-3 has-[:checked]:border-accent has-[:checked]:bg-surface"
+            className="tap grid cursor-pointer grid-cols-[1rem_1fr] gap-x-3 rounded-lg border border-line p-3 has-[:checked]:border-accent has-[:checked]:bg-surface"
           >
             <input
               type="radio"

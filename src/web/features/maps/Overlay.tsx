@@ -4,6 +4,8 @@
  */
 import type { Guide } from './engine/snap';
 import { gridStep } from './engine/snap';
+import { useMediaQuery } from '../../lib/useViewport';
+import { handleHitRadius } from './canvas/handleSize';
 import { HANDLES, handlePoint, rotateHandlePoint, type Frame, type HandleId } from './engine/frame';
 import { curveControl, type ObjInfo, type Objects, connectorGeometry } from './engine/shapes';
 import type { MPt } from './engine/vec';
@@ -22,7 +24,7 @@ export function Grid({ view, size }: { view: View; size: Size }) {
     <g pointerEvents="none" aria-hidden="true">
       <defs>
         <pattern id="map-grid" x={x} y={y} width={px} height={px} patternUnits="userSpaceOnUse">
-          <path d={`M${px} 0H0V${px}`} fill="none" stroke="var(--rule)" strokeWidth={1} />
+          <path d={`M${px} 0H0V${px}`} fill="none" stroke="var(--line)" strokeWidth={1} />
         </pattern>
         <pattern
           id="map-grid-major"
@@ -212,6 +214,32 @@ const HANDLE_CURSOR: Record<HandleId, string> = {
 
 export const ROTATE_OFFSET_PX = 26;
 
+/**
+ * A handle and its press target. The group carries the data attribute the canvas looks for, so a
+ * press anywhere in the invisible circle grabs the handle. With a mouse the circle is not drawn.
+ */
+function Grab({
+  at,
+  attrs,
+  cursor,
+  children,
+}: {
+  at: readonly [number, number];
+  attrs: Record<string, string | number | boolean>;
+  cursor: string;
+  children: React.ReactNode;
+}) {
+  const coarse = useMediaQuery('(pointer: coarse)');
+  return (
+    <g {...attrs} style={{ cursor }}>
+      {coarse ? (
+        <circle cx={at[0]} cy={at[1]} r={handleHitRadius(true)} fill="transparent" />
+      ) : null}
+      {children}
+    </g>
+  );
+}
+
 /** The frame round the selection, with eight resize handles and a turn handle. */
 export function SelectionFrame({
   frame,
@@ -245,19 +273,18 @@ export function SelectionFrame({
         ? HANDLES.map((h) => {
             const [x, y] = at(handlePoint(frame, h));
             return (
-              <rect
-                key={h}
-                x={x - 5}
-                y={y - 5}
-                width={10}
-                height={10}
-                rx={2}
-                fill="var(--raised)"
-                stroke={ACCENT}
-                strokeWidth={1.75}
-                style={{ cursor: HANDLE_CURSOR[h] }}
-                data-handle={h}
-              />
+              <Grab key={h} at={[x, y]} attrs={{ 'data-handle': h }} cursor={HANDLE_CURSOR[h]}>
+                <rect
+                  x={x - 5}
+                  y={y - 5}
+                  width={10}
+                  height={10}
+                  rx={2}
+                  fill="var(--raised)"
+                  stroke={ACCENT}
+                  strokeWidth={1.75}
+                />
+              </Grab>
             );
           })
         : null}
@@ -272,16 +299,16 @@ export function SelectionFrame({
             strokeWidth={1.5}
             pointerEvents="none"
           />
-          <circle
-            cx={rot[0]}
-            cy={rot[1]}
-            r={6}
-            fill="var(--raised)"
-            stroke={ACCENT}
-            strokeWidth={1.75}
-            style={{ cursor: 'grab' }}
-            data-handle="rotate"
-          />
+          <Grab at={rot} attrs={{ 'data-handle': 'rotate' }} cursor="grab">
+            <circle
+              cx={rot[0]}
+              cy={rot[1]}
+              r={6}
+              fill="var(--raised)"
+              stroke={ACCENT}
+              strokeWidth={1.75}
+            />
+          </Grab>
         </g>
       ) : null}
     </g>
@@ -309,17 +336,9 @@ export function VertexHandles({
         {shape.pts.map((p, i) => {
           const [x, y] = at([p[0], p[1]]);
           return (
-            <circle
-              key={i}
-              cx={x}
-              cy={y}
-              r={5}
-              fill="var(--raised)"
-              stroke={ACCENT}
-              strokeWidth={1.75}
-              style={{ cursor: 'move' }}
-              data-vertex={i}
-            />
+            <Grab key={i} at={[x, y]} attrs={{ 'data-vertex': i }} cursor="move">
+              <circle cx={x} cy={y} r={5} fill="var(--raised)" stroke={ACCENT} strokeWidth={1.75} />
+            </Grab>
           );
         })}
       </g>
@@ -332,37 +351,37 @@ export function VertexHandles({
     const ctrl = shape.route === 'curve' ? at(curveControl(shape, objs)) : null;
     return (
       <g>
-        <circle
-          cx={ax}
-          cy={ay}
-          r={6}
-          fill={shape.from.ref ? ACCENT : 'var(--raised)'}
-          stroke={ACCENT}
-          strokeWidth={1.75}
-          style={{ cursor: 'crosshair' }}
-          data-vertex="from"
-        />
-        <circle
-          cx={bx}
-          cy={by}
-          r={6}
-          fill={shape.to.ref ? ACCENT : 'var(--raised)'}
-          stroke={ACCENT}
-          strokeWidth={1.75}
-          style={{ cursor: 'crosshair' }}
-          data-vertex="to"
-        />
-        {ctrl ? (
+        <Grab at={[ax, ay]} attrs={{ 'data-vertex': 'from' }} cursor="crosshair">
           <circle
-            cx={ctrl[0]}
-            cy={ctrl[1]}
-            r={5}
-            fill="var(--raised)"
+            cx={ax}
+            cy={ay}
+            r={6}
+            fill={shape.from.ref ? ACCENT : 'var(--raised)'}
             stroke={ACCENT}
             strokeWidth={1.75}
-            style={{ cursor: 'move' }}
-            data-bend
           />
+        </Grab>
+        <Grab at={[bx, by]} attrs={{ 'data-vertex': 'to' }} cursor="crosshair">
+          <circle
+            cx={bx}
+            cy={by}
+            r={6}
+            fill={shape.to.ref ? ACCENT : 'var(--raised)'}
+            stroke={ACCENT}
+            strokeWidth={1.75}
+          />
+        </Grab>
+        {ctrl ? (
+          <Grab at={ctrl} attrs={{ 'data-bend': true }} cursor="move">
+            <circle
+              cx={ctrl[0]}
+              cy={ctrl[1]}
+              r={5}
+              fill="var(--raised)"
+              stroke={ACCENT}
+              strokeWidth={1.75}
+            />
+          </Grab>
         ) : null}
       </g>
     );

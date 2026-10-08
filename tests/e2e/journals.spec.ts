@@ -355,9 +355,16 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       expect(await violations(page), `settings ${theme} ${width}`).toEqual([]);
 
-      await switcher(page).click();
-      await expect(page.getByRole('menuitem', { name: 'New journal…' })).toBeVisible();
-      expect(await violations(page), `menu ${theme} ${width}`).toEqual([]);
+      if (width < 640) {
+        // On a phone the switcher is in the More sheet.
+        await page.getByRole('button', { name: 'More', exact: true }).click();
+        await expect(page.getByRole('dialog', { name: 'More' })).toBeVisible();
+        expect(await violations(page), `more sheet ${theme} ${width}`).toEqual([]);
+      } else {
+        await switcher(page).click();
+        await expect(page.getByRole('menuitem', { name: 'New journal…' })).toBeVisible();
+        expect(await violations(page), `menu ${theme} ${width}`).toEqual([]);
+      }
       await page.keyboard.press('Escape');
 
       await page.getByRole('button', { name: 'New journal…' }).first().click();

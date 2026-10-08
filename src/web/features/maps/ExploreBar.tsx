@@ -35,7 +35,7 @@ export function ExploreBar({
       }}
     >
       <p
-        className="m-0 rounded-control bg-raised px-3 py-1 text-xs text-ink-muted shadow-float"
+        className="m-0 rounded-md bg-raised px-3 py-1 text-xs text-ink-muted shadow-2"
         role="status"
       >
         {tool === 'pin'
@@ -46,7 +46,7 @@ export function ExploreBar({
               : 'Draw the way you went.'
             : 'Tap the map to put a note down.'}
       </p>
-      <div className="flex items-center gap-2 rounded-panel border border-rule bg-raised p-2 shadow-float">
+      <div className="flex items-center gap-2 rounded-lg border border-line bg-raised p-2 shadow-2">
         <button
           type="button"
           aria-pressed={pressed('pin')}

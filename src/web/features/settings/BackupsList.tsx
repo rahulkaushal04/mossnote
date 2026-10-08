@@ -16,7 +16,7 @@ const REASON: Record<BackupInfo['reason'], string> = {
   'pre-restore': 'Before a restore',
 };
 
-const ACTION = 'tap rounded-control px-2 text-sm underline';
+const ACTION = 'tap rounded-md px-2 text-sm underline';
 
 /**
  * The open journal's snapshots, newest first, with restore and delete. A restore saves the
@@ -83,7 +83,7 @@ export function BackupsList() {
           {items.map((snapshot) => (
             <li
               key={snapshot.name}
-              className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-rule py-2"
+              className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-line py-2"
             >
               <time dateTime={snapshot.takenAt} className="min-w-40">
                 {formatDateTime(snapshot.takenAt)}

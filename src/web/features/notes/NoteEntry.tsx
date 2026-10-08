@@ -102,7 +102,7 @@ export function NoteEntry({
 
   if (editing) {
     return (
-      <li className="flex gap-2 border-b border-rule py-5">
+      <li className="flex flex-col gap-1 border-b border-line py-4 phone:flex-row phone:gap-2 phone:py-5">
         {marks}
         <div className="min-w-0 flex-1">
           <EditableNote
@@ -120,11 +120,11 @@ export function NoteEntry({
   }
 
   return (
-    <li className="group border-b border-rule">
+    <li className="group border-b border-line">
       <article
         ref={article}
         aria-label={entryName(note)}
-        className="flex gap-2 py-5 outline-offset-2"
+        className="flex flex-col gap-1 py-4 outline-offset-2 phone:flex-row phone:gap-2 phone:py-5"
       >
         {marks}
         <div className="min-w-0 flex-1">

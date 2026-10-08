@@ -39,7 +39,7 @@ export function PickerList({
 }) {
   return (
     <div
-      className="absolute z-30 w-72 max-w-[calc(100vw-2rem)] rounded-panel border border-rule bg-raised p-1 shadow-float"
+      className="absolute z-30 w-72 max-w-[calc(100vw-2rem)] rounded-lg border border-line bg-raised p-1 shadow-2"
       style={{ top, left }}
     >
       <p role="status" aria-live="polite" className="sr-only">
@@ -62,7 +62,7 @@ export function PickerList({
           }}
           onKeyDown={search.onKeyDown}
           placeholder="Search…"
-          className="tap mb-1 w-full rounded-control border border-ink-muted bg-paper px-2"
+          className="field-input mb-1 w-full"
         />
       ) : null}
       {rows.length === 0 ? (
@@ -84,7 +84,7 @@ export function PickerList({
                 event.preventDefault();
                 onSelect(row);
               }}
-              className={`tap flex cursor-pointer items-baseline justify-between gap-3 rounded-control px-3 py-1.5 ${
+              className={`tap flex cursor-pointer items-baseline justify-between gap-3 rounded-md px-3 py-1.5 ${
                 index === active ? 'bg-surface' : ''
               }`}
             >

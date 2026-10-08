@@ -19,10 +19,10 @@ function Group({ title, hits }: { title: string; hits: SearchHit[] }) {
   if (hits.length === 0) return null;
   return (
     <section aria-label={title} className="mt-6">
-      <h2 className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">{title}</h2>
+      <h2 className="text-sm font-semibold text-ink-2">{title}</h2>
       <ul className="m-0 mt-2 list-none p-0">
         {hits.map((hit) => (
-          <li key={`${hit.kind}:${hit.id}`} className="border-b border-rule py-3">
+          <li key={`${hit.kind}:${hit.id}`} className="border-b border-line py-3">
             <Link to={hitPath(hit)} className="block text-ink no-underline hover:underline">
               <span className="reading font-semibold">
                 <Snippet text={hit.kind === 'tag' ? `#${hit.title}` : hit.title} />
@@ -49,10 +49,10 @@ function MapGroup({ hits }: { hits: MapHit[] }) {
   if (hits.length === 0) return null;
   return (
     <section aria-label="Maps" className="mt-6">
-      <h2 className="text-xs font-semibold tracking-[0.08em] text-ink-muted uppercase">Maps</h2>
+      <h2 className="text-sm font-semibold text-ink-2">Maps</h2>
       <ul className="m-0 mt-2 list-none p-0">
         {hits.map((hit) => (
-          <li key={`${hit.mapId}:${hit.pinId ?? ''}`} className="border-b border-rule py-3">
+          <li key={`${hit.mapId}:${hit.pinId ?? ''}`} className="border-b border-line py-3">
             <Link to={mapHitPath(hit)} className="block text-ink no-underline hover:underline">
               <span className="reading font-semibold">{hit.title}</span>
               <span className="ml-2 text-sm text-ink-muted">
@@ -189,7 +189,7 @@ export default function SearchPage() {
             onBlur={() => {
               if (text !== q) setQuery(text);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-3 text-lg"
+            className="field-input w-full text-lg"
           />
         </label>
         <Tips />
@@ -203,7 +203,7 @@ export default function SearchPage() {
             <li key={`${chip.type}:${chip.label}`}>
               <button
                 type="button"
-                className="tap inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
+                className="tap inline-flex items-center gap-1 rounded-md border border-line px-2 text-sm"
                 aria-label={`Remove ${chip.label}`}
                 onClick={() => {
                   setQuery(removeChip(q, chip));

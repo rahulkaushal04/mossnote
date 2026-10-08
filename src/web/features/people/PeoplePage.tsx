@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
+import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { CloseIcon } from '../../components/ui/icons';
+import { CloseIcon, PeopleIcon } from '../../components/ui/icons';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { TagPicker } from '../journal/FilterBar';
@@ -21,6 +22,7 @@ export function PeoplePage() {
   const people = usePeople({ tag, sort });
   const create = useCreatePerson();
   const [name, setName] = useState('');
+  const nameInput = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -77,9 +79,13 @@ export function PeoplePage() {
           add();
         }}
       >
-        <label className="flex flex-col gap-1">
-          <span className="font-semibold">Add someone</span>
+        <label htmlFor="add-person" className="font-medium">
+          Add someone
+        </label>
+        <div className="flex gap-2">
           <input
+            id="add-person"
+            ref={nameInput}
             value={name}
             aria-invalid={error ? true : undefined}
             aria-describedby="add-person-note"
@@ -87,9 +93,12 @@ export function PeoplePage() {
               setName(e.target.value);
               setError(null);
             }}
-            className="tap w-full rounded-control border border-ink-muted bg-paper px-3"
+            className="field-input min-w-0 flex-1"
           />
-        </label>
+          <Button type="submit" variant="primary">
+            Add
+          </Button>
+        </div>
         <div id="add-person-note" className="text-sm">
           {error ? (
             <p role="alert" className="text-danger">
@@ -106,7 +115,7 @@ export function PeoplePage() {
       </form>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex min-w-40 flex-1 items-center gap-2">
           <span className="sr-only">Filter people</span>
           <input
             value={filter}
@@ -114,7 +123,7 @@ export function PeoplePage() {
             onChange={(e) => {
               setFilter(e.target.value);
             }}
-            className="tap w-44 rounded-control border border-ink-muted bg-paper px-2"
+            className="field-input"
           />
         </label>
         <TagPicker
@@ -126,18 +135,18 @@ export function PeoplePage() {
         {tag ? (
           <button
             type="button"
-            className="tap inline-flex items-center gap-1 rounded-control border border-rule px-2 text-sm"
+            className="chip chip-toggle chip-selected"
             aria-label={`Remove tag filter ${tag}`}
             onClick={() => {
               update({ tag: null });
             }}
           >
-            #{tag} <CloseIcon />
+            #{tag} <CloseIcon className="size-3.5" />
           </button>
         ) : null}
         <button
           type="button"
-          className="btn tap ml-auto text-sm"
+          className="btn btn-ghost ml-auto"
           aria-pressed={sort === 'updated'}
           onClick={() => {
             update({ sort: sort === 'updated' ? 'name' : 'updated' });
@@ -151,7 +160,19 @@ export function PeoplePage() {
       <ListSkeleton pending={people.isPending} />
       {people.data && rows.length === 0 ? (
         all.length === 0 && !tag ? (
-          <EmptyState>
+          <EmptyState
+            icon={<PeopleIcon />}
+            action={
+              <Button
+                variant="primary"
+                onClick={() => {
+                  nameInput.current?.focus();
+                }}
+              >
+                Add a name
+              </Button>
+            }
+          >
             No {terms.people.many} yet. Add someone above, or type @ in a note.
           </EmptyState>
         ) : (
@@ -159,7 +180,7 @@ export function PeoplePage() {
             No one matches.{' '}
             <button
               type="button"
-              className="tap underline"
+              className="btn btn-ghost underline"
               onClick={() => {
                 setFilter('');
                 update({ tag: null });
@@ -175,7 +196,7 @@ export function PeoplePage() {
           {rows.map((person) => (
             <li
               key={person.id}
-              className="relative flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-rule py-2"
+              className="relative flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line py-2"
             >
               <span className="flex items-center gap-3">
                 <Link

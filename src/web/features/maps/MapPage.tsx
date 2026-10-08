@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { LIMITS } from '@shared/constants';
 import type { MapDetail } from '@shared/types';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { EllipsisIcon } from '../../components/ui/icons';
+import { ChevronLeftIcon, EllipsisIcon } from '../../components/ui/icons';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '../../components/ui/Menu';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
@@ -52,7 +52,7 @@ function NameField({ map }: { map: MapDetail }) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
           }}
-          className="reading w-full border-0 border-b border-transparent bg-transparent text-2xl font-semibold hover:border-rule focus:border-ink-muted"
+          className="reading w-full border-0 border-b border-transparent bg-transparent text-xl font-semibold hover:border-line focus:border-ink-muted"
         />
       </label>
       {error ? (
@@ -81,10 +81,8 @@ export function MapPage() {
 
   return (
     <>
-      <PageHeader title={map?.name ?? 'Map'} documentTitle={map?.name ?? 'Map'} />
-      <p className="py-2">
-        <Link to="/maps">← Maps</Link>
-      </p>
+      <PageHeader title={map?.name ?? 'Map'} documentTitle={map?.name ?? 'Map'} immersiveOnPhone />
+
       <ListSkeleton pending={query.isPending} />
       {gone ? (
         <EmptyState>
@@ -95,18 +93,17 @@ export function MapPage() {
       ) : null}
       {map ? (
         <div key={map.id}>
-          <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="mb-2 flex items-center justify-between gap-1">
+            <Link to="/maps" aria-label="Back to Maps" className="btn btn-icon btn-ghost shrink-0">
+              <ChevronLeftIcon className="size-5" />
+            </Link>
             <div className="min-w-0 flex-1">
               <NameField key={`name-${map.name}`} map={map} />
             </div>
             <Menu>
               <MenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="More actions"
-                  className="tap rounded-control px-1 hover:bg-surface"
-                >
-                  <EllipsisIcon />
+                <button type="button" aria-label="More actions" className="btn btn-icon btn-ghost">
+                  <EllipsisIcon className="size-5" />
                 </button>
               </MenuTrigger>
               <MenuContent>

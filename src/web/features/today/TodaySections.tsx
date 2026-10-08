@@ -8,7 +8,7 @@ import { useNotes, useNotesCount } from '../notes/hooks';
 import { NoteBody } from '../notes/NoteBody';
 import { useTerms, useUsesSection } from '../settings/useLayout';
 
-const SECTION = 'text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted';
+const SECTION = 'text-sm font-semibold text-ink-2';
 
 /** The three most recent ✦ notes of any date. Absent from the page when there are none. */
 function RecentDiscoveries() {
@@ -23,7 +23,7 @@ function RecentDiscoveries() {
       </h2>
       <ul className="m-0 mt-2 list-none p-0">
         {notes.map((note) => (
-          <li key={note.id} className="border-b border-rule py-3">
+          <li key={note.id} className="border-b border-line py-3">
             <Link to={`/notes/${note.id}`} className="block text-ink no-underline hover:underline">
               {note.title ? <span className="reading font-semibold">{note.title}</span> : null}
               <div className="line-clamp-2 overflow-hidden">
@@ -61,7 +61,7 @@ function Growing() {
         {items.map((entry) => (
           <li
             key={entry.id}
-            className="flex items-baseline justify-between gap-3 border-b border-rule py-2"
+            className="flex items-baseline justify-between gap-3 border-b border-line py-2"
           >
             <Link to={`/farm/${entry.id}`}>{entry.label}</Link>
             {entry.plantedOn !== null ? (

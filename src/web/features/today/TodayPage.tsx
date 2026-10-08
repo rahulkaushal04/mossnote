@@ -16,11 +16,11 @@ function SetDateHint() {
   const update = useUpdateSettings();
   if (settings.data?.prefs.hintDismissed !== false) return null;
   return (
-    <p className="mt-2 flex flex-wrap items-center gap-3 text-sm text-ink-muted" role="note">
+    <p className="flex items-center gap-1 text-sm text-ink-muted" role="note">
       <span>Set the in-game date to group notes by game day.</span>
       <button
         type="button"
-        className="tap underline"
+        className="btn btn-ghost"
         onClick={() => {
           update.mutate({ prefs: { hintDismissed: true } });
         }}

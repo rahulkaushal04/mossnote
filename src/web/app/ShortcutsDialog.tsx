@@ -20,7 +20,7 @@ export function ShortcutsList() {
             className="grid grid-cols-[minmax(0,11rem)_1fr] gap-3 text-sm"
           >
             <dt>
-              <kbd className="rounded-control border border-rule bg-surface px-1.5 py-0.5 font-sans">
+              <kbd className="rounded-md border border-line bg-surface px-1.5 py-0.5 font-sans">
                 {formatKeys(shortcut.keys, mod)}
               </kbd>
             </dt>

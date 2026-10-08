@@ -156,7 +156,7 @@ test.describe('responsive layout', () => {
       const box = await nav.boundingBox();
       if (rail) {
         expect(box?.x).toBe(0);
-        expect(box?.width).toBe(208);
+        expect(box?.width).toBe(224);
       } else {
         expect(box?.width).toBe(width);
         expect((box?.y ?? 0) + (box?.height ?? 0)).toBeCloseTo(800, 0);
@@ -164,20 +164,32 @@ test.describe('responsive layout', () => {
     }
   });
 
-  test('the content column never exceeds 44rem', async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 900 });
-    await page.goto('/');
-    const width = await page
-      .getByRole('main')
-      .evaluate((el) => el.parentElement?.getBoundingClientRect().width);
-    expect(width).toBeLessThanOrEqual(704);
+  test('the content column never exceeds 44rem on a phone or tablet, 52rem on a wide screen', async ({
+    page,
+  }) => {
+    for (const [viewport, max] of [
+      [{ width: 800, height: 900 }, 704],
+      [{ width: 1920, height: 900 }, 832],
+    ] as const) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      const width = await page
+        .getByRole('main')
+        .evaluate((el) => el.parentElement?.getBoundingClientRect().width);
+      expect(width, `${viewport.width}px`).toBeLessThanOrEqual(max);
+    }
   });
 
-  test('narrow screens reach Settings from the top bar', async ({ page }) => {
+  test('a phone reaches Settings and the journals from the More tab', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto('/');
-    await page.getByRole('link', { name: 'Settings' }).click();
+    await expect(page.getByRole('link', { name: 'Settings' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'More', exact: true }).click();
+    const sheet = page.getByRole('dialog', { name: 'More' });
+    await expect(sheet.getByRole('button', { name: 'New journal…' })).toBeVisible();
+    await sheet.getByRole('link', { name: 'Settings' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+    await expect(sheet).toBeHidden();
   });
 
   test('200% zoom stays usable (equivalent to a 640px wide viewport)', async ({ page }) => {
@@ -226,7 +238,7 @@ test.describe('theme', () => {
     // The blocking script set it once; React never flipped it to light and back.
     expect(seen.every((t) => t === 'dark')).toBe(true);
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(bg).toBe('rgb(28, 26, 23)');
+    expect(bg).toBe('rgb(20, 24, 22)');
   });
 
   test('System follows the operating system, live', async ({ page }) => {

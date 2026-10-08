@@ -11,7 +11,7 @@ const TOKENS: [name: string, swatch: string][] = [
   ['raised', 'bg-raised'],
   ['ink', 'bg-ink'],
   ['ink-muted', 'bg-ink-muted'],
-  ['rule', 'bg-rule'],
+  ['rule', 'bg-line'],
   ['accent', 'bg-accent'],
   ['accent-ink', 'bg-accent-ink'],
   ['discovery', 'bg-discovery'],
@@ -60,13 +60,10 @@ export default function DevKit() {
         <EmptyState>An empty state is one quiet line.</EmptyState>
         <ul className="grid grid-cols-2 gap-2">
           {TOKENS.map(([token, swatch]) => (
-            <li
-              key={token}
-              className="flex items-center gap-2 rounded-control border border-rule p-2"
-            >
+            <li key={token} className="flex items-center gap-2 rounded-md border border-line p-2">
               <span
                 aria-hidden="true"
-                className={`size-6 rounded-control border border-rule ${swatch}`}
+                className={`size-6 rounded-md border border-line ${swatch}`}
               />
               {token}
             </li>

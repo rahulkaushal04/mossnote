@@ -20,7 +20,7 @@ export function FirstRun() {
   return (
     <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-6 px-4 py-10">
       <div>
-        <h1 className="text-3xl font-semibold">Welcome to Mossnote</h1>
+        <h1 className="font-serif text-2xl font-semibold">Welcome to Mossnote</h1>
         <p className="mt-2 text-ink-muted">
           A private journal for the games you play. It lives on this computer, never connects to the
           internet, and starts empty. Choose how it should be set up. You can make more journals

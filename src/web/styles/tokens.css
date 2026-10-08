@@ -1,0 +1,147 @@
+/*
+ * Design tokens: the single source of truth for colour, type, space, radius, elevation and
+ * motion. Components use these names, never raw values. Light and dark are tuned separately and
+ * every text and control pair is asserted in contrast.test.ts.
+ */
+:root {
+  --paper: #f7f5f0;
+  --surface: #eeebe3;
+  --raised: #ffffff;
+  --ink: #1d2420;
+  --ink-2: #46504a;
+  --ink-muted: #5a645d;
+  /* Hairline dividers only. Anything that must be seen to be used (a field edge) uses --control. */
+  --line: #dcd8cc;
+  --control: #7b8178;
+  --accent: #1f5f56;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebe6;
+  --discovery: #8a5600;
+  --question: #2a5c85;
+  --danger: #a3322a;
+  --success: #2f6b3a;
+  --scrim: rgb(14 20 17 / 0.45);
+
+  --elev-1: 0 1px 2px rgb(20 28 24 / 0.08);
+  --elev-2: 0 4px 16px rgb(20 28 24 / 0.12);
+  --elev-3: 0 16px 48px rgb(20 28 24 / 0.2);
+
+  --reading-size: 1.125rem;
+  --reading-leading: 1.67;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --paper: #141816;
+  --surface: #1b201d;
+  --raised: #232925;
+  --ink: #e8ebe4;
+  --ink-2: #c4cac1;
+  --ink-muted: #9aa39b;
+  --line: #2c332e;
+  --control: #707a72;
+  --accent: #6cc1ae;
+  --accent-ink: #0e1512;
+  --accent-soft: #1f3a34;
+  --discovery: #e0b25a;
+  --question: #8fbbe0;
+  --danger: #f08f82;
+  --success: #8fd09a;
+  --scrim: rgb(0 0 0 / 0.6);
+
+  /* Shadows barely show on dark, so elevation also comes from the lighter --raised surface. */
+  --elev-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elev-2: 0 4px 16px rgb(0 0 0 / 0.45);
+  --elev-3: 0 16px 48px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+:root[data-reading='large'] {
+  --reading-size: 1.25rem;
+  --reading-leading: 1.6;
+}
+
+/* Space (4px base), control size and motion. Not colours, so they do not change per theme. */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Height of a button, field or row action: 36px with a mouse, 44px on touch. */
+  --control-h: 2.25rem;
+
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 240ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+@media (pointer: coarse) {
+  :root {
+    --control-h: 2.75rem;
+  }
+}
+
+@theme {
+  --color-*: initial;
+  --breakpoint-wide: 56.25rem;
+  --breakpoint-phone: 40rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.333;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.429;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 1.875rem;
+  --text-2xl--line-height: 1.2;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+}
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-control: var(--control);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-discovery: var(--discovery);
+  --color-question: var(--question);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --shadow-1: var(--elev-1);
+  --shadow-2: var(--elev-2);
+  --shadow-3: var(--elev-3);
+  --font-sans:
+    'Source Sans 3 Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', sans-serif;
+  --font-serif: 'Literata Variable', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+}
+
+/* Map drawing colours: named in data, resolved per theme so a map reads in light and dark. */
+:root {
+  --map-moss: #3f6f5f;
+  --map-sky: #2f6f9a;
+  --map-rose: #b0405e;
+  --map-amber: #9a6410;
+  --map-plum: #7a4a96;
+}
+:root[data-theme='dark'] {
+  --map-moss: #7fcab5;
+  --map-sky: #7fb4da;
+  --map-rose: #e88aa5;
+  --map-amber: #e3b35c;
+  --map-plum: #c39be0;
+}

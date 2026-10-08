@@ -14,9 +14,9 @@ import { searchScope } from './scope';
 import { sentence } from '@shared/text';
 
 const ITEM =
-  'tap flex cursor-pointer items-baseline justify-between gap-3 rounded-control px-3 py-1.5 data-[selected=true]:bg-surface';
+  'tap flex cursor-pointer items-baseline justify-between gap-3 rounded-md px-3 py-1.5 data-[selected=true]:bg-surface';
 const HEADING =
-  '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.08em] [&_[cmdk-group-heading]]:text-ink-muted';
+  '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-sm [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink-2';
 
 export const hitPath = (hit: Pick<SearchHit, 'kind' | 'id' | 'title'>): string =>
   hit.kind === 'note'
@@ -129,7 +129,7 @@ export function CommandPalette({
             event.preventDefault();
             opener.current?.focus();
           }}
-          className="fixed inset-x-0 top-0 z-50 flex max-h-[60vh] flex-col overflow-hidden bg-raised text-ink wide:inset-auto wide:top-24 wide:left-1/2 wide:w-[560px] wide:-translate-x-1/2 wide:rounded-panel wide:shadow-float"
+          className="fixed inset-x-0 top-0 z-50 flex max-h-[60vh] flex-col overflow-hidden bg-raised text-ink wide:inset-auto wide:top-24 wide:left-1/2 wide:w-[560px] wide:-translate-x-1/2 wide:rounded-lg wide:shadow-2"
         >
           <RadixDialog.Title className="sr-only">Search and commands</RadixDialog.Title>
           <Command
@@ -149,7 +149,7 @@ export function CommandPalette({
               onValueChange={setText}
               placeholder={`Search ${searchScope(terms, usesFarm)}…`}
               aria-label="Search"
-              className="tap w-full border-0 border-b border-rule bg-transparent px-4 py-3 outline-none placeholder:text-ink-muted"
+              className="tap w-full border-0 border-b border-line bg-transparent px-4 py-3 outline-none placeholder:text-ink-muted"
             />
             <Command.List className={`min-h-0 flex-1 overflow-y-auto p-2 ${HEADING}`}>
               <p role="status" aria-live="polite" className="sr-only">
@@ -297,7 +297,7 @@ export function CommandPalette({
                 </Command.Group>
               ) : null}
             </Command.List>
-            <p className="border-t border-rule px-4 py-2 text-xs text-ink-muted">
+            <p className="border-t border-line px-4 py-2 text-xs text-ink-muted">
               ↑↓ to move · ↵ to open · {modLabel()}↵ for all results · Esc to close
             </p>
           </Command>

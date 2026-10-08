@@ -66,7 +66,7 @@ export function ColorPicker({
       className="tap flex size-8 items-center justify-center rounded-full"
     >
       <span
-        className={`block size-5 rounded-full border border-rule ${value === c ? 'ring-2 ring-ink ring-offset-2 ring-offset-paper' : ''}`}
+        className={`block size-5 rounded-full border border-line ${value === c ? 'ring-2 ring-ink ring-offset-2 ring-offset-paper' : ''}`}
         style={{ background: cssColor(c) }}
       />
     </button>

@@ -5,7 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encode, fromDayNumber } from '@shared/gameDate';
 import { api, ApiError, NetworkError } from '../lib/api';
 import { mockApi, renderApp, settingsFixture, stardewFixture } from '../testing';
+import { resetViewportAfterEach, setViewport } from '../testViewport';
 
+resetViewportAfterEach();
 beforeEach(() => {
   localStorage.clear();
   mockApi();
@@ -199,12 +201,85 @@ describe('routes', () => {
       expect(document.activeElement).toBe(h1);
     });
   });
+});
 
-  it('narrow screens reach Settings from the top bar', async () => {
+describe('phone navigation', () => {
+  const tabBar = () => {
+    const bar = screen.getAllByRole('navigation', { name: 'Primary' }).at(1);
+    if (!bar) throw new Error('No tab bar.');
+    return bar;
+  };
+
+  it('has an icon and a label for each section, and a More tab instead of Settings', async () => {
+    setViewport(375);
     renderApp('/');
     await screen.findByRole('heading', { level: 1, name: 'Today' });
-    const links = screen.getAllByRole('link', { name: 'Settings' });
-    expect(links.some((a) => a.getAttribute('href') === '/settings')).toBe(true);
+    const links = within(tabBar()).getAllByRole('link');
+    expect(links.map((a) => a.textContent)).toEqual(['Today', 'Journal', 'People', 'Maps']);
+    for (const link of links) expect(link.querySelector('svg'), link.textContent).not.toBeNull();
+    expect(within(tabBar()).getByRole('button', { name: 'More' })).toBeTruthy();
+    expect(within(tabBar()).queryByRole('link', { name: 'Settings' })).toBeNull();
+  });
+
+  it('More opens a sheet with the journals and Settings, and closes when you go to Settings', async () => {
+    setViewport(375);
+    const { router } = renderApp('/');
+    await screen.findByRole('heading', { level: 1, name: 'Today' });
+    await userEvent.click(within(tabBar()).getByRole('button', { name: 'More' }));
+    const sheet = await screen.findByRole('dialog', { name: 'More' });
+    expect(within(sheet).getByText('My journal')).toBeTruthy();
+    expect(within(sheet).getByRole('button', { name: 'New journal…' })).toBeTruthy();
+    await userEvent.click(within(sheet).getByRole('link', { name: 'Settings' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/settings');
+    });
+    expect(screen.queryByRole('dialog', { name: 'More' })).toBeNull();
+  });
+
+  it('the page header has Search and New note buttons and no Settings link', async () => {
+    setViewport(375);
+    renderApp('/');
+    const heading = await screen.findByRole('heading', { level: 1, name: 'Today' });
+    const header = heading.closest('header');
+    if (!header) throw new Error('No page header.');
+    expect(within(header).getByRole('button', { name: /^Search/ })).toBeTruthy();
+    expect(within(header).getByRole('button', { name: 'New note' })).toBeTruthy();
+    expect(within(header).queryByRole('link', { name: 'Settings' })).toBeNull();
+  });
+
+  it('hides the tab bar while the on-screen keyboard is open, so it cannot cover the composer', async () => {
+    setViewport(375);
+    const viewport = Object.assign(new EventTarget(), { height: 812, offsetTop: 0 });
+    Object.defineProperty(window, 'visualViewport', { value: viewport, configurable: true });
+    Object.defineProperty(window, 'innerHeight', { value: 812, configurable: true });
+    renderApp('/');
+    await screen.findByRole('heading', { level: 1, name: 'Today' });
+    expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(2);
+    act(() => {
+      viewport.height = 500;
+      viewport.dispatchEvent(new Event('resize'));
+    });
+    await waitFor(() => {
+      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(1);
+    });
+    act(() => {
+      viewport.height = 812;
+      viewport.dispatchEvent(new Event('resize'));
+    });
+    await waitFor(() => {
+      expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(2);
+    });
+    Reflect.deleteProperty(window, 'visualViewport');
+  });
+
+  it('names the open journal above the page title', async () => {
+    setViewport(375);
+    renderApp('/journal');
+    const heading = await screen.findByRole('heading', { level: 1, name: 'Journal' });
+    const header = heading.closest('header')!;
+    expect(await within(header).findByText('My journal')).toBeTruthy();
+    // The switcher lives in the More sheet on a phone, so here the name is only a caption.
+    expect(within(header).queryByRole('button', { name: /Switch journal/ })).toBeNull();
   });
 });
 
@@ -251,16 +326,16 @@ describe('Settings, Appearance', () => {
     expect(document.documentElement.getAttribute('data-reading')).toBe('comfortable');
   });
 
-  it('both groups are labelled fieldsets reachable by keyboard', async () => {
+  it('both choices are labelled radio groups reachable by keyboard', async () => {
     renderApp('/settings');
     await screen.findByRole('heading', { level: 2, name: 'Appearance' });
-    expect(screen.getByRole('group', { name: 'Theme' })).toBeTruthy();
-    expect(screen.getByRole('group', { name: 'Reading size' })).toBeTruthy();
-    expect(within(screen.getByRole('group', { name: 'Theme' })).getAllByRole('radio')).toHaveLength(
-      3,
-    );
+    expect(screen.getByRole('radiogroup', { name: 'Theme' })).toBeTruthy();
+    expect(screen.getByRole('radiogroup', { name: 'Reading size' })).toBeTruthy();
     expect(
-      within(screen.getByRole('group', { name: 'Reading size' })).getAllByRole('radio'),
+      within(screen.getByRole('radiogroup', { name: 'Theme' })).getAllByRole('radio'),
+    ).toHaveLength(3);
+    expect(
+      within(screen.getByRole('radiogroup', { name: 'Reading size' })).getAllByRole('radio'),
     ).toHaveLength(2);
   });
 

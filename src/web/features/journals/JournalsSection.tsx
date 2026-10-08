@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { templateById } from '@shared/templates';
 import type { JournalInfo } from '@shared/types';
+import { DownloadIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
 import { formatBytes, plural } from '../../lib/format';
@@ -8,7 +9,7 @@ import { showJournal } from '../../lib/journal';
 import { journalProblem, useJournals } from './hooks';
 import { DeleteJournalDialog, NewJournalDialog, RenameJournalDialog } from './JournalDialogs';
 
-const SMALL = 'btn tap text-sm';
+const SMALL = 'btn';
 
 function statusLine(journal: JournalInfo): string {
   if (journal.status === 'needs_newer_app') {
@@ -56,7 +57,7 @@ export function JournalsSection() {
         {items.map((journal) => (
           <li
             key={journal.id}
-            className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule py-3"
+            className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line py-3"
           >
             <div className="min-w-48 flex-1">
               <p className="m-0 font-semibold">
@@ -83,7 +84,7 @@ export function JournalsSection() {
               )}
               <button
                 type="button"
-                className={SMALL}
+                className="btn btn-ghost"
                 disabled={journal.status === 'needs_newer_app'}
                 aria-label={`Rename ${journal.name}`}
                 onClick={() => {
@@ -95,26 +96,28 @@ export function JournalsSection() {
               {journal.status === 'ok' ? (
                 <>
                   <a
-                    className={`${SMALL} no-underline`}
+                    className="btn btn-ghost no-underline"
                     aria-label={`Download ${journal.name} as JSON`}
                     href={`/api/journals/${journal.id}/export.json`}
                     download
                   >
+                    <DownloadIcon className="size-4" />
                     JSON
                   </a>
                   <a
-                    className={`${SMALL} no-underline`}
+                    className="btn btn-ghost no-underline"
                     aria-label={`Download ${journal.name} as Markdown`}
                     href={`/api/journals/${journal.id}/export.md`}
                     download
                   >
+                    <DownloadIcon className="size-4" />
                     Markdown
                   </a>
                 </>
               ) : null}
               <button
                 type="button"
-                className={`${SMALL} border-danger text-danger`}
+                className="btn btn-danger"
                 aria-label={`Delete ${journal.name}`}
                 onClick={() => {
                   setDeleting(journal);
@@ -129,7 +132,7 @@ export function JournalsSection() {
       <div>
         <button
           type="button"
-          className="btn tap"
+          className="btn"
           onClick={() => {
             setCreating(true);
           }}

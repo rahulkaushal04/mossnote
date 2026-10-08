@@ -1,4 +1,5 @@
 import type { QuickAction } from '@shared/templates';
+import { Chip } from '../../components/ui/Chip';
 import { useLayout, useTemplate } from '../settings/useLayout';
 import { withTag, type NoteDraft } from './draft';
 
@@ -35,19 +36,23 @@ export function QuickActions({
   const layout = useLayout();
   if (!layout.quickActions || template.quickActions.length === 0) return null;
   return (
-    <div role="group" aria-label="Quick actions" className="mb-3 flex flex-wrap gap-2">
+    // One scrolling row on a phone, so the composer stays near the top; wraps from 640px up.
+    <div
+      role="group"
+      aria-label="Quick actions"
+      className="scroll-row -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
+    >
       {template.quickActions.map((action) => (
-        <button
+        <Chip
           key={action.id}
-          type="button"
-          aria-pressed={isOn(value, action)}
-          className={`btn tap text-sm ${isOn(value, action) ? 'btn-primary' : ''}`}
-          onClick={() => {
+          selected={isOn(value, action)}
+          className="shrink-0"
+          onToggle={() => {
             onChange(toggle(value, action));
           }}
         >
           {action.label}
-        </button>
+        </Chip>
       ))}
     </div>
   );
