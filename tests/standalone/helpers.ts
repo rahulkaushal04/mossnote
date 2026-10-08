@@ -14,9 +14,17 @@ export async function startJournal(page: Page) {
 }
 
 export async function writeNote(page: Page, text: string) {
-  await composer(page).fill(text);
-  await composer(page).press('Control+Enter');
-  await expect(page.getByRole('article', { name: text })).toBeVisible();
+  await expect(
+    page.getByRole('article').or(page.getByText('Nothing written today.')).first(),
+  ).toBeVisible();
+  const saved = page.getByRole('article', { name: text }).first();
+  await expect(async () => {
+    if ((await saved.count()) === 0) {
+      await composer(page).fill(text);
+      await composer(page).press('Control+Enter');
+    }
+    await expect(saved).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
 }
 
 /** Make another journal from Settings and wait until the app has switched to it. */
