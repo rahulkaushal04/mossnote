@@ -16,7 +16,9 @@ describe('missingFeature', () => {
   });
 
   it('asks for a secure connection', () => {
-    expect(missingFeature(scope({ isSecureContext: false }))).toMatch(/secure \(HTTPS\) connection/);
+    expect(missingFeature(scope({ isSecureContext: false }))).toMatch(
+      /secure \(HTTPS\) connection/,
+    );
   });
 
   it('notices a browser with no workers or no WebAssembly', () => {

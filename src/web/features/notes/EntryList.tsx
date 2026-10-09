@@ -42,19 +42,22 @@ export function EntryList({
   groupBy = 'day',
   label,
   showAddDate = false,
+  showDates = true,
 }: {
   notes: readonly Note[];
   groupBy?: 'day' | 'none';
   label: string;
   showAddDate?: boolean;
+  /** Print each entry's game date. With `groupBy="day"` the heading says it, so dated entries skip it. */
+  showDates?: boolean;
 }) {
   const calendar = useCalendar();
 
   if (groupBy === 'none') {
     return (
-      <ul aria-label={label} className="m-0 list-none p-0">
+      <ul aria-label={label} data-wide className="entries m-0 list-none p-0">
         {notes.map((note) => (
-          <NoteEntry key={note.id} note={note} />
+          <NoteEntry key={note.id} note={note} showDate={showDates} />
         ))}
       </ul>
     );
@@ -83,10 +86,17 @@ export function EntryList({
         );
       }
     }
-    rows.push(<NoteEntry key={note.id} note={note} showAddDate={showAddDate && key === null} />);
+    rows.push(
+      <NoteEntry
+        key={note.id}
+        note={note}
+        showAddDate={showAddDate && key === null}
+        showDate={false}
+      />,
+    );
   }
   return (
-    <ul aria-label={label} className="m-0 list-none p-0">
+    <ul aria-label={label} data-wide className="entries m-0 list-none p-0">
       {rows}
     </ul>
   );

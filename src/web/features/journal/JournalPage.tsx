@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { JournalIcon } from '../../components/ui/icons';
+import { PageArt } from '../../components/ui/art';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { plural } from '../../lib/format';
@@ -56,7 +56,7 @@ export function JournalPage() {
     if (total === 0) {
       empty = (
         <EmptyState
-          icon={<JournalIcon />}
+          art={<PageArt />}
           action={
             <Button
               variant="primary"

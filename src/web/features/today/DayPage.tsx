@@ -57,17 +57,9 @@ export function DayPage() {
   const label = calendar.format(parsed, { withYear: true }) ?? '';
   return (
     <>
-      <PageHeader title={label} />
-      <DayDateHeader dayKey={parsed} />
-      <div className="mt-3">
-        <Composer
-          scope={`day:${parsed}`}
-          defaultGameDate={parsed}
-          focusOnMount
-          textareaRef={area}
-        />
-      </div>
-      <div className="mt-4">
+      <PageHeader title={label} meta={<DayDateHeader dayKey={parsed} />} />
+      <Composer scope={`day:${parsed}`} defaultGameDate={parsed} focusOnMount textareaRef={area} />
+      <div data-wide className="mt-6">
         <DayNotes filters={{ gameDate: parsed }} empty="Nothing written for this day." />
       </div>
     </>

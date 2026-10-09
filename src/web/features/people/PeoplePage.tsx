@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
+import { AddRow } from '../../components/ui/AddRow';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { RemovableChip } from '../../components/ui/Chip';
@@ -77,47 +78,36 @@ export function PeoplePage() {
         title={terms.people.label}
         intro={`Everyone you've met, and the notes that mention them.`}
       />
-      <form
-        className="flex flex-col gap-1"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add();
+      <AddRow
+        id="add-person"
+        label="Add someone"
+        placeholder="Add someone…"
+        value={name}
+        inputRef={nameInput}
+        invalid={error !== null}
+        describedBy="add-person-note"
+        busy={create.isPending}
+        onChange={(next) => {
+          setName(next);
+          setError(null);
         }}
-      >
-        <label htmlFor="add-person" className="text-sm font-medium text-ink-2">
-          Add someone
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="add-person"
-            ref={nameInput}
-            value={name}
-            aria-invalid={error ? true : undefined}
-            aria-describedby="add-person-note"
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(null);
-            }}
-            className="field-input min-w-0 flex-1"
-          />
-          <Button type="submit" variant="primary">
-            Add
-          </Button>
-        </div>
-        <div id="add-person-note" className="text-sm">
-          {error ? (
-            <p role="alert" className="text-danger">
-              {error}
-            </p>
-          ) : null}
-          {existing ? (
-            <p role="status" className="text-ink-muted">
-              Someone with this name already exists.{' '}
-              <Link to={`/people/${existing.id}`}>Open them</Link>
-            </p>
-          ) : null}
-        </div>
-      </form>
+        onSubmit={add}
+        note={
+          <div id="add-person-note" className="text-sm">
+            {error ? (
+              <p role="alert" className="text-danger">
+                {error}
+              </p>
+            ) : null}
+            {existing ? (
+              <p role="status" className="text-ink-muted">
+                Someone with this name already exists.{' '}
+                <Link to={`/people/${existing.id}`}>Open them</Link>
+              </p>
+            ) : null}
+          </div>
+        }
+      />
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <label className="flex min-w-40 flex-1 items-center gap-2">

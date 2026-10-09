@@ -3,6 +3,7 @@ import { Outlet, useSearchParams } from 'react-router';
 import { ulid } from 'ulid';
 import { LIMITS } from '@shared/constants';
 import type { Planting } from '@shared/types';
+import { AddRow } from '../../components/ui/AddRow';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { RemovableChip } from '../../components/ui/Chip';
@@ -15,11 +16,22 @@ import { useCreatePlanting, usePlantings } from './hooks';
 import { useTerms } from '../settings/useLayout';
 import { a } from '@shared/text';
 
+/** What each group of entries is called, and the mark that goes with it. */
+const GROUP_MARK: Record<string, string> = {
+  Growing: 'bg-accent',
+  Done: 'border border-ink-muted',
+  Noted: 'border border-dashed border-ink-muted',
+};
+
 function Group({ title, items }: { title: string; items: Planting[] }) {
   if (items.length === 0) return null;
   return (
     <section aria-label={title} className="mt-8">
-      <h2 className="day-label">{title}</h2>
+      <h2 className="day-label flex items-center gap-2">
+        <span aria-hidden="true" className={`size-2 rounded-full ${GROUP_MARK[title] ?? ''}`} />
+        {title}
+        <span className="tnum font-normal">{items.length}</span>
+      </h2>
       <ul className="stagger m-0 list-none p-0">
         {items.map((entry) => (
           <FarmRow key={entry.id} entry={entry} />
@@ -82,44 +94,35 @@ export function FarmPage() {
         title={terms.farm.label}
         intro="What you have planted, what is growing and what is done."
       />
-      <form
-        className="flex flex-col gap-1"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add();
+      <AddRow
+        id="add-entry"
+        label="Add an entry"
+        placeholder="Add an entry…"
+        value={name}
+        inputRef={entryInput}
+        listId={listId}
+        invalid={error !== null}
+        busy={create.isPending}
+        onChange={(next) => {
+          setName(next);
+          setError(null);
         }}
-      >
-        <label htmlFor="add-entry" className="text-sm font-medium text-ink-2">
-          Add an entry
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="add-entry"
-            ref={entryInput}
-            list={listId}
-            value={name}
-            aria-invalid={error ? true : undefined}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(null);
-            }}
-            className="field-input min-w-0 flex-1"
-          />
-          <Button type="submit" variant="primary">
-            Add
-          </Button>
-        </div>
-        <datalist id={listId}>
-          {earlier.map((label) => (
-            <option key={label} value={label} />
-          ))}
-        </datalist>
-        {error ? (
-          <p role="alert" className="text-sm text-danger">
-            {error}
-          </p>
-        ) : null}
-      </form>
+        onSubmit={add}
+        note={
+          <>
+            <datalist id={listId}>
+              {earlier.map((label) => (
+                <option key={label} value={label} />
+              ))}
+            </datalist>
+            {error ? (
+              <p role="alert" className="text-sm text-danger">
+                {error}
+              </p>
+            ) : null}
+          </>
+        }
+      />
 
       {tag ? (
         <p className="mt-3">

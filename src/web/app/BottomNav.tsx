@@ -14,7 +14,7 @@ function TabLink({ item }: { item: NavItem }) {
       <span className="tab-icon">
         <item.icon />
       </span>
-      {item.label}
+      <span className="tab-label">{item.label}</span>
     </Link>
   );
 }
@@ -39,7 +39,7 @@ export function BottomNav({
         <span className="tab-icon">
           <MoreIcon />
         </span>
-        More
+        <span className="tab-label">More</span>
       </button>
     </nav>
   );

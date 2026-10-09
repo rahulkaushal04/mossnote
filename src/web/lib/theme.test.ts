@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { applyReadingSize, applyTheme, setReadingSize, setTheme, watchSystemTheme } from './theme';
+import {
+  applyReadingSize,
+  applyTheme,
+  applyTint,
+  setReadingSize,
+  setTheme,
+  watchSystemTheme,
+} from './theme';
 
 function mockMatchMedia(dark: boolean) {
   const listeners = new Set<() => void>();
@@ -147,5 +154,23 @@ describe('theme-init.js (runs before first paint)', () => {
     await run();
     expect(theme()).toBe('dark');
     expect(document.documentElement.getAttribute('data-reading')).toBe('comfortable');
+  });
+});
+
+describe('applyTint', () => {
+  beforeEach(() => {
+    document.documentElement.removeAttribute('data-tint');
+  });
+
+  it('sets the tint on the document and remembers it for the next first paint', () => {
+    applyTint('plum');
+    expect(document.documentElement.getAttribute('data-tint')).toBe('plum');
+    expect(localStorage.getItem('moss:tint')).toBe('plum');
+  });
+
+  it('does not touch the cache that holds the reading size', () => {
+    localStorage.setItem('moss:ui', JSON.stringify({ readingSize: 'large' }));
+    applyTint('moss');
+    expect(JSON.parse(localStorage.getItem('moss:ui') ?? '{}')).toEqual({ readingSize: 'large' });
   });
 });

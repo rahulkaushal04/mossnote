@@ -39,6 +39,8 @@ export function TemplatePicker({
           return (
             <label
               key={template.id}
+              // The card wears its own tint, so choosing a game previews the journal's colour.
+              data-tint={template.tint}
               className="template-card tap relative grid cursor-pointer grid-cols-[2.5rem_1fr_1.5rem] items-start gap-x-3 rounded-lg border border-hairline bg-raised p-4"
             >
               <input
@@ -54,7 +56,7 @@ export function TemplatePicker({
               />
               <span
                 aria-hidden="true"
-                className="row-span-3 grid size-10 place-items-center rounded-md bg-surface text-xl text-ink-2"
+                className="row-span-3 grid size-10 place-items-center rounded-md bg-accent-soft text-xl text-accent"
               >
                 <Icon />
               </span>

@@ -353,20 +353,22 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
   );
 
   // On a phone the shell's bars are hidden on this screen (see Shell), so the canvas takes what
-  // is left under the name row and the toolbar rows.
+  // is left under the name row and the toolbar rows. From 640px the editor is one grid: the
+  // controls across the top, the tools in a strip on the left, then the canvas and the panel.
   const canvasHeight = fullscreen
     ? 'min-h-0 flex-1'
     : phone
       ? toolsCollapsed
         ? 'h-[calc(100dvh-7.75rem)] min-h-[300px]'
         : 'h-[calc(100dvh-11rem)] min-h-[300px]'
-      : 'h-[calc(100dvh-21rem)] min-h-[360px] wide:h-[calc(100dvh-16rem)]';
+      : '';
+  const gridHeight = fullscreen
+    ? ''
+    : 'phone:h-[calc(100dvh-9rem)] phone:min-h-[min(28rem,calc(100dvh-5rem))]';
 
   return (
     <div
-      className={
-        fullscreen ? 'fixed inset-0 z-40 flex flex-col gap-2 bg-paper p-3' : 'flex flex-col gap-2'
-      }
+      className={`map-grid relative flex flex-col gap-2 phone:grid ${fullscreen ? 'fixed inset-0 z-40 bg-paper p-3' : ''} ${gridHeight}`}
     >
       <Toolbar
         tool={tool}
@@ -401,10 +403,10 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
         collapsed={toolsCollapsed}
         onCollapsed={setToolsCollapsed}
       />
-      <div className={`flex gap-2 ${canvasHeight}`}>
+      <div className={`flex gap-2 phone:contents ${canvasHeight}`}>
         <div
           ref={wrap}
-          className={`relative min-w-0 flex-1 overflow-hidden rounded-lg border border-hairline ${settings.grid ? '' : 'dotted'}`}
+          className={`relative min-w-0 flex-1 overflow-hidden rounded-lg border border-hairline phone:[grid-area:canvas]`}
         >
           {size.w > 0 ? <Canvas ed={canvasApi} /> : null}
           {settings.compass ? <Compass /> : null}
@@ -521,7 +523,7 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
         {panelOpen && !narrow ? (
           <aside
             aria-label="Map details"
-            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-hairline bg-raised p-3 shadow-1"
+            className="flex min-h-0 w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-hairline bg-raised p-3 shadow-1 phone:ml-2 phone:[grid-area:panel]"
           >
             {sidePanel}
           </aside>

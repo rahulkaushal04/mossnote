@@ -15,7 +15,7 @@ export function TodayDateHeader() {
   const day = useAdvanceDay();
   return (
     <div
-      className="flex flex-wrap items-center gap-1 py-2"
+      className="flex flex-wrap items-center gap-1"
       role="group"
       aria-label="Current in-game date"
     >
@@ -67,11 +67,7 @@ export function DayDateHeader({ dayKey }: { dayKey: number }) {
   const previous = calendar.advance(dayKey, -1);
   const next = calendar.advance(dayKey, 1);
   return (
-    <div
-      className="flex flex-wrap items-center gap-1 py-2"
-      role="group"
-      aria-label="Viewed in-game day"
-    >
+    <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Viewed in-game day">
       <GameDateChip value={dayKey} onChange={go} emptyLabel="Choose a day" title="Go to a day" />
       <Tip label="Previous day" keys="[">
         <button

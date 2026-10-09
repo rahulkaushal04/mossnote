@@ -48,6 +48,11 @@ export function Shell() {
   const { pathname } = useLocation();
   // The map editor is a drawing surface and uses the whole width; every other page is a reading column.
   const editorRoute = /^\/maps\/[^/]+$/.test(pathname);
+  // Notes are listed with a gutter for their date and tags, so these pages are a little wider than
+  // the reading column; their headers and composers stay at the column's measure.
+  const gutterRoute = /^\/(journal|day\/[^/]+|notes\/[^/]+)?$/.test(pathname);
+  // Settings keeps a side navigation beside its sections, which needs the same extra width.
+  const wideRoute = gutterRoute || pathname === '/settings';
   const navItems: NavItem[] = useSections()
     .filter((s) => !s.hidden)
     .map((s) => ({ ...SECTION_ROUTES[s.id], id: s.id, label: s.label }));
@@ -103,10 +108,14 @@ export function Shell() {
             className={`min-w-0 flex-1 phone:pb-0 ${immersive ? 'pb-[env(safe-area-inset-bottom)]' : 'pb-[calc(5rem+env(safe-area-inset-bottom))]'}`}
           >
             <div
-              className={`mx-auto w-full px-4 phone:px-8 ${editorRoute ? 'max-w-none' : 'max-w-[calc(var(--column)+4rem)]'}`}
+              className={`mx-auto w-full px-4 phone:px-8 ${editorRoute ? 'max-w-none' : wideRoute ? 'max-w-[calc(var(--column)+var(--gutter-w)+4rem)]' : 'max-w-[calc(var(--column)+4rem)]'}`}
             >
               {IS_STANDALONE ? <BackupReminder /> : null}
-              <main id="main" tabIndex={-1} className="pb-10 outline-none">
+              <main
+                id="main"
+                tabIndex={-1}
+                className={`pb-10 outline-none ${gutterRoute ? 'gutter-page' : ''}`}
+              >
                 <Outlet />
               </main>
             </div>

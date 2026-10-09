@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { ChevronDownIcon } from '../../components/ui/icons';
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '../../components/ui/Menu';
 import { templateById } from '@shared/templates';
 import { useJournals, useSwitchJournal } from './hooks';
@@ -31,11 +32,18 @@ export function JournalSwitcher({ className = '' }: { className?: string }) {
         <MenuTrigger asChild>
           <button
             type="button"
-            className={`btn tap max-w-full justify-between gap-2 text-left ${className}`}
+            className={`journal-chip tap ${className}`}
             aria-label={`Journal: ${active.name}. Switch journal`}
           >
-            <span className="truncate">{active.name}</span>
-            <span aria-hidden="true">▾</span>
+            {/* The dot wears the journal's tint, so which game this is shows at a glance. */}
+            <span aria-hidden="true" className="journal-dot" />
+            <span className="flex min-w-0 flex-1 flex-col text-left">
+              <span className="truncate text-sm font-semibold">{active.name}</span>
+              <span className="truncate text-xs text-ink-muted">
+                {templateById(active.template).name}
+              </span>
+            </span>
+            <ChevronDownIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
           </button>
         </MenuTrigger>
         <MenuContent align="start" className="min-w-60">

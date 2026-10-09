@@ -229,6 +229,21 @@ export function Canvas({ ed }: { ed: CanvasApi }) {
   const toScr = (x: number, y: number): MPt => toScreen(view, size, x, y);
   const worldTransform = `translate(${size.w / 2} ${size.h / 2}) scale(${view.scale}) translate(${-view.cx} ${-view.cy})`;
   const inSelectMode = tool === 'select';
+  // A quiet dot lattice in world space while the real grid is off, so the page reads as a canvas
+  // and still moves and scales with the drawing. The step doubles or halves to stay 14 to 56px.
+  let dotStep = 24 * view.scale;
+  while (dotStep < 14) dotStep *= 2;
+  while (dotStep > 56) dotStep /= 2;
+  const dotAt = (centre: number, at: number) =>
+    (((centre - at * view.scale - dotStep / 2) % dotStep) + dotStep) % dotStep;
+  const dots = settings.grid
+    ? {}
+    : {
+        backgroundImage:
+          'radial-gradient(color-mix(in srgb, var(--control) 40%, transparent) 1px, transparent 1.5px)',
+        backgroundSize: `${dotStep}px ${dotStep}px`,
+        backgroundPosition: `${dotAt(size.w / 2, view.cx)}px ${dotAt(size.h / 2, view.cy)}px`,
+      };
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- a pointer drawing surface; every action also has a button or key in the toolbar
@@ -239,7 +254,7 @@ export function Canvas({ ed }: { ed: CanvasApi }) {
       aria-roledescription="map canvas"
       aria-label="Map canvas"
       className="relative h-full min-h-[320px] touch-none overflow-hidden bg-surface select-none"
-      style={{ cursor: cursorFor(tool, ed.spaceDown) }}
+      style={{ cursor: cursorFor(tool, ed.spaceDown), ...dots }}
       onPointerDown={(e) => {
         onPointerDown(env, e);
       }}

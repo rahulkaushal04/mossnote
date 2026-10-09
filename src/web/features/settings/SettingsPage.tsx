@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { IS_STANDALONE, WHERE_IT_LIVES } from '../../lib/mode';
@@ -32,6 +32,55 @@ const SECTIONS = [
   { id: 'trash', title: 'Recently deleted' },
   { id: 'about', title: 'Shortcuts and about' },
 ] as const;
+
+/** The sections this build shows: the web app has no phone access to set up. */
+const VISIBLE_SECTIONS = SECTIONS.filter((section) => !(section.id === 'phone' && IS_STANDALONE));
+
+/**
+ * The section nearest the top of the screen, for the side navigation to mark. Without
+ * IntersectionObserver (old browsers, tests) the first section stays marked.
+ */
+function useActiveSection(): [string, (id: string) => void] {
+  const [active, setActive] = useState<string>(VISIBLE_SECTIONS[0]?.id ?? '');
+  useEffect(() => {
+    // The last sections are shorter than the screen, so they can never reach the top band below;
+    // at the foot of the page the last one counts as current.
+    const onScroll = () => {
+      const atFoot =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      const last = VISIBLE_SECTIONS.at(-1);
+      if (atFoot && last) setActive(last.id);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const visible = new Set<string>();
+    // A section counts as current while it crosses a band near the top of the viewport.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        const first = VISIBLE_SECTIONS.find((section) => visible.has(section.id));
+        if (first) setActive(first.id);
+      },
+      { rootMargin: '-10% 0px -75% 0px' },
+    );
+    for (const section of VISIBLE_SECTIONS) {
+      const el = document.getElementById(section.id);
+      if (el) observer.observe(el);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+  return [active, setActive];
+}
 
 const THEMES: { value: ThemeChoice; label: string }[] = [
   { value: 'system', label: 'System' },
@@ -113,9 +162,13 @@ function Appearance() {
   );
 }
 
-/** `/settings`: one scrolling page with anchored sections, no tabs. */
+/**
+ * `/settings`: one scrolling page with anchored sections, no tabs. From 900px a side navigation
+ * stays beside the sections and marks the one in view; below that the sections are a row of pills.
+ */
 export default function SettingsPage() {
   const { hash } = useLocation();
+  const [active, setActive] = useActiveSection();
   useEffect(() => {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
   }, [hash]);
@@ -126,45 +179,70 @@ export default function SettingsPage() {
         title="Settings"
         intro={`How Mossnote looks, plus your data. Everything stays ${WHERE_IT_LIVES.place}.`}
       />
-      <nav
-        aria-label="Settings sections"
-        className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:px-0"
-      >
-        {SECTIONS.filter((section) => !(section.id === 'phone' && IS_STANDALONE)).map((section) => (
-          <a key={section.id} href={`#${section.id}`} className="pill shrink-0 no-underline">
-            {section.title}
-          </a>
-        ))}
-      </nav>
-      <Section id="appearance" title="Appearance">
-        <Appearance />
-      </Section>
-      <Section id="journals" title="Journals">
-        <JournalsSection />
-      </Section>
-      <Section id="game" title="Template and sections">
-        <LayoutSection />
-      </Section>
-      <Section id="calendar" title="Calendar">
-        <CalendarSection />
-      </Section>
-      <Section id="tags" title="Tags">
-        <TagsSection />
-      </Section>
-      {IS_STANDALONE ? null : (
-        <Section id="phone" title="Phone">
-          <PhoneSection />
-        </Section>
-      )}
-      <Section id="data" title="Data & backup">
-        <DataSection />
-      </Section>
-      <Section id="trash" title="Recently deleted">
-        <TrashSection />
-      </Section>
-      <Section id="about" title="Shortcuts and about">
-        <AboutSection />
-      </Section>
+      <div className="wide:grid wide:grid-cols-[10rem_minmax(0,1fr)] wide:gap-x-8">
+        <nav
+          aria-label="Settings sections"
+          className="hidden wide:sticky wide:top-8 wide:block wide:self-start"
+        >
+          <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+            {VISIBLE_SECTIONS.map((section) => (
+              <li key={section.id}>
+                <a
+                  href={`#${section.id}`}
+                  className="side-link"
+                  aria-current={active === section.id ? 'location' : undefined}
+                  onClick={() => {
+                    setActive(section.id);
+                  }}
+                >
+                  {section.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="min-w-0">
+          <nav
+            aria-label="Settings sections"
+            className="scroll-row -mx-4 flex gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:px-0 wide:hidden"
+          >
+            {VISIBLE_SECTIONS.map((section) => (
+              <a key={section.id} href={`#${section.id}`} className="pill shrink-0 no-underline">
+                {section.title}
+              </a>
+            ))}
+          </nav>
+          <Section id="appearance" title="Appearance">
+            <Appearance />
+          </Section>
+          <Section id="journals" title="Journals">
+            <JournalsSection />
+          </Section>
+          <Section id="game" title="Template and sections">
+            <LayoutSection />
+          </Section>
+          <Section id="calendar" title="Calendar">
+            <CalendarSection />
+          </Section>
+          <Section id="tags" title="Tags">
+            <TagsSection />
+          </Section>
+          {IS_STANDALONE ? null : (
+            <Section id="phone" title="Phone">
+              <PhoneSection />
+            </Section>
+          )}
+          <Section id="data" title="Data & backup">
+            <DataSection />
+          </Section>
+          <Section id="trash" title="Recently deleted">
+            <TrashSection />
+          </Section>
+          <Section id="about" title="Shortcuts and about">
+            <AboutSection />
+          </Section>
+        </div>
+      </div>
     </>
   );
 }

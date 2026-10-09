@@ -170,7 +170,7 @@ test.describe('responsive layout', () => {
     }
   });
 
-  test('the content column is 44rem at most and centred in the space beside the sidebar', async ({
+  test('a reading page is 44rem at most and centred in the space beside the sidebar', async ({
     page,
   }) => {
     for (const viewport of [
@@ -179,7 +179,7 @@ test.describe('responsive layout', () => {
       { width: 1920, height: 900 },
     ]) {
       await page.setViewportSize(viewport);
-      await page.goto('/');
+      await page.goto('/people');
       const main = await page.getByRole('main').boundingBox();
       expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(704);
     }
@@ -189,6 +189,25 @@ test.describe('responsive layout', () => {
     const left = (main?.x ?? 0) - ((nav?.x ?? 0) + (nav?.width ?? 0));
     const right = 1920 - ((main?.x ?? 0) + (main?.width ?? 0));
     expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
+  });
+
+  test('the pages that list notes add a gutter beside the column, and nothing else grows', async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 800, height: 900 },
+      { width: 1280, height: 900 },
+      { width: 1920, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      // 44rem of reading column plus the 11rem gutter, and never more.
+      const main = await page.getByRole('main').boundingBox();
+      expect(main?.width, `${viewport.width}px main`).toBeLessThanOrEqual(880);
+      // The header and the composer keep the reading measure whatever the page allows.
+      const composer = await page.getByRole('region', { name: 'New note' }).boundingBox();
+      expect(composer?.width, `${viewport.width}px composer`).toBeLessThanOrEqual(704);
+    }
   });
 
   test('a phone reaches Settings and the journals from the More tab', async ({ page }) => {

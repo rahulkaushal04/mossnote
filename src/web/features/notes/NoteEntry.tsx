@@ -32,6 +32,7 @@ export function NoteEntry({
   editable = true,
   collapsible = true,
   showAddDate = false,
+  showDate = true,
 }: {
   note: Note;
   editable?: boolean;
@@ -39,6 +40,11 @@ export function NoteEntry({
   collapsible?: boolean;
   /** Offer an "Add date" action, for the Journal's "Not dated" group. */
   showAddDate?: boolean;
+  /**
+   * Print the game date. A list that already says the day (a day heading, the Day page) turns this
+   * off: the date stays a control for screen readers and the keyboard, and in the entry's menu.
+   */
+  showDate?: boolean;
 }) {
   const calendar = useCalendar();
   const update = useUpdateNoteOptimistic();
@@ -102,9 +108,9 @@ export function NoteEntry({
 
   if (editing) {
     return (
-      <li className="flex flex-col gap-1 border-b border-line py-4 phone:flex-row phone:gap-2 phone:py-5">
+      <li className="entry border-b border-line">
         {marks}
-        <div className="min-w-0 flex-1">
+        <div className="entry-edit min-w-0">
           <EditableNote
             note={note}
             initialAction={editing.action}
@@ -121,13 +127,9 @@ export function NoteEntry({
 
   return (
     <li className="group border-b border-line">
-      <article
-        ref={article}
-        aria-label={entryName(note)}
-        className="flex flex-col gap-1 py-4 outline-offset-2 phone:flex-row phone:gap-2 phone:py-5"
-      >
+      <article ref={article} aria-label={entryName(note)} className="entry outline-offset-2">
         {marks}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           {note.title ? <h3 className="reading font-semibold">{note.title}</h3> : null}
           <div ref={body} className={editable ? 'cursor-text' : ''}>
             <NoteBody
@@ -148,53 +150,65 @@ export function NoteEntry({
             </button>
           ) : null}
           <QuestionControls note={note} />
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
-            <GameDatePicker
-              value={note.gameDate}
-              onChange={setDate}
-              clearLabel="Clear date"
-              title="Date of this note"
-              open={dateOpen}
-              onOpenChange={setDateOpen}
-            >
-              {note.gameDate !== null && dateLabel ? (
-                <button
-                  type="button"
-                  aria-label={`${spokenDate(note.gameDate, calendar.calendar) ?? dateLabel}. Change date`}
-                  title={`Created ${formatDateTime(note.createdAt)}\nModified ${formatDateTime(note.updatedAt)}`}
-                  className="tap hover:underline"
-                >
-                  {dateLabel}
-                </button>
-              ) : showAddDate ? (
-                <ChipButton label="Add date" />
-              ) : (
-                <button type="button" className="sr-only focus:not-sr-only focus:underline">
-                  No date. Add date
-                </button>
-              )}
-            </GameDatePicker>
-            <TagList tags={note.tags} />
-            {note.links.map((link) => (
-              <LinkChip key={`${link.type}:${link.id}`} link={link} />
-            ))}
-            {editable ? (
-              <span className="opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
-                <NoteMenu
-                  note={note}
-                  onEdit={(action) => {
-                    setEditing({ action });
-                  }}
-                  onSetDate={() => {
-                    // Let the menu finish closing (and return focus) so the popover is not dismissed by it.
-                    setTimeout(() => {
-                      setDateOpen(true);
-                    }, 0);
-                  }}
-                />
-              </span>
-            ) : null}
-          </div>
+        </div>
+        <div
+          className="entry-meta"
+          // The date is not printed where its heading says it, so its tooltip moves to the margin.
+          title={
+            showDate || note.gameDate === null
+              ? undefined
+              : `Created ${formatDateTime(note.createdAt)}\nModified ${formatDateTime(note.updatedAt)}`
+          }
+        >
+          <GameDatePicker
+            value={note.gameDate}
+            onChange={setDate}
+            clearLabel="Clear date"
+            title="Date of this note"
+            open={dateOpen}
+            onOpenChange={setDateOpen}
+          >
+            {note.gameDate !== null && dateLabel ? (
+              <button
+                type="button"
+                aria-label={`${spokenDate(note.gameDate, calendar.calendar) ?? dateLabel}. Change date`}
+                title={`Created ${formatDateTime(note.createdAt)}\nModified ${formatDateTime(note.updatedAt)}`}
+                className={
+                  showDate
+                    ? 'tap tnum hover:underline'
+                    : 'sr-only focus:not-sr-only focus:underline'
+                }
+              >
+                {dateLabel}
+              </button>
+            ) : showAddDate ? (
+              <ChipButton label="Add date" />
+            ) : (
+              <button type="button" className="sr-only focus:not-sr-only focus:underline">
+                No date. Add date
+              </button>
+            )}
+          </GameDatePicker>
+          <TagList tags={note.tags} />
+          {note.links.map((link) => (
+            <LinkChip key={`${link.type}:${link.id}`} link={link} />
+          ))}
+          {editable ? (
+            <span className="opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
+              <NoteMenu
+                note={note}
+                onEdit={(action) => {
+                  setEditing({ action });
+                }}
+                onSetDate={() => {
+                  // Let the menu finish closing (and return focus) so the popover is not dismissed by it.
+                  setTimeout(() => {
+                    setDateOpen(true);
+                  }, 0);
+                }}
+              />
+            </span>
+          ) : null}
         </div>
       </article>
     </li>

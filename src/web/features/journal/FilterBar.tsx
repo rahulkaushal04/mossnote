@@ -115,6 +115,8 @@ export function FilterBar({
 
   return (
     <div
+      // Full width of the list, so Sort lines up with the right edge of the day headings.
+      data-wide
       className="scroll-row -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-3 phone:mx-0 phone:flex-wrap phone:overflow-visible phone:px-0"
       role="group"
       aria-label="Journal filters"

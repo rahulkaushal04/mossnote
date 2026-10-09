@@ -80,23 +80,28 @@ export function FarmRow({ entry }: { entry: Planting }) {
 
   return (
     <li className="group relative border-b border-hairline py-3">
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <Link
-          to={`/farm/${entry.id}`}
-          className="list-row-title text-ink no-underline after:absolute after:inset-0 hover:underline"
-        >
-          {entry.label}
-        </Link>
-        {range[0] || range[1] ? (
-          <span className="text-sm text-ink-muted">
-            {range[0] ?? '…'}
-            {range[1] ? ` → ${range[1]}` : status === 'growing' ? ' →' : ''}
-          </span>
-        ) : null}
-        {counts.length > 0 ? (
-          <span className="text-sm text-ink-muted">{counts.join(' · ')}</span>
-        ) : null}
-        <span className="relative z-10 ml-auto flex items-center gap-1">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <Link
+            to={`/farm/${entry.id}`}
+            className="list-row-title text-ink no-underline after:absolute after:inset-0 hover:underline"
+          >
+            {entry.label}
+          </Link>
+          {range[0] || range[1] || counts.length > 0 ? (
+            <p className="tnum m-0 text-sm text-ink-muted">
+              {range[0] || range[1] ? (
+                <>
+                  {range[0] ?? '…'}
+                  {range[1] ? ` → ${range[1]}` : status === 'growing' ? ' →' : ''}
+                </>
+              ) : null}
+              {(range[0] || range[1]) && counts.length > 0 ? ' · ' : null}
+              {counts.join(' · ')}
+            </p>
+          ) : null}
+        </div>
+        <span className="relative z-10 flex shrink-0 items-center gap-1">
           <TagList tags={entry.tags} to={(t) => `/farm?tag=${encodeURIComponent(t)}`} />
           <span className={REVEAL}>
             {status === 'growing' ? (

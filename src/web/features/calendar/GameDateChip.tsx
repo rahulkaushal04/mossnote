@@ -18,7 +18,7 @@ export const ChipButton = forwardRef<HTMLButtonElement, ChipButtonProps>(functio
       ref={ref}
       type="button"
       aria-label={spoken ? `${spoken}. Change date` : label}
-      className={`tap rounded-md border border-line px-2 py-0.5 text-sm text-ink hover:bg-surface ${className}`}
+      className={`tap tnum shrink-0 rounded-md border border-line px-2 py-0.5 text-sm whitespace-nowrap text-ink hover:bg-surface ${className}`}
       {...props}
     >
       {label}

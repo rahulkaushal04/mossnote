@@ -14,7 +14,13 @@ export function DayNotes({ filters, empty }: { filters: NoteFilters; empty: stri
   if (notes.length === 0) return <EmptyState>{empty}</EmptyState>;
   return (
     <>
-      <EntryList notes={notes} groupBy="none" label="Notes for this day" />
+      <EntryList
+        notes={notes}
+        groupBy="none"
+        label="Notes for this day"
+        // On a game day every entry shares the date the page already shows.
+        showDates={filters.gameDate === undefined}
+      />
       {query.hasNextPage ? (
         <button type="button" className="btn tap mt-4" onClick={() => void query.fetchNextPage()}>
           Load more

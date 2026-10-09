@@ -46,6 +46,8 @@ export function PageHeader({
   documentTitle,
   accent,
   intro,
+  introFrom,
+  meta,
   display,
   hidden = false,
 }: {
@@ -54,6 +56,10 @@ export function PageHeader({
   /** One word to set in italic, or `true` for the last word of a title with two or more. */
   accent?: string | true;
   intro?: ReactNode;
+  /** Show the intro only from this size up, where there is room for it. */
+  introFrom?: 'phone';
+  /** A row of controls under the title and intro, such as Today's in-game day. */
+  meta?: ReactNode;
   display?: ReactNode;
   /** The screen shows its own title (the map editor's name field); the h1 stays for screen readers. */
   hidden?: boolean;
@@ -83,7 +89,9 @@ export function PageHeader({
   }
 
   return (
-    <header className="flex items-start justify-between gap-3 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-5 phone:pt-8 phone:pb-6">
+    <header
+      className={`flex items-start justify-between gap-3 pt-[calc(env(safe-area-inset-top)+1.25rem)] phone:pt-8 ${meta ? 'pb-3 phone:pb-4' : 'pb-5 phone:pb-6'}`}
+    >
       <div className="min-w-0">
         {journal ? (
           <p className="mb-1 truncate text-sm text-ink-muted wide:hidden">{journal.name}</p>
@@ -96,7 +104,12 @@ export function PageHeader({
         >
           {display ?? <TitleText title={title} accent={accent} />}
         </h1>
-        {intro ? <p className="page-intro">{intro}</p> : null}
+        {intro ? (
+          <p className={`page-intro ${introFrom === 'phone' ? 'hidden phone:block' : ''}`}>
+            {intro}
+          </p>
+        ) : null}
+        {meta ? <div className="mt-3">{meta}</div> : null}
       </div>
       <div className="flex shrink-0 items-center gap-1 phone:hidden">{actions}</div>
     </header>

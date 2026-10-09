@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from 'react';
+import type { Tint } from '@shared/templates';
 import { readStorage, writeStorage } from './storage';
 
 export type ThemeChoice = 'system' | 'light' | 'dark';
 export type ReadingSize = 'comfortable' | 'large';
 
 const THEME_KEY = 'moss:theme';
+const TINT_KEY = 'moss:tint';
 const UI_KEY = 'moss:ui';
 
 const listeners = new Set<() => void>();
@@ -83,6 +85,15 @@ export function setReadingSize(size: ReadingSize): void {
   writeStorage(UI_KEY, JSON.stringify({ ...readUi(), readingSize: size }));
   applyReadingSize(size);
   notify();
+}
+
+/**
+ * Wear a journal's tint (see `Tint`). Cached under its own key so theme-init.js can apply it
+ * before first paint on the next load; the journal's template decides it once settings load.
+ */
+export function applyTint(tint: Tint): void {
+  document.documentElement.setAttribute('data-tint', tint);
+  writeStorage(TINT_KEY, tint);
 }
 
 function subscribe(listener: () => void): () => void {
