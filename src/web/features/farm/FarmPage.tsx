@@ -23,7 +23,17 @@ const GROUP_MARK: Record<string, string> = {
   Noted: 'border border-dashed border-ink-muted',
 };
 
-function Group({ title, items }: { title: string; items: Planting[] }) {
+function Group({
+  title,
+  items,
+  askingId,
+  onAsking,
+}: {
+  title: string;
+  items: Planting[];
+  askingId: string | null;
+  onAsking: (id: string | null) => void;
+}) {
   if (items.length === 0) return null;
   return (
     <section aria-label={title} className="mt-8">
@@ -34,7 +44,14 @@ function Group({ title, items }: { title: string; items: Planting[] }) {
       </h2>
       <ul className="stagger m-0 list-none p-0">
         {items.map((entry) => (
-          <FarmRow key={entry.id} entry={entry} />
+          <FarmRow
+            key={entry.id}
+            entry={entry}
+            asking={askingId === entry.id}
+            setAsking={(open) => {
+              onAsking(open ? entry.id : null);
+            }}
+          />
         ))}
       </ul>
     </section>
@@ -51,6 +68,7 @@ export function FarmPage() {
   const calendar = useCalendar();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [askingId, setAskingId] = useState<string | null>(null);
   const listId = useId();
   const entryInput = useRef<HTMLInputElement>(null);
 
@@ -156,9 +174,9 @@ export function FarmPage() {
           you plant something.
         </EmptyState>
       ) : null}
-      <Group title="Growing" items={growing} />
-      <Group title="Done" items={done} />
-      <Group title="Noted" items={noted} />
+      <Group title="Growing" items={growing} askingId={askingId} onAsking={setAskingId} />
+      <Group title="Done" items={done} askingId={askingId} onAsking={setAskingId} />
+      <Group title="Noted" items={noted} askingId={askingId} onAsking={setAskingId} />
       <Outlet />
     </>
   );

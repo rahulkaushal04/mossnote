@@ -81,8 +81,11 @@ export function CaptureEditor({
   }, [value.body, area]);
 
   useEffect(() => {
-    if (focusOnMount) area.current?.focus();
-  }, [focusOnMount, area]);
+    const el = area.current;
+    if (!focusOnMount || !el) return;
+    el.focus();
+    if (mode === 'edit') el.setSelectionRange(el.value.length, el.value.length);
+  }, [focusOnMount, area, mode]);
 
   /** Anchor the picker to the caret. Measured in event handlers, where reading the DOM is fine. */
   const placeAnchor = (offset: number) => {

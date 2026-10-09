@@ -1,11 +1,21 @@
 // @vitest-environment jsdom
-import { act, renderHook } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, renderHook as renderPlainHook } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import type { MapShape } from '@shared/schemas/map';
 import type { MapDetail, MapPin } from '@shared/types';
 import { api } from '../../../lib/api';
 import { addShapes, makePin, moveObjects, type Doc } from './doc';
+import { queryKeys } from '../../../lib/queryKeys';
 import { diffDoc, useMapDoc } from './useMapDoc';
+
+/** The hook reads the query client, so every render gets one (a fresh cache per test). */
+let client = new QueryClient();
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+);
+const renderHook = <T,>(hook: () => T) => renderPlainHook(hook, { wrapper });
 
 const STYLE = { stroke: 'ink', fill: null, width: 3, dash: 'solid' } as const;
 const rect = (id: string): MapShape => ({
@@ -30,9 +40,10 @@ const emptyMap = (pins: MapPin[] = []): MapDetail => ({
 
 let save: MockInstance<typeof api.saveMapChanges>;
 beforeEach(() => {
+  client = new QueryClient();
   vi.useFakeTimers();
   save = vi.spyOn(api, 'saveMapChanges').mockResolvedValue({ updatedAt: 'now' });
-  vi.spyOn(api, 'saveMapChangesOnExit').mockImplementation(() => undefined);
+  vi.spyOn(api, 'saveMapChangesOnExit').mockResolvedValue(undefined);
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -203,5 +214,30 @@ describe('useMapDoc', () => {
     expect(result.current.doc.scene.shapes).toHaveLength(2);
     expect(result.current.canUndo).toBe(false);
     expect(result.current.saveState).toBe('saved');
+  });
+  it('writes what was drawn into the cached map when the editor closes, so reopening shows it', async () => {
+    client.setQueryData(queryKeys.map('MAP'), emptyMap());
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    act(() => {
+      result.current.commit((d) => addShapes(d, [rect('a')]));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(700);
+    });
+    unmount();
+    const cached = client.getQueryData<MapDetail>(queryKeys.map('MAP'));
+    expect(cached?.scene.shapes).toHaveLength(1);
+  });
+
+  it('saves an unsaved change on close and still caches it', () => {
+    client.setQueryData(queryKeys.map('MAP'), emptyMap());
+    const onExit = vi.spyOn(api, 'saveMapChangesOnExit');
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    act(() => {
+      result.current.commit((d) => addShapes(d, [rect('a')]));
+    });
+    unmount();
+    expect(onExit).toHaveBeenCalledTimes(1);
+    expect(client.getQueryData<MapDetail>(queryKeys.map('MAP'))?.scene.shapes).toHaveLength(1);
   });
 });

@@ -14,6 +14,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { ApiError, api } from '../../lib/api';
 import { MapEditor } from './MapEditor';
+import { queryKeys } from '../../lib/queryKeys';
 import { refreshMaps, useDeleteMap, useMap } from './hooks';
 
 function NameField({ map }: { map: MapDetail }) {
@@ -30,7 +31,13 @@ function NameField({ map }: { map: MapDetail }) {
     setError(null);
     if (trimmed !== map.name) {
       api.patchMap(map.id, { name: trimmed }).then(
-        () => void refreshMaps(client),
+        (saved) => {
+          // The page reads the map from this cache (its title, the next visit), so keep it current.
+          client.setQueryData<MapDetail>(queryKeys.map(map.id), (old) =>
+            old ? { ...old, name: saved.name } : old,
+          );
+          void refreshMaps(client);
+        },
         (e: unknown) => {
           setError(e instanceof Error ? e.message : "Couldn't save that change.");
         },

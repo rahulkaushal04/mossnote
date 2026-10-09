@@ -25,12 +25,19 @@ export function useDateText() {
 }
 
 /** One farm entry as a light line: name, dates, counts, and a quick action on hover or focus. */
-export function FarmRow({ entry }: { entry: Planting }) {
+export function FarmRow({
+  entry,
+  asking,
+  setAsking,
+}: {
+  entry: Planting;
+  asking: boolean;
+  setAsking: (asking: boolean) => void;
+}) {
   const calendar = useCalendar();
   const text = useDateText();
   const update = useUpdatePlanting();
   const create = useCreatePlanting();
-  const [asking, setAsking] = useState(false);
   const [count, setCount] = useState('');
   const [error, setError] = useState<string | null>(null);
   const status =
@@ -42,15 +49,12 @@ export function FarmRow({ entry }: { entry: Planting }) {
       return;
     }
     setError(null);
-    update.mutate(
-      { id: entry.id, patch: { harvestedOn: key } },
-      {
-        onSuccess: () => {
-          setAsking(true);
-        },
-        onError: (e) => {
-          setError(e.message);
-        },
+    update.mutateAsync({ id: entry.id, patch: { harvestedOn: key } }).then(
+      () => {
+        setAsking(true);
+      },
+      (e: unknown) => {
+        setError(e instanceof Error ? e.message : "Couldn't save that change.");
       },
     );
   };

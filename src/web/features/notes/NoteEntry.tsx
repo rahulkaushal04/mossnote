@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Note } from '@shared/types';
 import { formatDateTime } from '../../lib/format';
 import { useCalendar } from '../calendar/CalendarProvider';
@@ -57,10 +57,17 @@ export function NoteEntry({
   const long = note.body.split('\n').length > COLLAPSE_LINES || note.body.length > COLLAPSE_CHARS;
   const clamp = collapsible && long && !expanded;
 
-  // Focusable so `e` works; set natively because an article is not an interactive element.
-  useEffect(() => {
-    if (article.current) article.current.tabIndex = editable ? 0 : -1;
-  }, [editable]);
+  const reading = editing === null;
+  const refocus = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!article.current) return;
+    article.current.tabIndex = editable ? 0 : -1;
+    if (reading && refocus.current) {
+      refocus.current = false;
+      article.current.focus();
+    }
+  }, [editable, reading]);
 
   // `e` edits the focused entry; a click on the text (not on a link) edits in place.
   useEffect(() => {
@@ -82,7 +89,7 @@ export function NoteEntry({
     return () => {
       el.removeEventListener('keydown', onKey);
     };
-  }, [editable]);
+  }, [editable, reading]);
 
   useEffect(() => {
     const el = body.current;
@@ -116,8 +123,8 @@ export function NoteEntry({
             initialAction={editing.action}
             defaultGameDate={calendar.currentGameDate}
             onDone={() => {
+              refocus.current = true;
               setEditing(null);
-              requestAnimationFrame(() => article.current?.focus());
             }}
           />
         </div>

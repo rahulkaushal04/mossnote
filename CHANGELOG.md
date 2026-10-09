@@ -32,6 +32,7 @@ Two new ways to use Mossnote while you play. Your existing journals are untouche
 
 ### Fixed
 
+- **A map reopened as it was first created.** After renaming a map or drawing on it and going back to Maps, opening it again within a few minutes showed "Untitled map" and an empty canvas, because the editor reused a copy fetched before your changes (your work was saved, and the next edit could have overwritten it). The map now keeps what you drew and its new name, and the Maps list and Places refresh as soon as the last change is saved.
 - The dotted canvas in the map editor was drawn behind the canvas and never showed. It is now a quiet dot lattice that moves and scales with the drawing, shown while the grid is off.
 
 ## 2026-10-08
