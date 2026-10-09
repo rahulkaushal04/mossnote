@@ -19,7 +19,7 @@ export function Unreachable({ onRetry }: { onRetry: () => void }) {
     document.title = "Can't reach your journal · Mossnote";
   }, []);
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">Can&apos;t reach your journal.</h1>
       <p>
         Mossnote might not be running. Start it again (open the app, or run{' '}
@@ -45,7 +45,7 @@ function NotPaired() {
     document.title = "This device isn't paired · Mossnote";
   }, []);
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">This device isn&apos;t paired anymore.</h1>
       <p>
         It was removed from the computer&apos;s list of devices, or the pairing ran out. Pair it

@@ -20,7 +20,7 @@ export function StartupScreen({ problem, message }: StartupScreenProps) {
   }, [title]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">{title}</h1>
       {problem === 'unsupported' ? (
         <>

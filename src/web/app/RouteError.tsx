@@ -11,7 +11,7 @@ export function RouteError() {
       : String(error);
 
   return (
-    <main className="mx-auto flex max-w-[44rem] flex-col gap-4 px-4 py-16" role="alert">
+    <main className="mx-auto flex max-w-176 flex-col gap-4 px-4 py-16" role="alert">
       <h1 className="text-2xl font-semibold">Something went wrong on this page.</h1>
       <p>Your journal is safe. Reload the page, or copy the details if you want to report it.</p>
       <div className="flex gap-3">
