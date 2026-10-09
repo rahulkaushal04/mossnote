@@ -12,7 +12,7 @@ import { queryKeys } from '../../lib/queryKeys';
 const REASON: Record<BackupInfo['reason'], string> = {
   auto: 'Automatic',
   manual: 'Made by you',
-  'pre-migration': 'Before an upgrade',
+  'pre-migration': 'Before an update',
   'pre-import': 'Before an import',
   'pre-restore': 'Before a restore',
 };
@@ -71,12 +71,12 @@ export function BackupsList() {
     <div>
       <h3 className="font-semibold">Snapshots</h3>
       <p className="mb-2 text-sm text-ink-muted">
-        A snapshot is a full copy of this journal at one moment. Restoring one puts the journal back
-        to that moment, after saving the journal as it is now.
+        A snapshot is a full copy of this journal from one moment. If you restore one, Mossnote
+        saves your journal as it is now first.
       </p>
       {items.length === 0 ? (
         <p className="text-ink-muted">
-          No snapshots yet. Mossnote takes one each day you use it, and before any upgrade or
+          No snapshots yet. Mossnote takes one on each day you use it, and before any update or
           import.
         </p>
       ) : (
@@ -133,7 +133,7 @@ export function BackupsList() {
         title="Restore this snapshot?"
         message={
           restoring
-            ? `Your journal goes back to how it was on ${formatDateTime(restoring.takenAt)}. What you have now is saved as a snapshot first, so you can come back to it.`
+            ? `Your journal will go back to how it was on ${formatDateTime(restoring.takenAt)}. What you have now is saved as a snapshot first, so you can get back to it.`
             : ''
         }
         confirmLabel="Restore"
@@ -148,7 +148,7 @@ export function BackupsList() {
           if (!open) setDeleting(null);
         }}
         title="Delete this snapshot?"
-        message={`The snapshot is removed from ${WHERE_IT_LIVES.snapshots}. The journal itself is not touched. This can't be undone.`}
+        message={`This removes the snapshot from ${WHERE_IT_LIVES.snapshots}. Your journal stays as it is. You can't undo this.`}
         confirmLabel="Delete snapshot"
         danger
         onConfirm={() => {

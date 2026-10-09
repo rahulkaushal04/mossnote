@@ -11,14 +11,14 @@ export interface FeatureScope {
  * missing, or null when everything needed is there.
  */
 export function missingFeature(scope: FeatureScope = globalThis): string | null {
-  if (!scope.isSecureContext) return 'This page was not opened over a secure connection.';
-  if (scope.Worker === undefined) return 'This browser cannot run background workers.';
-  if (scope.WebAssembly === undefined) return 'This browser cannot run WebAssembly.';
+  if (!scope.isSecureContext) return "This page isn't on a secure (HTTPS) connection.";
+  if (scope.Worker === undefined) return "This browser can't run web workers.";
+  if (scope.WebAssembly === undefined) return "This browser can't run WebAssembly.";
   if (
     !('storage' in scope.navigator) ||
     typeof scope.navigator.storage.getDirectory !== 'function'
   ) {
-    return 'This browser cannot keep files for Mossnote. Private windows often cannot.';
+    return "This browser can't store files for Mossnote. Private windows often can't.";
   }
   return null;
 }

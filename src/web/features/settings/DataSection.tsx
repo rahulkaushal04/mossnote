@@ -198,8 +198,8 @@ export function DataSection() {
             {counts.plantings > 0
               ? `${plural(counts.plantings, terms.farm.one, terms.farm.many)}, `
               : ''}
-            {plural(counts.maps, 'map')}, {plural(counts.tags, 'tag')}. Importing replaces the
-            contents of &ldquo;{data?.journal.name ?? 'this journal'}&rdquo; only.
+            {plural(counts.maps, 'map')}, {plural(counts.tags, 'tag')}. Importing replaces
+            everything in &ldquo;{data?.journal.name ?? 'this journal'}&rdquo; only.
           </p>
           {pending.summary.warnings.length > 0 ? (
             <ul className="m-0 mt-1 list-none p-0 text-sm text-ink-muted">
@@ -243,7 +243,7 @@ function ReplaceButton({ onConfirm }: { onConfirm: () => void }) {
         open={open}
         onOpenChange={setOpen}
         title="Replace your journal?"
-        message="This journal is saved as a snapshot first, then replaced by this file. Your other journals are not touched."
+        message="Mossnote saves this journal as a snapshot first, then replaces it with this file. Your other journals stay as they are."
         confirmLabel="Replace"
         danger
         onConfirm={onConfirm}

@@ -24,8 +24,8 @@ export function CalendarSection() {
   if (calendar.counter) {
     return (
       <p className="text-ink-muted">
-        This journal counts days: Day 1, Day 2, and so on. There are no seasons or years to set up.
-        Set today&apos;s day from the date at the top of Today.
+        This journal just counts days: Day 1, Day 2 and so on. There are no seasons or years to set
+        up. To change today&apos;s day, use the date at the top of Today.
       </p>
     );
   }
@@ -69,8 +69,8 @@ function SeasonsEditor() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-ink-muted">
-        Season names and the number of days in each. Renaming a season only changes how dates are
-        written.
+        Name your seasons and say how many days each one has. Renaming a season only changes how
+        dates look.
       </p>
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {rows.map((row, index) => (

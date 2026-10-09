@@ -26,7 +26,7 @@ export function FirstRun() {
         </h1>
         <p className="page-intro">
           A private journal for the games you play. It lives {WHERE_IT_LIVES.place}, never sends
-          anything over the internet, and starts empty. Pick a starting point; you can make more
+          anything over the internet, and starts out empty. Pick a starting point. You can add more
           journals later, one for each game.
         </p>
       </div>
@@ -46,7 +46,7 @@ export function FirstRun() {
             })
             .catch((e: unknown) => {
               setBusy(false);
-              setError(journalProblem(e, "Couldn't make the journal. Nothing was changed."));
+              setError(journalProblem(e, "Couldn't create the journal. Nothing was changed."));
             });
         }}
       />

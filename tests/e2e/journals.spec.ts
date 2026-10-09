@@ -212,7 +212,7 @@ test.describe('journals side by side', () => {
     await expect(dialog).toBeVisible();
     await dialog.getByRole('radio', { name: /Stardew Valley/ }).check();
     await dialog.getByLabel('Journal name').fill('Second');
-    await dialog.getByRole('button', { name: 'Make journal' }).click();
+    await dialog.getByRole('button', { name: 'Create journal' }).click();
     await expect(switcher(page)).toHaveAccessibleName('Journal: Second. Switch journal');
     await expect(rail(page).getByRole('link', { name: 'Farm' })).toBeVisible();
   });

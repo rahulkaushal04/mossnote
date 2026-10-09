@@ -35,10 +35,10 @@ export function BackupReminder() {
     >
       <p className="m-0 min-w-60 flex-1">
         {exportedAt === null
-          ? 'This journal is only saved in this browser, and no copy has been downloaded.'
+          ? "This journal is only saved in this browser, and you haven't downloaded a copy yet."
           : `Your last downloaded copy was ${describeAge(now - exportedAt)}.`}{' '}
-        Download one now and keep it somewhere safe, so clearing the browser can&apos;t take your
-        notes with it.
+        Download one now and keep it somewhere safe, so your notes survive if the browser data is
+        cleared.
       </p>
       <DownloadLink
         className="btn btn-primary tap no-underline"

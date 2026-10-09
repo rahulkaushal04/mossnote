@@ -25,7 +25,7 @@ export function TodayDateHeader() {
           setDate.mutate(key);
         }}
         emptyLabel="Set date"
-        clearLabel="Stop stamping new notes"
+        clearLabel="Stop dating new notes"
         title="Set the in-game date"
       />
       <Tip label={day.hasDate ? 'Previous day' : 'Set the in-game date first'} keys="d p">

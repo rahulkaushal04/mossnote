@@ -169,9 +169,9 @@ export function LayoutSection() {
           <span className="block text-sm text-ink-muted">{template.about}</span>
         </p>
         <p className="mt-2 text-sm text-ink-muted">
-          A journal keeps the template it was made with. To use another one, make a new journal
-          beside this one. A template changes wording and adds shortcuts; it never adds any facts
-          about a game.
+          A journal keeps the template it started with. To use a different one, make a new journal.
+          A template only changes the wording and adds a few shortcuts. It doesn&apos;t add any game
+          facts.
         </p>
         <p className="mt-2 flex flex-wrap items-center gap-3 text-sm">
           <button
@@ -193,7 +193,7 @@ export function LayoutSection() {
       <div>
         <h3 className="font-semibold">Sections</h3>
         <p className="text-sm text-ink-muted">
-          Rename, hide or reorder what appears in the menu. Today and Journal always stay.
+          Rename, hide or reorder the items in the menu. Today and Journal always stay.
         </p>
         <ul aria-label="Sections" className="m-0 mt-2 list-none p-0">
           {sections.map((section, i) => (
@@ -234,7 +234,7 @@ export function LayoutSection() {
         <div>
           <h3 className="font-semibold">Extra sections</h3>
           <p className="text-sm text-ink-muted">
-            A pinned tag appears in the menu as its own section. Add one with a click.
+            A pinned tag shows up in the menu as its own section. Click one to add it.
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {template.suggestedTags

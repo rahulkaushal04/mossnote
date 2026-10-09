@@ -37,7 +37,7 @@ export function MarkerTypesDialog({ open, onClose }: { open: boolean; onClose: (
         if (!o) onClose();
       }}
       title="Marker types"
-      description="A type sets a marker's starting icon and colour. You can still change either on one marker."
+      description="A type gives a marker its starting icon and colour. You can still change them on any marker."
       placement="right"
     >
       <ul aria-label="Marker types" className="m-0 flex list-none flex-col gap-4 p-0">

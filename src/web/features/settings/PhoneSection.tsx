@@ -81,7 +81,7 @@ export function PhoneSection() {
   if (status.error instanceof ApiError && status.error.status === 403) {
     return (
       <p className="m-0">
-        This device is paired with the computer that runs Mossnote. Phone access is managed on that
+        This device is paired with the computer that runs Mossnote. You manage phone access on that
         computer, in Settings.
       </p>
     );
@@ -103,8 +103,8 @@ export function PhoneSection() {
   return (
     <div className="flex flex-col gap-4">
       <p className="m-0">
-        Keep your notes on a phone or tablet while you play on this computer. The journal stays on
-        this computer, and your phone opens it over your home network.
+        Take notes on your phone or tablet while you play on this computer. The journal stays on
+        this computer. Your phone opens it over your home Wi-Fi.
       </p>
 
       <label className="tap flex items-start gap-3">
@@ -119,9 +119,9 @@ export function PhoneSection() {
         <span>
           Let phones and tablets on my network open Mossnote
           <span className="block text-sm text-ink-muted">
-            Only devices you pair can use it. The connection is not encrypted, so use it on a
-            network you trust, such as your home Wi-Fi. If your computer asks about a firewall,
-            allow Mossnote on private networks.
+            Only devices you pair can get in. The connection isn&apos;t encrypted, so only use it on
+            a network you trust, like your home Wi-Fi. If your computer asks about a firewall, allow
+            Mossnote on private networks.
           </span>
         </span>
       </label>
@@ -134,7 +134,7 @@ export function PhoneSection() {
 
       {enabled && addresses.length === 0 ? (
         <p role="status" className="m-0">
-          This computer doesn&apos;t seem to be connected to a network, so a phone can&apos;t reach
+          This computer doesn&apos;t look like it&apos;s on a network, so a phone can&apos;t reach
           it yet.
         </p>
       ) : null}

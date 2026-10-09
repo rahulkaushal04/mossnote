@@ -44,15 +44,13 @@ export function TrashSection() {
   if (items.length === 0) {
     return (
       <p className="text-ink-muted">
-        Nothing deleted. Anything you delete lands here for 30 days first.
+        Nothing here. Anything you delete stays here for 30 days first.
       </p>
     );
   }
   return (
     <div>
-      <p className="mb-2 text-sm text-ink-muted">
-        Deleted records are removed for good after 30 days.
-      </p>
+      <p className="mb-2 text-sm text-ink-muted">After 30 days, deleted items are gone for good.</p>
       <div className="mb-2">
         <button
           type="button"
@@ -104,7 +102,7 @@ export function TrashSection() {
         open={emptying}
         onOpenChange={setEmptying}
         title="Delete everything here forever?"
-        message={`This removes all ${items.length} deleted records, and their tags and links, for good. It can't be undone.`}
+        message={`This deletes all ${items.length} items, along with their tags and links, for good. You can't undo this.`}
         confirmLabel="Delete forever"
         danger
         onConfirm={() => {
@@ -117,7 +115,7 @@ export function TrashSection() {
           if (!open) setForever(null);
         }}
         title="Delete forever?"
-        message="This removes it, and its tags and links, for good. It can't be undone."
+        message="This deletes it, along with its tags and links, for good. You can't undo this."
         confirmLabel="Delete forever"
         danger
         onConfirm={() => {

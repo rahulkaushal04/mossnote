@@ -35,7 +35,7 @@ export async function addJournal(page: Page, name: string) {
     .getByRole('button', { name: /new journal/i })
     .click();
   await page.getByRole('textbox', { name: 'Journal name' }).fill(name);
-  await page.getByRole('button', { name: 'Make journal' }).click();
+  await page.getByRole('button', { name: 'Create journal' }).click();
   await expect(
     page.getByRole('button', { name: `Journal: ${name}. Switch journal` }),
   ).toBeVisible();

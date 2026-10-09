@@ -75,7 +75,7 @@ export function PeoplePage() {
     <>
       <PageHeader
         title={terms.people.label}
-        intro={`Everyone you have met, with the notes that mention them.`}
+        intro={`Everyone you've met, and the notes that mention them.`}
       />
       <form
         className="flex flex-col gap-1"

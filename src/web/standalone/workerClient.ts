@@ -113,7 +113,7 @@ export function connectToWorker(worker: WorkerLike): Promise<JournalWorker> {
       }
     };
     worker.onerror = (event) => {
-      failAll('The journal stopped.');
+      failAll('The journal stopped working.');
       reject(new StartupError('failed', event.message));
     };
   });

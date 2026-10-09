@@ -124,7 +124,7 @@ export default function SettingsPage() {
     <>
       <PageHeader
         title="Settings"
-        intro={`Look, feel and your data. Everything stays ${WHERE_IT_LIVES.place}.`}
+        intro={`How Mossnote looks, plus your data. Everything stays ${WHERE_IT_LIVES.place}.`}
       />
       <nav
         aria-label="Settings sections"

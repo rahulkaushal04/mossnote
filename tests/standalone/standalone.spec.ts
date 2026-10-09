@@ -165,7 +165,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     await page.goto('/settings');
     await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
-    await expect(page.getByText('Protection from clean-ups')).toBeVisible();
+    await expect(page.getByText('Keep your journal safe')).toBeVisible();
     await check('settings', page);
 
     const second = await context.newPage();

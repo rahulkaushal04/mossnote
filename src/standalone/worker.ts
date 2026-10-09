@@ -33,7 +33,7 @@ function classify(error: unknown): { problem: StartupProblem; message: string } 
   const name = error instanceof Error ? error.name : '';
   // `navigator.storage` is missing altogether outside a secure context.
   if (!('storage' in navigator) || typeof navigator.storage.getDirectory !== 'function') {
-    return { problem: 'unsupported', message: 'This browser cannot keep files for Mossnote.' };
+    return { problem: 'unsupported', message: "This browser can't store files for Mossnote." };
   }
   // Private windows refuse file storage with this generic error (Safari, and Firefox before 111).
   if (name === 'UnknownError' || /unknown transient reason/i.test(message)) {

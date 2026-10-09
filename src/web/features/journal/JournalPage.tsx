@@ -15,7 +15,7 @@ import { useTerms } from '../settings/useLayout';
 /** Copy for a filtered list that is empty. */
 function emptyCopy(flag: string, state: string): string | null {
   if (flag === 'discovery')
-    return 'No discoveries marked yet. Mark a note with ✦ and it will appear here.';
+    return 'No discoveries yet. Mark a note with ✦ and it will show up here.';
   if (flag === 'question' && state === 'open') return 'No open questions.';
   if (flag === 'question' && state === 'solved') return 'No solved questions yet.';
   return null;
@@ -94,7 +94,7 @@ export function JournalPage() {
       <PageHeader
         title={terms.journal.label}
         accent
-        intro="Every note you have written, grouped by day."
+        intro="Every note you've written, grouped by day."
       />
       <FilterBar filters={filters} onChange={update} />
       {count.data ? (

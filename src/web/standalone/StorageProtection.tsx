@@ -30,17 +30,17 @@ export function StorageProtection() {
 
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="font-semibold">Protection from clean-ups</h3>
+      <h3 className="font-semibold">Keep your journal safe</h3>
       {state.persisted ? (
         <p className="m-0">
-          This browser has promised to keep your journal, even when the device runs low on space.
+          This browser will keep your journal, even when the device is running low on space.
         </p>
       ) : (
         <>
           <p className="m-0">
-            This browser may clear your journal if the device runs low on space. Downloading a copy
-            is the only sure protection. Adding Mossnote to your Home Screen or dock usually makes
-            browsers keep it.
+            This browser may delete your journal if the device runs low on space. The only sure way
+            to protect it is to download a copy. Adding Mossnote to your Home Screen or dock also
+            helps, since browsers usually keep those.
           </p>
           <div>
             <button type="button" className="btn tap text-sm" onClick={ask}>

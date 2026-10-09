@@ -3,7 +3,7 @@ import { TEMPLATES, type GameTemplate } from '@shared/templates';
 import { CheckIcon, FarmIcon, JournalIcon } from '../../components/ui/icons';
 
 const CALENDAR_NOTE: Record<GameTemplate['calendar'], string> = {
-  counter: 'Counts days',
+  counter: 'Counts the days',
   seasons: 'Seasons and years',
 };
 
@@ -31,7 +31,7 @@ export function TemplatePicker({
     <fieldset className="m-0 border-0 p-0" aria-describedby={`${name}-hint`}>
       <legend className="mb-1 font-semibold">{legend}</legend>
       <p id={`${name}-hint`} className="mb-3 text-sm text-ink-muted">
-        A template sets the wording and the sections. Default fits any game.
+        A template sets the wording and the sections. Default works for any game.
       </p>
       <div className="flex flex-col gap-3">
         {TEMPLATES.map((template) => {
