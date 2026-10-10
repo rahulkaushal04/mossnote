@@ -32,8 +32,14 @@ const scene = (name: string, run: (l: Launch) => Promise<void>) => {
 };
 /** Scenes that are recorded. They run in a browser that films the page and draws the pointer. */
 const videoScenes = new Set<string>();
-const videoScene = (name: string, run: (l: Launch) => Promise<void>) => {
+const videoSizes = new Map<string, { width: number; height: number }>();
+const videoScene = (
+  name: string,
+  run: (l: Launch) => Promise<void>,
+  size?: { width: number; height: number },
+) => {
   videoScenes.add(name);
+  if (size) videoSizes.set(name, size);
   scenes[name] = run;
 };
 
@@ -1123,6 +1129,35 @@ videoScene('video-quick-capture', async ({ page }) => {
   await wait(page, 1800);
 });
 
+/** The README's recording: a short window, so the picture has no empty space under the note. */
+videoScene(
+  'video-readme',
+  async ({ page }) => {
+    await startJournal(page, { template: 'Default', name: 'Rainy day run' });
+    await wait(page, 1200);
+    await glide(page, page.getByRole('button', { name: /Set date/ }).first());
+    await wait(page, 500);
+    await page.keyboard.type('12', { delay: 150 });
+    await wait(page, 500);
+    await page.keyboard.press('Enter');
+    await wait(page, 800);
+    await glide(page, composer(page));
+    await slow(page, 'Met a fisher by the river. @Mara');
+    await wait(page, 900);
+    await page.keyboard.press('Enter');
+    await wait(page, 700);
+    await slow(page, ' says the old bridge washed out. #lead');
+    await wait(page, 900);
+    await page.keyboard.press('Enter');
+    await wait(page, 900);
+    await glide(page, page.getByRole('button', { name: 'Question' }));
+    await wait(page, 700);
+    await glide(page, page.getByRole('button', { name: /^Save/ }));
+    await wait(page, 2200);
+  },
+  { width: 1100, height: 470 },
+);
+
 videoScene('video-maps-drawing', async ({ page }) => {
   await startJournal(page, { template: 'Default', name: 'My journal' });
   await openNewMap(page, 'River valley', false);
@@ -1234,7 +1269,7 @@ const README_DIR = path.join(IMG_DIR, '..', 'readme');
 
 scene('readme', async ({ page }) => {
   fs.mkdirSync(README_DIR, { recursive: true });
-  await page.setViewportSize({ width: 1200, height: 700 });
+  await page.setViewportSize({ width: 1200, height: 680 });
 
   // Default template: Today with a few notes.
   await startJournal(page, { template: 'Default', name: 'Rainy day run' });
@@ -1243,7 +1278,6 @@ scene('readme', async ({ page }) => {
   await wait(page, 700);
   await shot(page, 'today-default', {
     dir: README_DIR,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
   });
 
   // Stardew Valley template: quick actions and the Farm in the sidebar.
@@ -1272,7 +1306,6 @@ scene('readme', async ({ page }) => {
   await wait(page, 700);
   await shot(page, 'today-stardew', {
     dir: README_DIR,
-    clip: { x: 0, y: 0, width: 1200, height: 700 },
   });
 
   // A phone-width screen, on the Default journal.
@@ -1283,16 +1316,35 @@ scene('readme', async ({ page }) => {
   await wait(page, 700);
   await shot(page, 'phone', { dir: README_DIR });
 
-  // A map, clean.
+  // A map, clean. It is loaded through the app's own "Open a map file" import, from a map that
+  // was designed on purpose (docs/assets/readme/willow-creek.mossmap.json), so the picture shows
+  // what a finished map looks like rather than a quick test drawing.
   await page.setViewportSize(MAP_VIEW);
-  await openNewMap(page, 'River valley');
-  await buildMap(page, { smart: true });
-  await page
-    .getByRole('button', { name: 'Dismiss' })
-    .click()
-    .catch(() => undefined);
+  await page.getByRole('link', { name: 'Maps' }).first().click();
   await wait(page, 500);
+  await page
+    .getByLabel('Map file')
+    .setInputFiles(path.join(README_DIR, 'willow-creek.mossmap.json'));
+  await page.getByRole('button', { name: 'Select', exact: true }).waitFor();
+  await wait(page, 1200);
+  await page.getByRole('button', { name: 'Panel' }).click();
+  await wait(page, 500);
+  await page.keyboard.press('Shift+1');
+  await wait(page, 800);
   await shot(page, 'map', { dir: README_DIR, clip: { x: 262, y: 0, width: 1178, height: 820 } });
+});
+
+scene('readme-extra', async ({ page }) => {
+  fs.mkdirSync(README_DIR, { recursive: true });
+  await startJournal(page, { template: 'Default', name: 'Rainy day run' });
+  await seedDays(page);
+  await page.getByRole('link', { name: 'Journal' }).first().click();
+  await wait(page, 700);
+  await shot(page, 'journal', { dir: README_DIR, clip: { x: 240, y: 0, width: 960, height: 620 } });
+  await openPalette(page);
+  await page.keyboard.type('lantrn');
+  await wait(page, 900);
+  await shot(page, 'search', { dir: README_DIR, clip: { x: 312, y: 56, width: 576, height: 326 } });
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -1307,7 +1359,9 @@ async function main(): Promise<void> {
     if (!run)
       throw new Error(`No scene called "${name}". Scenes: ${Object.keys(scenes).join(', ')}`);
     const recorded = videoScenes.has(name);
-    const l = await launch(recorded ? { video: true, viewport: MAP_VIEW_VIDEO } : {});
+    const l = await launch(
+      recorded ? { video: true, viewport: videoSizes.get(name) ?? MAP_VIEW_VIDEO } : {},
+    );
     try {
       process.stdout.write(`${name}… `);
       if (recorded) await showCursor(l.page);

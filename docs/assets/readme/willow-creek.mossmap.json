@@ -1,0 +1,1008 @@
+{
+  "format": "mossnote-map",
+  "formatVersion": 1,
+  "exportedAt": "2026-10-10T00:00:00.000Z",
+  "name": "Willow Creek valley",
+  "scene": {
+    "v": 2,
+    "layers": [
+      {
+        "id": "terrain",
+        "name": "Terrain"
+      },
+      {
+        "id": "paths",
+        "name": "Paths"
+      },
+      {
+        "id": "places",
+        "name": "Places"
+      },
+      {
+        "id": "notes",
+        "name": "Notes"
+      }
+    ],
+    "shapes": [
+      {
+        "t": "rect",
+        "layer": "terrain",
+        "name": "North field",
+        "x": -110,
+        "y": -185,
+        "w": 210,
+        "h": 115,
+        "rot": -4,
+        "r": 10,
+        "style": {
+          "stroke": "moss",
+          "fill": "#e4ecc4",
+          "width": 2,
+          "dash": "dashed"
+        },
+        "id": "s1"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-95, -158],
+          [85, -165]
+        ],
+        "style": {
+          "stroke": "#b9c98a",
+          "fill": null,
+          "width": 1.5,
+          "dash": "dotted"
+        },
+        "id": "s2"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-95, -135],
+          [85, -142]
+        ],
+        "style": {
+          "stroke": "#b9c98a",
+          "fill": null,
+          "width": 1.5,
+          "dash": "dotted"
+        },
+        "id": "s3"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-95, -112],
+          [85, -119]
+        ],
+        "style": {
+          "stroke": "#b9c98a",
+          "fill": null,
+          "width": 1.5,
+          "dash": "dotted"
+        },
+        "id": "s4"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-95, -89],
+          [85, -96]
+        ],
+        "style": {
+          "stroke": "#b9c98a",
+          "fill": null,
+          "width": 1.5,
+          "dash": "dotted"
+        },
+        "id": "s5"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "name": "Old pond",
+        "pts": [
+          [-345, 110],
+          [-325, 62],
+          [-262, 38],
+          [-190, 52],
+          [-140, 92],
+          [-150, 150],
+          [-215, 182],
+          [-300, 170]
+        ],
+        "closed": true,
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": "#cfe3ee",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s6"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-290, 105],
+          [-262, 98],
+          [-236, 106]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s7"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-230, 138],
+          [-205, 131],
+          [-180, 139]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s8"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "name": "Willow Creek",
+        "pts": [
+          [330, -275],
+          [290, -215],
+          [235, -165],
+          [172, -118],
+          [100, -72],
+          [30, -52],
+          [-45, -20],
+          [-110, 30],
+          [-150, 80]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#9cc7dd",
+          "fill": null,
+          "width": 18,
+          "dash": "solid"
+        },
+        "id": "s9"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [330, -275],
+          [290, -215],
+          [235, -165],
+          [172, -118],
+          [100, -72],
+          [30, -52],
+          [-45, -20],
+          [-110, 30],
+          [-150, 80]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s10"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -364,
+        "cy": -168,
+        "rx": 18,
+        "ry": 17,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s11"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -292,
+        "cy": -155,
+        "rx": 16,
+        "ry": 14,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s12"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -407,
+        "cy": -121,
+        "rx": 17,
+        "ry": 16,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s13"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -364,
+        "cy": -96,
+        "rx": 19,
+        "ry": 18,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s14"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -247,
+        "cy": -179,
+        "rx": 21,
+        "ry": 19,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s15"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -295,
+        "cy": -207,
+        "rx": 15,
+        "ry": 14,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s16"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -270,
+        "cy": -114,
+        "rx": 21,
+        "ry": 20,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s17"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -228,
+        "cy": -114,
+        "rx": 16,
+        "ry": 15,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s18"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -383,
+        "cy": -220,
+        "rx": 24,
+        "ry": 22,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s19"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -335,
+        "cy": -199,
+        "rx": 20,
+        "ry": 19,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s20"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -354,
+        "cy": -245,
+        "rx": 23,
+        "ry": 21,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s21"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -217,
+        "cy": -241,
+        "rx": 22,
+        "ry": 20,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s22"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -353,
+        "cy": -132,
+        "rx": 23,
+        "ry": 21,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s23"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -401,
+        "cy": -157,
+        "rx": 15,
+        "ry": 14,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s24"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -311,
+        "cy": -95,
+        "rx": 18,
+        "ry": 16,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s25"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -297,
+        "cy": -252,
+        "rx": 21,
+        "ry": 19,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s26"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -259,
+        "cy": -251,
+        "rx": 20,
+        "ry": 19,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s27"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -318,
+        "cy": -131,
+        "rx": 15,
+        "ry": 14,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s28"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -243,
+        "cy": -216,
+        "rx": 17,
+        "ry": 15,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s29"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -409,
+        "cy": -250,
+        "rx": 16,
+        "ry": 15,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s30"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -218,
+        "cy": -149,
+        "rx": 20,
+        "ry": 18,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s31"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -409,
+        "cy": -190,
+        "rx": 23,
+        "ry": 21,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s32"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "name": "Rocky pass",
+        "pts": [
+          [300, -70],
+          [355, -110],
+          [415, -75],
+          [432, -8],
+          [395, 52],
+          [322, 60],
+          [292, 2]
+        ],
+        "style": {
+          "stroke": "amber",
+          "fill": "#e2d6bd",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s33"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "pts": [
+          [325, -53],
+          [331, -68],
+          [344, -64],
+          [347, -52]
+        ],
+        "style": {
+          "stroke": "#8a7f6a",
+          "fill": "#cfc3aa",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s34"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "pts": [
+          [382, -31],
+          [388, -46],
+          [401, -42],
+          [404, -30]
+        ],
+        "style": {
+          "stroke": "#8a7f6a",
+          "fill": "#cfc3aa",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s35"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "pts": [
+          [400, 19],
+          [406, 4],
+          [419, 8],
+          [422, 20]
+        ],
+        "style": {
+          "stroke": "#8a7f6a",
+          "fill": "#cfc3aa",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s36"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "pts": [
+          [340, 35],
+          [346, 20],
+          [359, 24],
+          [362, 36]
+        ],
+        "style": {
+          "stroke": "#8a7f6a",
+          "fill": "#cfc3aa",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s37"
+      },
+      {
+        "t": "polygon",
+        "layer": "terrain",
+        "pts": [
+          [308, -11],
+          [314, -26],
+          [327, -22],
+          [330, -10]
+        ],
+        "style": {
+          "stroke": "#8a7f6a",
+          "fill": "#cfc3aa",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s38"
+      },
+      {
+        "t": "path",
+        "layer": "paths",
+        "name": "Road to the bridge",
+        "pts": [
+          [110, 78],
+          [98, 45],
+          [78, -5],
+          [58, -50],
+          [38, -100],
+          [-15, -125]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#8a6a3c",
+          "fill": null,
+          "width": 3,
+          "dash": "dashed"
+        },
+        "id": "s39"
+      },
+      {
+        "t": "path",
+        "layer": "paths",
+        "name": "Track to the pass",
+        "pts": [
+          [98, 45],
+          [170, 38],
+          [245, 24],
+          [300, 6],
+          [352, -16]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#8a6a3c",
+          "fill": null,
+          "width": 3,
+          "dash": "dashed"
+        },
+        "id": "s40"
+      },
+      {
+        "t": "path",
+        "layer": "paths",
+        "name": "Shore path",
+        "pts": [
+          [92, 52],
+          [10, 70],
+          [-70, 86],
+          [-132, 104]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#8a6a3c",
+          "fill": null,
+          "width": 3,
+          "dash": "dotted"
+        },
+        "id": "s41"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Cabin",
+        "x": 62,
+        "y": 112,
+        "w": 96,
+        "h": 62,
+        "r": 4,
+        "style": {
+          "stroke": "ink",
+          "fill": "#f1e4c9",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s42"
+      },
+      {
+        "t": "polygon",
+        "layer": "places",
+        "name": "Roof",
+        "pts": [
+          [54, 114],
+          [110, 80],
+          [166, 114]
+        ],
+        "style": {
+          "stroke": "ink",
+          "fill": "#c9a27a",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s43"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Shed",
+        "x": 178,
+        "y": 138,
+        "w": 44,
+        "h": 34,
+        "r": 3,
+        "style": {
+          "stroke": "ink",
+          "fill": "#e6d8bb",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s44"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Bridge",
+        "x": 22,
+        "y": -72,
+        "w": 76,
+        "h": 24,
+        "rot": -16,
+        "r": 3,
+        "style": {
+          "stroke": "ink",
+          "fill": "#c2955a",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s45"
+      },
+      {
+        "t": "ellipse",
+        "layer": "places",
+        "name": "Cave",
+        "cx": 366,
+        "cy": -16,
+        "rx": 17,
+        "ry": 13,
+        "style": {
+          "stroke": "ink",
+          "fill": "#4a443b",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s46"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Pier",
+        "x": -146,
+        "y": 96,
+        "w": 44,
+        "h": 9,
+        "rot": -12,
+        "r": 2,
+        "style": {
+          "stroke": "ink",
+          "fill": "#c2955a",
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s47"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -150,
+        "y": -262,
+        "text": "Willow Creek valley",
+        "size": 26,
+        "kind": "plain",
+        "style": {
+          "stroke": "moss",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s48"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -395,
+        "y": -75,
+        "text": "Whispering wood",
+        "size": 15,
+        "kind": "plain",
+        "style": {
+          "stroke": "moss",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s49"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -70,
+        "y": -158,
+        "text": "North field",
+        "size": 15,
+        "kind": "plain",
+        "style": {
+          "stroke": "moss",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s50"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -285,
+        "y": 135,
+        "text": "Old pond",
+        "size": 15,
+        "kind": "plain",
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s51"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": 318,
+        "y": 78,
+        "text": "Rocky pass",
+        "size": 15,
+        "kind": "plain",
+        "style": {
+          "stroke": "amber",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s52"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": 175,
+        "y": -215,
+        "text": "Check the cave at night",
+        "size": 14,
+        "kind": "sticky",
+        "style": {
+          "stroke": "ink",
+          "fill": "amber",
+          "width": 2,
+          "dash": "solid"
+        },
+        "w": 130,
+        "id": "s53"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -395,
+        "y": 215,
+        "text": "Fisher says the creek floods every spring",
+        "size": 14,
+        "kind": "card",
+        "style": {
+          "stroke": "ink",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "w": 190,
+        "id": "s54"
+      }
+    ],
+    "scale": {
+      "unit": "m",
+      "size": 25
+    }
+  },
+  "pins": [
+    {
+      "id": "01J8M5SSN0TE00000000000001",
+      "x": 110,
+      "y": 150,
+      "label": "Cabin",
+      "color": "moss",
+      "note": "",
+      "props": {
+        "icon": "house",
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000002",
+      "x": -128,
+      "y": 100,
+      "label": "Fishing spot",
+      "color": "sky",
+      "note": "",
+      "props": {
+        "icon": "water",
+        "status": "good in the evening",
+        "tags": ["fishing"],
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000003",
+      "x": 60,
+      "y": -52,
+      "label": "Old bridge",
+      "color": "amber",
+      "note": "",
+      "props": {
+        "icon": "flag",
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000004",
+      "x": 366,
+      "y": -16,
+      "label": "Cave mouth",
+      "color": "plum",
+      "note": "",
+      "props": {
+        "icon": "cave",
+        "status": "to check",
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000005",
+      "x": -255,
+      "y": -150,
+      "label": "Locked door?",
+      "color": "rose",
+      "note": "",
+      "props": {
+        "icon": "question",
+        "status": "needs a key",
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000006",
+      "x": 205,
+      "y": 128,
+      "label": "Hidden key",
+      "color": "amber",
+      "note": "",
+      "props": {
+        "icon": "key",
+        "status": "to check",
+        "layer": "places"
+      }
+    }
+  ]
+}

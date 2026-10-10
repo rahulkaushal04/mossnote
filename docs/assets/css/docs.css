@@ -128,7 +128,8 @@ a:hover {
 .mark {
   width: 1.6rem;
   height: 1.6rem;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%231f5f56'/%3E%3Cg fill='none' stroke='%23f7f5f0' stroke-width='46' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M132 350V268a62 62 0 0 1 124 0V350'/%3E%3Cpath d='M256 268a62 62 0 0 1 124 0V308'/%3E%3C/g%3E%3Ccircle cx='380' cy='382' r='27' fill='%23f4c25b'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%231f5f56'/%3E%3Cg fill='none' stroke='%23f7f5f0' stroke-width='46' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M132 350V268a62 62 0 0 1 124 0V350'/%3E%3Cpath d='M256 268a62 62 0 0 1 124 0V308'/%3E%3C/g%3E%3Ccircle cx='380' cy='382' r='27' fill='%23f4c25b'/%3E%3C/svg%3E")
+    center / contain no-repeat;
 }
 
 .find {
