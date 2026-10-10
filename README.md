@@ -72,10 +72,10 @@ A question stays open until you answer it, in your own words. Each person gets a
 Draw boxes, areas, paths and sticky notes. Add named markers that link back to your notes. Rough freehand lines turn into clean shapes. You can save a map as a PNG, SVG or PDF picture, or as a file that you can open again.
 
 <p align="center">
-  <img src="docs/assets/readme/map-build.gif" alt="A recording of the Mossnote map editor with a visible mouse pointer. A map called Willow Creek valley is drawn step by step: the pointer picks a colour and a tool, then draws a field, a pond, a creek, a wood of round trees, a rocky area, dashed paths, a cabin, labels and sticky notes, and finally adds six named markers." width="840">
+  <img src="docs/assets/readme/map-build.gif" alt="An animation of a small map called Willow Creek valley being drawn step by step: a field, a pond, a creek, a few trees, a path, a cabin and a bridge, then two labels and three named markers." width="840">
 </p>
 
-<p align="center"><em>Drawing the Willow Creek map, played about 2.5 times faster than real time. You can open the finished map yourself: <a href="docs/assets/readme/willow-creek.mossmap.json">willow-creek.mossmap.json</a>, then <strong>Maps → Open a map file</strong>.</em></p>
+<p align="center"><em>Drawing a small map, a little faster than real time. You can open the finished map yourself: <a href="docs/assets/readme/willow-creek.mossmap.json">willow-creek.mossmap.json</a>, then <strong>Maps → Open a map file</strong>.</em></p>
 
 ### Choose a template
 
