@@ -136,13 +136,10 @@ export function NoteEntry({
     <li className="group border-b border-line">
       <article ref={article} aria-label={entryName(note)} className="entry outline-offset-2">
         {marks}
-        <div className="min-w-0">
+        <div className="entry-body min-w-0">
           {note.title ? <h3 className="reading font-semibold">{note.title}</h3> : null}
           <div ref={body} className={editable ? 'cursor-text' : ''}>
-            <NoteBody
-              value={note.body}
-              className={clamp ? 'line-clamp-[12] overflow-hidden' : ''}
-            />
+            <NoteBody value={note.body} className={clamp ? 'line-clamp-12 overflow-hidden' : ''} />
           </div>
           {collapsible && long ? (
             <button
@@ -201,7 +198,7 @@ export function NoteEntry({
             <LinkChip key={`${link.type}:${link.id}`} link={link} />
           ))}
           {editable ? (
-            <span className="opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
+            <span className="entry-menu opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
               <NoteMenu
                 note={note}
                 onEdit={(action) => {

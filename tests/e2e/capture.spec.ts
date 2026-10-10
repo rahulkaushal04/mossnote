@@ -3,6 +3,7 @@ import { test, expect } from './fixtures';
 
 const composer = (page: Page) => page.getByRole('combobox', { name: 'Note' });
 const entry = (page: Page, text: string) => page.getByRole('article', { name: text });
+const HINT = 'Set the in-game date and your notes will be grouped by game day.';
 
 test.describe('quick capture', () => {
   test('loads focused, saves from the keyboard alone in under 5 seconds, sending only the body', async ({
@@ -32,17 +33,17 @@ test.describe('quick capture', () => {
   test('the first screen is empty: no wizard, quiet copy, the real-date hint', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Nothing written today.')).toBeVisible();
-    await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeVisible();
+    await expect(page.getByText(HINT)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Set date' })).toBeVisible();
   });
 
   test('the hint can be dismissed and stays dismissed', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Hide this tip' }).click();
-    await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeHidden();
+    await expect(page.getByText(HINT)).toBeHidden();
     await page.reload();
     await expect(page.getByText('Nothing written today.')).toBeVisible();
-    await expect(page.getByText('Set the in-game date to group notes by game day.')).toBeHidden();
+    await expect(page.getByText(HINT)).toBeHidden();
   });
 
   test('a draft survives a reload exactly, and is gone after saving', async ({ page }) => {

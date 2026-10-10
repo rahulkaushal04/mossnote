@@ -943,10 +943,22 @@
     container: entries / inline-size;
   }
   .entry {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     row-gap: 0.25rem;
     padding-block: 1rem;
+  }
+  .entry-body {
+    padding-right: 2.25rem;
+  }
+  .entry-menu {
+    position: absolute;
+    top: 0.5rem;
+    right: -0.5rem;
+  }
+  .entry-meta:not(:has(> :not(.sr-only):not(.entry-menu))) {
+    margin-top: 0;
   }
   .entry-meta {
     display: flex;
@@ -971,6 +983,12 @@
   @container entries (min-width: 50rem) {
     .entry {
       grid-template-columns: 1.5rem minmax(0, 1fr) var(--gutter-w);
+    }
+    .entry-body {
+      padding-right: 0;
+    }
+    .entry-menu {
+      position: static;
     }
     .entry-meta {
       grid-column: 3;
