@@ -85,14 +85,14 @@ A template changes the words and the layout. It never adds facts about a game. Y
 | -------- | ---------------------------- | --------------------------------------------------- |
 | Best for | Any single-player game       | Stardew Valley                                      |
 | Sections | Today, Journal, People, Maps | Today, Daily journal, NPCs, Farm, Maps              |
-| Dates    | Day numbers (Day 12)         | Seasons and years (Spring 3)                        |
+| Dates    | Day numbers (Day 12)         | Seasons and years (Spring 3 · Year 1)               |
 | Extras   | None                         | Farm list and four quick buttons under the note box |
 | Colour   | Green                        | Purple                                              |
 
 The Default template is in the first picture above. This is the Stardew Valley template:
 
 <p align="center">
-  <img src="docs/assets/readme/today-stardew.png" alt="The Today screen in a Stardew Valley journal. It uses purple colours. The sidebar has NPCs and Farm. The date is Spring 3. Four buttons under the note box say Met someone, Found something, Wondering and To do." width="760">
+  <img src="docs/assets/readme/today-stardew.png" alt="The Today screen in a Stardew Valley journal. It uses purple colours. The sidebar has NPCs and Farm. The date is Spring 3, Year 1. Four buttons under the note box say Met someone, Found something, Wondering and To do." width="760">
 </p>
 
 ### Use it on any screen
