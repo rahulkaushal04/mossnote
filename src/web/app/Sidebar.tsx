@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { Kbd } from '../components/ui/Kbd';
 import { LockIcon, PlusIcon, SearchIcon } from '../components/ui/icons';
 import { JournalSwitcher } from '../features/journals/JournalSwitcher';
@@ -19,7 +20,7 @@ function SideLink({ item, count }: { item: NavItem; count?: number | null }) {
       aria-current={item.isActive(pathname) ? 'page' : undefined}
       className="side-link"
     >
-      <item.icon className="size-[1.125rem] shrink-0" />
+      <item.icon className="size-4.5 shrink-0" />
       {item.label}
       {count ? <span className="side-count">{count}</span> : null}
     </Link>
@@ -38,7 +39,7 @@ function Pinned() {
         {pinned.map((tag) => (
           <li key={tag.id}>
             <Link to={`/journal?tag=${encodeURIComponent(tag.name)}`} className="side-link">
-              <span aria-hidden="true" className="w-[1.125rem] text-center text-ink-muted">
+              <span aria-hidden="true" className="w-4.5 text-center text-ink-muted">
                 #
               </span>
               {tag.name}
@@ -58,8 +59,11 @@ export function Sidebar({ items, onNewNote }: { items: NavItem[]; onNewNote: () 
   const palette = usePalette();
   const counts = useActiveJournal()?.counts;
   return (
-    <nav aria-label="Primary" className="side-panel hidden w-[var(--sidebar-w)] shrink-0 wide:flex">
-      <p className="px-2.5 pt-1 pb-3 font-serif text-lg font-medium tracking-tight">Mossnote</p>
+    <nav aria-label="Primary" className="side-panel hidden w-(--sidebar-w) shrink-0 wide:flex">
+      <p className="flex items-center gap-2 px-2.5 pt-1 pb-3 font-serif text-lg font-medium tracking-tight">
+        <Logo className="size-7 shrink-0" />
+        Mossnote
+      </p>
       <JournalSwitcher className="mb-3 w-full" />
       <button
         type="button"
@@ -75,7 +79,7 @@ export function Sidebar({ items, onNewNote }: { items: NavItem[]; onNewNote: () 
       </button>
       <Button
         variant="primary"
-        icon={<PlusIcon className="size-[1.125rem]" />}
+        icon={<PlusIcon className="size-4.5" />}
         className="mb-4 justify-start"
         aria-keyshortcuts="n"
         onClick={onNewNote}
