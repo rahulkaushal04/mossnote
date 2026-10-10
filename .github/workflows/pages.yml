@@ -34,6 +34,10 @@ jobs:
           # A project site lives at https://<owner>.github.io/<repository>/.
           MOSS_BASE: /${{ github.event.repository.name }}/
       - run: npm run check:network
+      # The documentation is added after the outbound-URL check on purpose: it links to GitHub
+      # pages the reader may click, and loads nothing from the network itself.
+      - name: Build the documentation into the site (served at /docs/)
+        run: npm run docs:build
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

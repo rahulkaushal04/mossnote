@@ -1,0 +1,73 @@
+---
+title: "Tutorial: map an area"
+description: Sketch a place, drop markers, link a marker to a note, explore in play, and export the result.
+---
+
+<p>You will draw a small area, mark places in it, link a marker to a note so the two stay together, and export the map. About fifteen minutes. The names are made up. You need a journal; see <a href="~/getting-started/">Getting started</a>.</p>
+
+<h2 id="create">1. Create the map</h2>
+<ol class="steps">
+  <li>Choose <strong>Maps</strong> in the sidebar.</li>
+  <li>Type <code>River valley</code> in <em>Name a new map (optional)…</em>. Tick <strong>Start with layers</strong> if you like to keep terrain and notes apart.</li>
+  <li>Choose <strong>Start drawing</strong>.</li>
+</ol>
+<p><strong>Expected:</strong> the map editor opens with a dotted canvas, the tool strip on the left and the side panel on the right. The status bar says <em>Saved</em>.</p>
+<shot name="maps-empty" alt="The Maps page of a new journal with the new-map row, the Start with layers checkbox and the Open a map file button." >Step 1 happens here.</shot>
+
+<h2 id="draw">2. Draw the area</h2>
+<ol class="steps">
+  <li>Choose <strong>Box</strong> (or press <kbd>R</kbd>) and drag a rectangle for the cabin.</li>
+  <li>Choose <strong>Circle</strong> (<kbd>O</kbd>) and drag a pond.</li>
+  <li>Choose <strong>Area</strong> (<kbd>Y</kbd>), click four or five corners for a field, then press <kbd>Enter</kbd>.</li>
+  <li>Choose <strong>Draw</strong> (<kbd>B</kbd>) and sketch a rough rectangle by hand. When you let go it snaps to a clean box and says <em>Tidied up as rectangle</em>. Choose <strong>Keep my drawing</strong> if you prefer your wobbly one.</li>
+  <li>Choose <strong>Text</strong> (<kbd>T</kbd>), click near the cabin, type <code>Cabin</code> and press <kbd>Enter</kbd>.</li>
+</ol>
+<clip name="video-maps-drawing" alt="A screen recording of drawing on the map: a box, a circle and an arrow are drawn, a rough rectangle is tidied up, a marker is named, and undo and redo are used.">What drawing looks like.</clip>
+<p><strong>Expected:</strong> each shape appears where you drew it, and you are back on the Select tool after each one. <kbd>⌘</kbd><kbd>Z</kbd> undoes the last step if you made a mistake.</p>
+
+<h2 id="markers">3. Mark places</h2>
+<ol class="steps">
+  <li>Choose <strong>Marker</strong> (<kbd>K</kbd>) and click the cabin's door. Type <code>Cabin door</code> and press <kbd>Enter</kbd>.</li>
+  <li>Click the pond's edge, type <code>Fishing spot</code>, press <kbd>Enter</kbd>.</li>
+  <li>Choose <strong>Select</strong> (<kbd>V</kbd>), click the <em>Fishing spot</em> marker and choose <strong>Details…</strong> in the quick bar.</li>
+  <li>Pick the <strong>star</strong> icon, type <code>to check</code> as the <strong>Status</strong> and add the tag <code>fishing</code>.</li>
+</ol>
+<shot name="map-marker-details" alt="The marker panel with a star icon chosen, status to check and the tag fishing.">The marker panel. (1) Icon, (2) status, (3) link field.</shot>
+
+<h2 id="link">4. Link a marker to a note</h2>
+<ol class="steps">
+  <li>In the marker panel, click the <em>Link to a note, …</em> field and type <code>The best fishing spot is by the pond.</code></li>
+  <li>Choose <em>Save “The best fishing spot…” as a new note and link it</em>.</li>
+  <li>Choose <strong>Done</strong>.</li>
+</ol>
+<p><strong>Expected:</strong> the marker panel shows <em>Linked to The best fishing spot is by the pond.</em> In the Journal there is a new note with that text. Open it: under <strong>On maps</strong> it lists <em>Fishing spot · River valley</em>, and choosing it takes you back to the marker.</p>
+<shot name="map-marker-link" alt="The marker panel with text typed in the link field and the option to save it as a new note and link it, outlined in orange.">Writing the note from the marker panel.</shot>
+
+<h2 id="explore">5. Try exploring mode</h2>
+<p>When you are playing and do not want to hunt for tools, use <strong>Explore</strong>.</p>
+<ol class="steps">
+  <li>Choose <strong>Explore</strong> (or press <kbd>E</kbd>).</li>
+  <li>Tap the map to drop a marker, type its name, press <kbd>Enter</kbd>.</li>
+  <li>Choose <strong>Path</strong> and draw the way you went. It starts from your last marker.</li>
+  <li>Choose <strong>Note</strong>, tap the map and type; <kbd>⌘</kbd><kbd>Enter</kbd> finishes the note.</li>
+  <li>Choose <strong>Done</strong> to leave exploring mode.</li>
+</ol>
+<clip name="video-exploring" alt="A screen recording of exploring mode: a marker called Entrance, a path from it, a marker called Fork and a sticky note.">Exploring mode in use.</clip>
+
+<h2 id="organise">6. Tidy up</h2>
+<ul>
+  <li>Open the <strong>Layers</strong> tab to hide or lock groups of objects. See <a href="~/maps-layers-and-files/#layers">Layers</a>.</li>
+  <li>Turn on <strong>View → Grid</strong> and <strong>Rulers and guides</strong>, and use <strong>Measure</strong> with your own units. See <a href="~/maps-drawing/#measure">Measuring</a>.</li>
+  <li>Select several objects and use <strong>Align</strong> and <strong>Space across</strong> in Details.</li>
+</ul>
+
+<h2 id="export">7. Save a history point and export</h2>
+<ol class="steps">
+  <li>Choose <strong>History</strong>, type <code>first draft</code> and choose <strong>Save version</strong>.</li>
+  <li>Choose <strong>Export</strong> and pick <strong>Picture (PNG)</strong> to share a picture, or <strong>Editable project file</strong> to keep the map itself.</li>
+</ol>
+<p><strong>Expected:</strong> a file named after the map (<em>River valley.png</em> or <em>River valley.mossmap.json</em>) downloads. You can open the project file later with <em>Open a map file</em> on the Maps page.</p>
+<shot name="map-export-menu" alt="The Export menu with Picture PNG, Vector drawing SVG, Document PDF and Editable project file.">The Export menu.</shot>
+
+<h2 id="find">8. Find it again</h2>
+<p>Back on the Maps page, <strong>Places</strong> lists every marker. Search for <code>fishing</code> and the marker, its note and the tag all turn up. See <a href="~/maps-markers/#places">Finding markers again</a>.</p>

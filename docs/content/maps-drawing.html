@@ -1,0 +1,96 @@
+---
+title: Drawing tools
+description: Every map tool, how to select and edit objects, tidy-up drawing, snapping, styles, text and connectors.
+---
+
+<h2 id="tools">The tools</h2>
+<p>Choose a tool in the strip on the left, or press its letter when the cursor is not in a text box. A short hint for the current tool appears when you point at it.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Tool</th><th>Key</th><th>How to use it</th></tr></thead>
+  <tbody>
+    <tr><td>Select</td><td><kbd>V</kbd></td><td>Click an object to select it, drag it to move it, drag on empty canvas to select several. Hold <kbd>Shift</kbd> to add to a selection <status kind="unverified"></status></td></tr>
+    <tr><td>Pan</td><td><kbd>H</kbd></td><td>Drag to move around the map.</td></tr>
+    <tr><td>Draw</td><td><kbd>B</kbd></td><td>Draw freehand. Rough shapes are tidied up for you (see below).</td></tr>
+    <tr><td>Line</td><td><kbd>L</kbd></td><td>Drag from one point to another.</td></tr>
+    <tr><td>Arrow</td><td><kbd>A</kbd></td><td>Drag from the tail to the head.</td></tr>
+    <tr><td>Box</td><td><kbd>R</kbd></td><td>Drag a rectangle. Hold <kbd>Shift</kbd> for a square.</td></tr>
+    <tr><td>Circle</td><td><kbd>O</kbd></td><td>Drag an oval. Hold <kbd>Shift</kbd> for a circle.</td></tr>
+    <tr><td>Area</td><td><kbd>Y</kbd></td><td>Click each corner of a shape. Double-click or press <kbd>Enter</kbd> to finish.</td></tr>
+    <tr><td>Connect</td><td><kbd>C</kbd></td><td>Drag from one object to another to join them with a connector that follows them when they move.</td></tr>
+    <tr><td>Text</td><td><kbd>T</kbd></td><td>Click to type a label. <kbd>Enter</kbd> finishes; <kbd>Esc</kbd> cancels.</td></tr>
+    <tr><td>Note</td><td><kbd>S</kbd></td><td>Click to place a sticky note. <kbd>⌘</kbd><kbd>Enter</kbd> finishes (plain <kbd>Enter</kbd> adds a new line); <kbd>Esc</kbd> cancels.</td></tr>
+    <tr><td>Marker</td><td><kbd>K</kbd></td><td>Click to drop a marker, then type its name. See <a href="~/maps-markers/">Markers</a>.</td></tr>
+    <tr><td>Measure</td><td><kbd>M</kbd></td><td>Drag to measure a distance. See <a href="#measure">Measuring</a>.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>After you draw something the editor switches back to <strong>Select</strong>, unless you turn on <em>View → Keep the tool after drawing</em>.</p>
+
+<h2 id="smart-draw">Tidy-up drawing</h2>
+<p>With the <strong>Draw</strong> tool, a rough stroke that looks like a line, an arrow, a rectangle, a circle or a polygon is replaced by the clean shape. A message appears: <em>Tidied up as rectangle.</em> with <strong>Keep my drawing</strong>, which puts your original stroke back.</p>
+<shot name="map-smart-draw" alt="A rough rectangle has just been drawn freehand and replaced by a clean rectangle. A message at the top of the canvas, outlined in orange, reads Tidied up as rectangle with a Keep my drawing link and a close button.">The message after a stroke is tidied up. (1) <strong>Keep my drawing</strong> restores the original.</shot>
+<p>Turn the behaviour off in <strong>View → Tidy up rough shapes</strong>; strokes then stay exactly as you drew them.</p>
+
+<h2 id="select">Selecting and editing</h2>
+<p>Select an object to see handles on it. Drag the corners to resize, the round handle above it to rotate, and the body to move. When something is selected, a small <strong>quick bar</strong> floats near it, and the <strong>Details</strong> tab fills with options.</p>
+<shot name="map-marker-selected" alt="The map editor with a marker selected. A floating quick bar with a colour dot and Details, Name, Copy, Lock and Delete buttons sits over the canvas, and the side panel shows a Details, icon, tags, link button. Both are outlined in orange.">A selected marker. (1) The Details button in the side panel, (2) the quick bar.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>What</th><th>How</th></tr></thead>
+  <tbody>
+    <tr><td>Move</td><td>Drag. Hold <kbd>Shift</kbd> to move in one direction only. The arrow keys nudge by 1; <kbd>Shift</kbd> with an arrow nudges by one grid step.</td></tr>
+    <tr><td>Resize, rotate</td><td>Drag the handles. <kbd>Shift</kbd> keeps proportions.</td></tr>
+    <tr><td>Rename</td><td><kbd>F2</kbd>, the <strong>Name</strong> field in Details, or <em>Rename</em> in the right-click menu. The name shows in the Layers list and, for markers, on the map.</td></tr>
+    <tr><td>Copy, cut, paste, duplicate</td><td><kbd>⌘</kbd><kbd>C</kbd>, <kbd>⌘</kbd><kbd>X</kbd>, <kbd>⌘</kbd><kbd>V</kbd>, <kbd>⌘</kbd><kbd>D</kbd>. These use an in-app clipboard, not your system clipboard: it holds copied objects (and copied styles) while the app stays open, so you can copy in one map and paste in another.</td></tr>
+    <tr><td>Group, ungroup</td><td><kbd>⌘</kbd><kbd>G</kbd>, <kbd>⌘</kbd><kbd>Shift</kbd><kbd>G</kbd>.</td></tr>
+    <tr><td>Order</td><td><strong>To front / Forward / Backward / To back</strong> in Details, or <kbd>⌘</kbd><kbd>]</kbd> and <kbd>⌘</kbd><kbd>[</kbd> (add <kbd>Shift</kbd> for front and back).</td></tr>
+    <tr><td>Lock, hide</td><td><strong>Lock</strong> protects an object from accidental changes; <strong>Hide</strong> removes it from view. Both also live in the Layers list, for single objects and whole layers.</td></tr>
+    <tr><td>Delete</td><td><kbd>Delete</kbd> or the <strong>Delete</strong> button.</td></tr>
+    <tr><td>Select all</td><td><kbd>⌘</kbd><kbd>A</kbd>.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Right-click an object for a menu with the same actions plus <em>Add a note card</em>, <em>Copy style</em> and <em>Paste style</em>. Right-clicking empty canvas offers Paste, Select all, <em>Fit the whole map</em>, and toggles for the grid and snapping.</p>
+<shot name="map-context-menu" alt="The right-click menu on an object, outlined in orange, listing Rename, Add a note card, Duplicate, Copy, Cut, Paste, Group, Ungroup, Bring to front, Send to back, Lock, Hide, Copy style, Paste style and Delete, with keyboard shortcuts.">The right-click menu for an object.</shot>
+
+<h3 id="several">Several objects at once</h3>
+<p>Select two or more objects and the Details tab adds <strong>Align</strong> (left, centre, right, top, middle, bottom) and <strong>Space across / Space down</strong> (needs three), <strong>Same width</strong> and <strong>Same height</strong>.</p>
+<shot name="map-multi-select" alt="The side panel with everything selected, showing an Align group with Left, Centre, Right, Top, Middle and Bottom, and a second group with Space across, Space down, Same width and Same height, each outlined in orange.">With several objects selected. (1) Align, (2) space and size.</shot>
+
+<h2 id="styles">Style</h2>
+<p>With nothing selected, <strong>Details → New drawings</strong> sets the style used for the next things you draw. With something selected, the same controls change that object.</p>
+<ul>
+  <li><strong>Line colour</strong> and <strong>Fill</strong>: six named colours (ink, moss, sky, rose, amber, plum) that adapt to light and dark themes, plus a <em>Custom colour</em> picker. Fill can be none.</li>
+  <li><strong>Line width</strong>: 1, 2, 3, 5, 8 or 14.</li>
+  <li><strong>Line style</strong>: Solid, Dashed or Dotted.</li>
+  <li><strong>Copy style / Paste style</strong> moves a look from one object to another.</li>
+  <li><strong>Save this style as…</strong> names the current style and keeps it as a preset you can apply later.</li>
+  <li>Boxes also have a <strong>Corners</strong> setting for rounded corners.</li>
+</ul>
+
+<h2 id="text-and-notes">Text, notes and cards</h2>
+<p>The Text tool, the Note tool and <em>Add a note card</em> all make text objects. In Details, <strong>Kind</strong> switches an object between <strong>Text</strong> (a plain label), <strong>Card</strong>, <strong>Callout</strong> and <strong>Sticky</strong>, and <strong>Size</strong> changes the type size. Any object (not only text) can have a <strong>Note on this object</strong>, a short note up to 500 characters that stays with it. <strong>Pin a note card to it</strong> places that text on the map as a card.</p>
+
+<h2 id="connectors">Lines, arrows and connectors</h2>
+<p>A line or arrow drawn between two objects with the <strong>Connect</strong> tool stays attached and follows them. In Details you can choose the <strong>route</strong> (Straight, Curved or Elbow), the <strong>arrowheads</strong> (None, One end, Both) and reverse its direction.</p>
+
+<h2 id="snapping">Snapping, grid and guides</h2>
+<p>While you draw or move, Mossnote can snap to points and edges of other objects, to alignment lines with other objects, to the grid, and to angles every 15°. Turn the master switch with <strong>Snap</strong> in the status bar or <kbd>Shift</kbd><kbd>S</kbd>, and each kind in <strong>View → Snapping</strong>. Hold <kbd>Alt</kbd> to pause snapping while you drag.</p>
+<shot name="map-view-menu" alt="The View menu, outlined in orange, with sections Show (Grid, Rulers and guides, Overview map, Marker names, Compass), Drawing (Tidy up rough shapes, Keep the tool after drawing) and Snapping (Snapping on, To other objects, Line up with others, To the grid, Angles every 15 degrees).">The View menu.</shot>
+<ul>
+  <li><strong>Grid</strong> (<kbd>Shift</kbd><kbd>G</kbd>) shows a grid. With it off you see a quiet dot lattice instead.</li>
+  <li><strong>Rulers and guides</strong> (<kbd>Shift</kbd><kbd>R</kbd>) shows rulers along the top and left. Drag from a ruler onto the canvas to create a <strong>guide</strong> line that objects snap to (up to 50 per map). Drag a guide to move it.</li>
+  <li><strong>Overview map</strong>, <strong>Marker names</strong> and <strong>Compass</strong> toggle those items.</li>
+</ul>
+<shot name="map-grid-rulers" alt="The map editor with the grid and rulers switched on: a ruler with numbers runs along the top and left of the canvas, and grid dots are visible. The Grid and Rulers toggles in the status bar are outlined in orange.">Grid and rulers on. (1) Grid toggle, (2) Rulers toggle.</shot>
+<callout type="note">
+<p>Your View choices (grid, rulers, snapping and the like) and the style for new drawings are remembered in this browser and apply to every map you open.</p>
+</callout>
+
+<h2 id="measure">Measuring</h2>
+<p>The <strong>Measure</strong> tool shows a distance and an angle while you drag. By default one grid square is 20 steps. To use your own units, open <strong>Details</strong> with nothing selected and fill in <em>Units per grid cell</em> and <em>Unit name</em> under <strong>Measuring</strong>. The readout then uses them, for example <em>236 m</em>. The reading disappears when you let go; it is not saved on the map. Selecting a polygon also shows its area in the Details panel.</p>
+<shot name="map-measure" alt="Dragging with the Measure tool: a dashed line runs across the map with a label reading 236 m and minus 30 degrees. The side panel's Units per grid cell and Unit name fields, set to 5 and m, are outlined in orange.">Measuring while dragging. (1) Units per grid cell, (2) unit name.</shot>
+<callout type="limit" title="Snapped angles">
+<p>While snapping is on, the measuring line snaps to 15° steps, so a nearly horizontal drag can read as −30°. Turn snapping off, or hold <kbd>Alt</kbd>, to measure freely.</p>
+</callout>

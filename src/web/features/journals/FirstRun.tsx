@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Logo } from '../../components/ui/Logo';
 import { JournalIcon, LockIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
@@ -22,6 +23,7 @@ export function FirstRun() {
   return (
     <main className="mx-auto grid min-h-screen max-w-[64rem] content-center gap-x-16 gap-y-8 px-5 py-12 wide:grid-cols-[minmax(0,1fr)_minmax(0,27rem)] wide:gap-y-0">
       <div className="wide:self-end">
+        <Logo className="mb-6 size-14" />
         <h1 className="page-title text-[2.5rem] leading-[1.05] phone:text-[3.25rem]">
           Welcome to <em>Mossnote</em>
         </h1>

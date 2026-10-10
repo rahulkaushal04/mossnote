@@ -1,0 +1,56 @@
+---
+title: Layers, history and export
+description: Organise a map into layers, restore older versions, and export a map as a picture, a vector drawing, a PDF or an editable file.
+---
+
+<h2 id="layers">Layers</h2>
+<p>Layers are named groups of objects, stacked in order, that you can hide or lock together. A map can have up to 30. Every object lives on one layer, and new drawings go on the <em>active</em> layer.</p>
+<shot name="map-layers" alt="The side panel on its Layers tab. A list of five layers, Notes, Locations, Paths, Terrain and Background, with the Notes layer expanded to show every object drawn on it. Each row has eye, lock and arrow buttons. Orange boxes mark the Layers tab and the layer list.">The Layers tab. (1) The tab, (2) the layer list, with the top layer expanded.</shot>
+<ul>
+  <li>A new map has one layer, <em>Layer 1</em>, unless you ticked <em>Start with layers</em> (Background, Terrain, Paths, Locations and Notes). In a map that does not have them, <em>Details → Layers and markers → Add suggested layers</em> adds the same five.</li>
+  <li><strong>Choose the active layer</strong> by clicking its name. Click again, or double-click, to rename it.</li>
+  <li>Each layer row has buttons to <strong>show or hide</strong> it, <strong>lock or unlock</strong> it, <strong>move it up or down</strong> in the stack, and <strong>delete</strong> it. <strong>New layer</strong> adds another.</li>
+  <li>The small triangle <strong>expands</strong> a layer to list its objects. Each object has its own hide and lock buttons, and you can click it to select it or double-click to rename it.</li>
+  <li><strong>Move selection to</strong> sends the selected objects to another layer.</li>
+</ul>
+<callout type="note" title="Deleting a layer">
+<p>Deleting a layer does not delete what is on it: its objects and markers move to the neighbouring layer. A map always keeps at least one layer, so the last one cannot be deleted.</p>
+</callout>
+<p>Use layers however suits you: terrain apart from paths, one layer per floor of a building, or a layer of your own notes that you can hide when you want a clean view.</p>
+
+<h2 id="history">Version history</h2>
+<p>Mossnote keeps older versions of each map so you can go back.</p>
+<shot name="map-history" alt="The Version history panel, open at the right. A field to name a version with a Save version button, then one Automatic entry showing its date and the number of drawings and markers, with Restore and Delete buttons.">Version history. Every version shows when it was kept and what it held.</shot>
+<ul>
+  <li><strong>Automatic versions.</strong> While you draw, Mossnote keeps a version about every ten minutes, and holds the latest 30.</li>
+  <li><strong>Named versions.</strong> Type a name (optional) and choose <strong>Save version</strong> any time, for example <em>before changes</em>. You can keep up to 50.</li>
+  <li><strong>Restore</strong> brings a version back. The map as it is now is saved as a version first, so a restore can itself be undone.</li>
+  <li><strong>Delete</strong> removes one version.</li>
+</ul>
+
+<h2 id="export">Exporting a map</h2>
+<p>Choose <strong>Export</strong> in the toolbar.</p>
+<shot name="map-export-menu" alt="The Export menu, outlined in orange, with four choices: Picture (PNG), Vector drawing (SVG), Document (PDF) and Editable project file.">The Export menu.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Choice</th><th>File</th><th>Use it for</th></tr></thead>
+  <tbody>
+    <tr><td>Picture (PNG)</td><td><code>Map name.png</code></td><td>Sharing or printing a picture of the map.</td></tr>
+    <tr><td>Vector drawing (SVG)</td><td><code>Map name.svg</code></td><td>Editing in a drawing program, or a sharp picture at any size.</td></tr>
+    <tr><td>Document (PDF)</td><td><code>Map name.pdf</code></td><td>Printing or sending as a document. The map is a picture inside the PDF.</td></tr>
+    <tr><td>Editable project file</td><td><code>Map name.mossmap.json</code></td><td>Backing up a single map, or moving it to another journal or version. Open it again with <em>Open a map file</em> on the Maps page.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>We exported all four from a test map and each downloaded a file of the expected type. The pictures show the <strong>whole drawing, trimmed to its contents</strong>, not just the part on screen, on a plain paper background with fixed colours (they do not follow the light or dark theme). Marker names are placed beside the markers. The SVG stays a vector drawing. The PDF holds the map as one picture (a 2× JPEG on a single page), so it prints well but its text cannot be selected. Nothing is uploaded anywhere.</p>
+<callout type="note" title="Maps are also in your journal export">
+<p>An export of the whole journal from <a href="~/data-and-backup/#export">Settings → Data &amp; backup</a> includes your maps, and importing it restores them.</p>
+</callout>
+
+<h2 id="more">More</h2>
+<ul>
+  <li><strong>Duplicate this map</strong> (the <strong>⋯</strong> menu, or <em>Duplicate</em> in the Maps list) makes a copy named <em>… copy</em>.</li>
+  <li><strong>Delete map</strong> (the <strong>⋯</strong> menu at the top right of the editor) moves it to <a href="~/data-and-backup/#trash">Recently deleted</a>.</li>
+  <li><strong>Full screen</strong> (<kbd>Shift</kbd><kbd>F</kbd>) gives the canvas the whole window.</li>
+  <li><strong>Shortcuts.</strong> The full map list is in <a href="~/shortcuts/#maps">Keyboard shortcuts</a>.</li>
+</ul>

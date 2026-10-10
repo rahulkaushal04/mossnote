@@ -162,3 +162,6 @@ local_reference/
 # Standalone program builds (npm run package:binary)
 /build/
 /release/
+
+# Documentation capture scratch
+docs/assets/.video-tmp/

@@ -1,0 +1,117 @@
+---
+title: Writing notes
+description: The note box, how drafts are kept, and how to add titles, dates, flags, tags, people and links while you type.
+---
+
+<p>A <strong>note</strong> is the basic unit of Mossnote: some text, plus optional extras. Every extra is optional, so the quickest note is just a sentence and a save.</p>
+
+<h2 id="note-box">The note box</h2>
+<p>The note box lives at the top of <a href="~/looking-back/#today">Today</a> and of each <a href="~/looking-back/#day">Day</a> page. Elsewhere, <strong>New note</strong> (or the <kbd>n</kbd> key) opens the same box in a small window.</p>
+<shot name="composer-options" alt="The note box with the text Found a locked door behind the waterfall. Along its bottom edge are seven numbered orange boxes: the date chip Day 12, the discovery star, the question mark, Title, Tag, Link, and the Save button.">The note box. (1) Date, (2) Discovery, (3) Question, (4) Title, (5) Tag, (6) Link, (7) Save.</shot>
+<ol class="steps">
+  <li>Type your note. The box grows as you write, up to about 40% of the screen height, then scrolls.</li>
+  <li>Press <kbd>⌘</kbd><kbd>Enter</kbd> (<kbd>Ctrl</kbd><kbd>Enter</kbd> on Windows and Linux) or choose <strong>Save</strong>.</li>
+  <li>The note appears in the list below straight away and the box stays focused for the next one.</li>
+</ol>
+<p>Notes can hold up to <strong>50,000 characters</strong> and titles up to <strong>200</strong>. If you go over, the box says <em>Too long: 50,001 of 50,000 characters</em> and Save is disabled.</p>
+
+<h3 id="drafts">Drafts and failed saves</h3>
+<ul>
+  <li><strong>Drafts are kept.</strong> What you type is saved as a draft as you go. Refresh the page, close the tab or lose your connection and the draft is still there. The Today box, each Day page's box and the <em>New note</em> window keep separate drafts.</li>
+  <li><strong>A failed save keeps your text.</strong> The box shows <em>Couldn't save. Your text is still here.</em> with a <strong>Retry</strong> button. Retry reuses the same note identity, so nothing is saved twice.</li>
+  <li><strong>If the browser cannot keep drafts</strong> (some private windows), the box says <em>Drafts won't be kept in this browser</em>.</li>
+  <li><strong>Esc</strong> leaves the box without clearing it. The draft stays.</li>
+</ul>
+
+<h2 id="extras">Titles, dates and flags</h2>
+<dl>
+  <dt>Title</dt>
+  <dd>Choose <strong>Title</strong>, or type <code>/title</code>, to show a title field above the text. <kbd>Enter</kbd> in the title moves you to the body. A title is shown in bold above the note.</dd>
+  <dt>Date</dt>
+  <dd>The chip on the left shows the date the note will carry: the current in-game date, or <em>Add date</em> if none is set. Choose it to pick another date for just this note. <strong>Clear date</strong> saves it undated. See <a href="~/dates-and-calendar/">Dates and the calendar</a>.</dd>
+  <dt>Discovery ✦</dt>
+  <dd>Toggle the star to mark something you found out. Marked notes can be filtered and appear under <em>Recent discoveries</em> on Today.</dd>
+  <dt>Question ?</dt>
+  <dd>Toggle the question mark for something you want to find out. You can leave it open and solve it later. See <a href="~/questions-and-discoveries/">Questions and discoveries</a>.</dd>
+</dl>
+
+<h2 id="pickers">Tags, people and links as you type</h2>
+<p>Four characters open a small list at the caret. Pick a row with the mouse, or with <kbd>↑</kbd> <kbd>↓</kbd> and <kbd>Enter</kbd> (or <kbd>Tab</kbd>).</p>
+<div class="table-wrap">
+<table>
+  <caption>What each trigger does</caption>
+  <thead><tr><th>Type</th><th>Where it works</th><th>What happens</th></tr></thead>
+  <tbody>
+    <tr><td><code>#</code></td><td>At the start of a line or after a space</td><td>Lists your tags. Choosing one removes the <code>#…</code> text and adds the tag beside the note. A <em>Create #name</em> row makes a new tag.</td></tr>
+    <tr><td><code>@</code></td><td>At the start of a line or after a space</td><td>Lists people. Choosing one replaces <code>@Ma</code> with the person's name in the text and adds a link to them. <em>Create person ‘Ma’</em> makes a new person. A name can be up to three words.</td></tr>
+    <tr><td><code>[[</code></td><td>Anywhere in a line</td><td>Searches your notes and, in the Stardew Valley template, your farm entries. Choosing one adds a link and removes the typed text. The list closes at <code>]</code> or the end of the line.</td></tr>
+    <tr><td><code>/</code></td><td>At the very start of a line</td><td>Opens a command menu: Title, Date, Discovery, Question, Tag, Person, Link.</td></tr>
+  </tbody>
+</table>
+</div>
+<shot name="picker-person" alt="The note box with the text Spoke to @Ma. A list below the caret, outlined in orange, offers Mara and a row reading Create person Ma.">Typing <code>@Ma</code> lists matching people and offers to create a new one.</shot>
+<shot name="picker-tag" alt="The note box with the text The bridge is out. #le. A list below the caret, outlined in orange, offers the tag lead and a row reading Create #le.">Typing <code>#le</code> lists matching tags and offers to create one.</shot>
+<shot name="picker-slash" alt="The note box containing only a slash. The command menu below it, outlined in orange, lists Title, Date, Discovery, Question, Tag, Person and Link.">A <code>/</code> at the start of a line opens the command menu.</shot>
+<shot name="picker-link" alt="The note box with the text Back at the door, see [[. A list below the caret, outlined in orange, shows notes that can be linked.">Typing <code>[[</code> searches notes (and farm entries) to link.</shot>
+
+<callout type="tip" title="Pickers open only for typed characters">
+<p>The lists open when you <em>type</em> a trigger. Pasted text and text entered through an input method (IME) never opens one. If you press <kbd>Esc</kbd> while a list is open, it closes and your text stays exactly as typed; the same trigger will not pop back open at that spot.</p>
+</callout>
+
+<h3 id="buttons">The Tag and Link buttons</h3>
+<p>If you would rather click, the <strong>Tag</strong> and <strong>Link</strong> buttons open the same lists with a search field. <strong>Tag</strong> lists tags. <strong>Link</strong> lists notes, people and farm entries together, each labelled with its kind.</p>
+
+<h3 id="chips">Chips</h3>
+<p>Chosen tags and links appear as small chips under the text: <code>#lead</code> for a tag and <code>↗ Mara</code> for a link. Remove one with its <strong>×</strong>, or focus it and press <kbd>Backspace</kbd> or <kbd>Delete</kbd>. A note can carry up to <strong>30 tags</strong> and <strong>50 links</strong>.</p>
+<p>Typing <code>#word</code> or <code>@Name</code> in the middle of a sentence and then pressing <kbd>Esc</kbd>, or typing it in a way that does not open the list, leaves it as plain text. Only picking a row creates the tag or the link.</p>
+<callout type="tip" title="A last line of tags becomes tags">
+<p>When you <strong>save a new note</strong> whose last line contains nothing but <code>#tags</code>, for example <code>#idea #todo</code>, Mossnote removes that line from the text and attaches the tags to the note. This is quick to type from a phone. It applies to new notes only, not when you edit an existing note.</p>
+</callout>
+
+<h2 id="reading">How a note is shown</h2>
+<p>Notes keep your line breaks. A small part of Markdown is understood: <strong>**bold**</strong>, <em>*italic*</em>, <code>`inline code`</code>, bulleted and numbered lists, block quotes and web links that start with <code>http://</code> or <code>https://</code> (they open in a new tab). Headings, tables, images, code blocks and raw HTML are shown as plain text. Nothing you type is ever run as code.</p>
+<p>On a wide screen a note's date, tags and links sit in a margin to its right. On a narrow screen they sit under the text. A page that is already about one day does not repeat the date on every note.</p>
+
+<h2 id="editing">Editing, titles and the note menu</h2>
+<p>Every note has a <strong>⋯ More actions</strong> button (it appears when you point at the note, and is always shown on a touch screen).</p>
+<shot name="note-menu" alt="The Today screen with a note's More actions menu open. The menu, outlined in orange, lists Edit, Add title, Set date, Remove discovery, Mark as question, Add link and Delete.">The note menu: (1) the menu, (2) the button that opens it.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Menu item</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Edit</td><td>Edits the note in place. Also: focus the note and press <kbd>e</kbd>.</td></tr>
+    <tr><td>Add title / Edit title</td><td>Opens the editor with the title field focused.</td></tr>
+    <tr><td>Set date</td><td>Changes the note's date.</td></tr>
+    <tr><td>Mark as discovery / Remove discovery</td><td>Toggles the ✦ flag.</td></tr>
+    <tr><td>Mark as question / Remove question</td><td>Toggles the ? flag. Removing the flag from a solved question asks first, because it also clears the answer.</td></tr>
+    <tr><td>Add link</td><td>Opens the editor with the link list open.</td></tr>
+    <tr><td>Delete</td><td>Deletes the note. See below.</td></tr>
+  </tbody>
+</table>
+</div>
+<shot name="note-editing" alt="A note being edited in place on Today: the text is in an outlined box with the same options row as the note box, and a Done button on the right.">Editing in place. The editor has the same options as the note box, with <strong>Done</strong> in place of Save.</shot>
+<p>While editing, <kbd>⌘</kbd><kbd>Enter</kbd> finishes. Everything the note box offers (date, flags, title, tags, links, the pickers) works the same way.</p>
+
+<h2 id="deleting">Deleting and undoing</h2>
+<p><strong>Delete</strong> removes the note at once and shows <em>Note deleted</em> with an <strong>Undo</strong> button. You can also press <kbd>u</kbd> while the message is showing. After the message goes, the note is still recoverable: it sits in <a href="~/data-and-backup/#trash">Settings → Recently deleted</a> for <strong>30 days</strong> before it is removed for good.</p>
+<shot name="delete-undo" alt="Today after deleting a note. A message at the bottom of the window reads Note deleted, with an Undo button outlined in orange.">The message after a delete.</shot>
+
+<h2 id="note-page">A note's own page</h2>
+<p>A note has its own address (<code>/notes/…</code>). You reach it by following a link to it: from a <em>Recent discoveries</em> entry, a search result, a link chip on another note, or a map marker linked to it. The page shows the note and, under <em>Linked from</em>, any notes whose links point at it.</p>
+
+<h2 id="write-about">Write about a person or farm entry</h2>
+<p>On a person's page, <strong>Write about …</strong> opens the <em>New note</em> window with a link to that person already attached, so the note shows up on their page. Farm entries have <strong>Write about this</strong> in the same way.</p>
+
+<h2 id="limits">Limits at a glance</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Item</th><th>Limit</th></tr></thead>
+  <tbody>
+    <tr><td>Note text</td><td>50,000 characters</td></tr>
+    <tr><td>Note title</td><td>200 characters</td></tr>
+    <tr><td>Tags on one note</td><td>30 (each tag up to 40 characters)</td></tr>
+    <tr><td>Links on one note</td><td>50</td></tr>
+    <tr><td>Answer to a question</td><td>2,000 characters</td></tr>
+  </tbody>
+</table>
+</div>

@@ -1,0 +1,55 @@
+---
+title: Search
+description: Find notes, people, farm entries, maps and tags with typo-tolerant search and filters such as is:question and #tag.
+---
+
+<p>Search looks through your notes, people, farm entries (Stardew Valley), maps and their markers, and tags. It forgives typos and understands a few filters. It runs entirely on your own device.</p>
+
+<h2 id="open">Opening search</h2>
+<ul>
+  <li>Choose the <strong>Search</strong> field in the sidebar (or the search button on a phone or tablet).</li>
+  <li>Press <kbd>⌘</kbd><kbd>K</kbd> (<kbd>Ctrl</kbd><kbd>K</kbd> on Windows and Linux) or <kbd>/</kbd> when the cursor is not in a text box.</li>
+</ul>
+<callout type="limit" title="The shortcut does not work inside a text box">
+<p>The shortcuts list says <kbd>⌘</kbd><kbd>K</kbd> works <em>everywhere</em>, but in practice it does not fire while the cursor is in a text field, including the note box that is focused when Today opens. Press <kbd>Esc</kbd> first (it leaves the note box and keeps your draft) or use the Search field. This comes from the keyboard library the app uses, which ignores key presses made in text fields.</p>
+</callout>
+
+<h2 id="palette">The search window</h2>
+<p>With nothing typed, the window lists <strong>commands</strong>: New note, Go to Today / Journal / People / Maps / Settings, Set in-game date, Next day, Previous day, and journal commands. Each shows its keyboard shortcut. Type to filter them.</p>
+<shot name="palette-commands" alt="The search window with an empty search field and a row of scope tabs All, Notes, People and Maps, outlined in orange. Below, a list of commands such as New note, Go to Today and Set in-game date, each with its shortcut.">The search window. (1) The search field, (2) scope tabs that narrow results to one kind.</shot>
+<p>Type a word and results appear in groups: notes, people, farm entries, maps and tags, a few per group. Move with <kbd>↑</kbd> and <kbd>↓</kbd>, open with <kbd>Enter</kbd>, or press <kbd>⌘</kbd><kbd>Enter</kbd> to open the full results page. <kbd>Esc</kbd> closes it. The tabs under the field narrow the results. They use your template's words: <em>All, Notes, People, Maps</em> in the Default template, and <em>All, Notes, NPCs, Crops, Maps</em> in Stardew Valley.</p>
+<shot name="palette-results" alt="The search window after typing lantrn, a misspelling. It shows two matching notes, each with the matched word lantern highlighted and its day.">Search forgives typos: <code>lantrn</code> finds <em>lantern</em>.</shot>
+<clip name="video-search" alt="A screen recording of searching: the search window opens, lantrn is typed and finds the note about a lantern, then is:question and #lead are tried.">Opening search, finding a note despite a typo, then trying the <code>is:question</code> and <code>#lead</code> filters.</clip>
+
+<h2 id="results-page">The results page</h2>
+<p>The results page (<code>/search?q=…</code>) shows everything that matches, with the search field at the top. Words and filters Mossnote recognised appear as small chips you can remove with their ×.</p>
+<shot name="search-page" alt="The Search page for lantern is:question. One chip, is:question, sits under the search field, and one note matches. A Search tips button, outlined in orange, is at the right.">Results for <code>lantern is:question</code>. (1) The tips button.</shot>
+<p>The <strong>Search tips</strong> button lists the syntax with examples written for your journal's calendar.</p>
+<shot name="search-tips" alt="The Search tips panel, a list of examples with their meanings: harbour lantern, a quoted phrase, minus draft, hash idea, at Name, is:discovery is:question, is:open is:solved, in:notes in:people, and day 120. It sits over the search results, outlined in orange.">The tips panel.</shot>
+
+<h2 id="syntax">Search syntax</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type</th><th>It means</th></tr></thead>
+  <tbody>
+    <tr><td><code>lantern</code></td><td>Notes containing the word. Several words must all match.</td></tr>
+    <tr><td><code>"blue door"</code></td><td>The exact phrase.</td></tr>
+    <tr><td><code>route -shore</code></td><td>Contains <em>route</em> but not <em>shore</em>. A minus excludes a word or a quoted phrase.</td></tr>
+    <tr><td><code>#lead</code></td><td>Has the tag <em>lead</em>. <code>#"side quest"</code> works for a tag typed with spaces.</td></tr>
+    <tr><td><code>@Alex</code></td><td>Mentions the person. <code>@"Old Tomas"</code> for a name with spaces.</td></tr>
+    <tr><td><code>is:discovery</code>, <code>is:question</code></td><td>Only discoveries, or only questions.</td></tr>
+    <tr><td><code>is:open</code>, <code>is:solved</code></td><td>Only open, or only solved, questions.</td></tr>
+    <tr><td><code>in:notes</code>, <code>in:people</code>, <code>in:farm</code></td><td>Only that kind of result. <code>in:farm</code> exists only in journals that have a Farm section.</td></tr>
+    <tr id="dates"><td><code>day 12</code> (Default) or <code>spring 3</code>, <code>y2 summer</code>, <code>year 1 fall 12</code> (seasons)</td><td>Notes from that in-game date. With seasons, the day and the year are optional; a season name needs its first three letters if they are unique.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A word followed by a colon that Mossnote does not know (<code>foo:bar</code>) is searched as ordinary text. A bare number is text too; it is not read as a day.</p>
+
+<h3 id="how-matching-works">How matching works</h3>
+<ul>
+  <li><strong>Typos.</strong> A word can match similar words from your own notes. We confirmed that <code>lantrn</code> finds <em>lantern</em> and <code>shre</code> finds <em>shore</em>. The exact tolerance depends on the word's length and on how common the similar word is in your journal.</li>
+  <li><strong>Maps and markers</strong> match by their plain text: map names, marker names, notes and tags.</li>
+  <li><strong>Length.</strong> A query is limited to 200 characters.</li>
+  <li><strong>Search covers</strong> notes, people, farm entries (where the journal has them), maps and tags. An empty result says exactly that: <em>No matches for ‘…’. Search covers notes, people, maps and tags.</em></li>
+</ul>

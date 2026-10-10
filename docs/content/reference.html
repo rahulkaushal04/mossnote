@@ -1,0 +1,109 @@
+---
+title: Limits, formats and options
+description: Reference tables for limits, command-line and environment options, file formats, app addresses and map building blocks.
+---
+
+<h2 id="limits">Limits</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>What</th><th>Limit</th></tr></thead>
+  <tbody>
+    <tr><td>Note text / title</td><td>50,000 / 200 characters</td></tr>
+    <tr><td>Answer to a question</td><td>2,000 characters</td></tr>
+    <tr><td>Person's name / notes</td><td>80 / 20,000 characters</td></tr>
+    <tr><td>Farm entry's name / notes</td><td>80 / 20,000 characters</td></tr>
+    <tr><td>Progress maximum on a person</td><td>1 to 99</td></tr>
+    <tr><td>Custom fields on a person or farm entry</td><td>30 fields; label 40, value 500 characters</td></tr>
+    <tr><td>Planted or harvested count</td><td>0 to 999,999</td></tr>
+    <tr><td>Tag name / tags on one record</td><td>40 characters / 30</td></tr>
+    <tr><td>Links on one note</td><td>50</td></tr>
+    <tr><td>Journal name</td><td>60 characters</td></tr>
+    <tr><td>Section name</td><td>30 characters</td></tr>
+    <tr><td>Seasons / season name / days in a season</td><td>1 to 12 / 20 characters / 1 to 99</td></tr>
+    <tr><td>Game year</td><td>1 to 99,999</td></tr>
+    <tr><td>Search query</td><td>200 characters</td></tr>
+    <tr><td>Map name</td><td>80 characters</td></tr>
+    <tr><td>Shapes / markers / layers / guides per map</td><td>3,000 / 500 / 30 / 50</td></tr>
+    <tr><td>Points in one freehand stroke</td><td>5,000</td></tr>
+    <tr><td>Text on a map label / on a text object / note on an object</td><td>120 / 2,000 / 500 characters</td></tr>
+    <tr><td>Marker name / status / short note</td><td>80 / 30 / 5,000 characters</td></tr>
+    <tr><td>Tags / custom fields on a marker</td><td>10 / 10</td></tr>
+    <tr><td>Marker types</td><td>50 (name up to 30 characters)</td></tr>
+    <tr><td>Map versions kept</td><td>30 automatic, 50 named; automatic ones at most every 10 minutes</td></tr>
+    <tr><td>Import file size</td><td>50 MB</td></tr>
+    <tr><td>Deleted items are kept</td><td>30 days</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="options">Command-line and environment options</h2>
+<p>Computer version only. Everything is optional.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Flag</th><th>Variable</th><th>Default</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>--port &lt;n&gt;</code></td><td><code>MOSS_PORT</code></td><td><code>4317</code></td><td>Port to listen on</td></tr>
+    <tr><td><code>--data-dir &lt;folder&gt;</code></td><td><code>MOSS_DATA_DIR</code></td><td>platform default</td><td>Where the data folder is</td></tr>
+    <tr><td><code>--journal &lt;name&gt;</code></td><td><code>MOSS_JOURNAL</code></td><td>not set</td><td>Journal (file name without <code>.db</code>) to open at start; made from the Default template if it does not exist. Unset: the one used last</td></tr>
+    <tr><td><code>--lan</code></td><td><code>MOSS_LAN</code></td><td>not set</td><td><code>1</code> allows paired phones; <code>0</code> never, whatever Settings says. Unset: the choice saved in Settings</td></tr>
+    <tr><td><code>--no-open</code></td><td><code>MOSS_OPEN_BROWSER</code></td><td><code>1</code></td><td><code>0</code> stops it opening a browser</td></tr>
+    <tr><td></td><td><code>MOSS_BACKUP_KEEP</code></td><td><code>14</code></td><td>Automatic snapshots to keep per journal</td></tr>
+    <tr><td></td><td><code>MOSS_LOG_LEVEL</code></td><td><code>info</code></td><td><code>error</code>, <code>warn</code>, <code>info</code> or <code>debug</code>. Logs never include note text</td></tr>
+    <tr><td></td><td><code>MOSS_HOST</code></td><td><code>127.0.0.1</code></td><td>Address to listen on. Must be a loopback address (an override exists but is unsupported)</td></tr>
+    <tr><td><code>--version</code>, <code>-v</code></td><td></td><td></td><td>Print the version</td></tr>
+    <tr><td><code>--help</code>, <code>-h</code></td><td></td><td></td><td>Print the options</td></tr>
+  </tbody>
+</table></div>
+<p>Mossnote needs Node 22.12 or newer (22 up to 24). The web version has no options; its address base is set when it is built (<code>MOSS_BASE</code>).</p>
+
+<h2 id="addresses">App addresses</h2>
+<p>You can bookmark any of these. <code>/…</code> is relative to wherever Mossnote is served.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Address</th><th>Shows</th></tr></thead>
+  <tbody>
+    <tr><td><code>/</code></td><td>Today</td></tr>
+    <tr><td><code>/day/&lt;key&gt;</code></td><td>One in-game day</td></tr>
+    <tr><td><code>/journal</code> and <code>?flag=…&amp;state=…&amp;tag=…&amp;undated=1&amp;order=asc</code></td><td>The Journal and its filters</td></tr>
+    <tr><td><code>/notes/&lt;id&gt;</code></td><td>One note</td></tr>
+    <tr><td><code>/people</code>, <code>/people/&lt;id&gt;</code></td><td>People list, one person (list also takes <code>?tag=</code> and <code>?sort=updated</code>)</td></tr>
+    <tr><td><code>/farm</code>, <code>/farm/&lt;id&gt;</code></td><td>Farm list, one entry (Stardew Valley only; other journals show <em>Not found</em>)</td></tr>
+    <tr><td><code>/maps</code>, <code>/maps/&lt;id&gt;</code></td><td>Maps list, one map (<code>?pin=&lt;id&gt;</code> selects a marker)</td></tr>
+    <tr><td><code>/search?q=…</code></td><td>Search results</td></tr>
+    <tr><td><code>/settings</code>, <code>/settings#data</code></td><td>Settings and a section</td></tr>
+    <tr><td><code>/tags/&lt;name&gt;</code></td><td>Redirects to the Journal filtered to that tag</td></tr>
+    <tr><td><code>/pair</code></td><td>The pairing page (computer version, phone access on)</td></tr>
+  </tbody>
+</table></div>
+<p>In the web version the app also answers any other address with its <em>Not found</em> page, so a typed or bookmarked path always opens the app.</p>
+
+<h2 id="export-format">Export format</h2>
+<p><strong>Export JSON</strong> writes one JSON file. Its top level has these keys:</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Key</th><th>Holds</th></tr></thead>
+  <tbody>
+    <tr><td><code>format</code>, <code>formatVersion</code></td><td>Which kind of file, and its version (currently <code>1</code>). A file with a newer version than the app can read is refused.</td></tr>
+    <tr><td><code>exportedAt</code>, <code>app</code></td><td>When it was made, and the Mossnote version.</td></tr>
+    <tr><td><code>journalName</code></td><td>The journal's name.</td></tr>
+    <tr><td><code>settings</code></td><td>Calendar, layout (template, sections), preferences and marker types.</td></tr>
+    <tr><td><code>tags</code>, <code>people</code>, <code>plantings</code>, <code>maps</code>, <code>notes</code></td><td>Your records. They keep their identifiers, reference tags by name, and drop anything in Recently deleted.</td></tr>
+  </tbody>
+</table></div>
+<ul>
+  <li><strong>Dates</strong> are written as <code>{ "year": 1, "season": 0, "day": 3 }</code>; a note's date also gets the season's name for readability, which is ignored on import. In a day-counter journal "season" is always 0.</li>
+  <li><strong>Import</strong> validates every field. It reports problems with their position in the file and changes nothing if there are any.</li>
+</ul>
+<p><strong>Export Markdown</strong> writes a readable document: <code># Mossnote</code>, a line with the date and counts, then <code>## Journal</code> (one <code>###</code> heading per day, notes marked ✦ or ?), <code>## Not dated</code>, <code>## Questions</code> (<code>### Open</code>, <code>### Solved</code>), <code>## People</code>, <code>## Farm</code> and <code>## Maps</code>. Sections with nothing in them are left out.</p>
+<p>A single map's <strong>Editable project file</strong> is a separate JSON file (<code>.mossmap.json</code>) that holds that map only.</p>
+
+<h2 id="map-parts">Map building blocks</h2>
+<ul>
+  <li><strong>Marker icons (20):</strong> pin, dot, star, flag, question, exclamation, door, key, chest, person, house, tree, water, mountain, cross, eye, heart, diamond, bolt, cave.</li>
+  <li><strong>Named colours (6):</strong> ink, moss, sky, rose, amber, plum, plus a custom colour. Named colours adapt to the light and dark themes; exports use fixed colours.</li>
+  <li><strong>Line widths:</strong> 1, 2, 3, 5, 8, 14. <strong>Line styles:</strong> solid, dashed, dotted.</li>
+  <li><strong>Text kinds:</strong> Text, Card, Callout, Sticky. <strong>Connector routes:</strong> straight, curved, elbow. <strong>Arrowheads:</strong> none, one end, both.</li>
+  <li><strong>Suggested layers:</strong> Background, Terrain, Paths, Locations, Notes. <strong>Suggested marker types:</strong> Important, Question, Person, Treasure, Entrance, Blocked, Interesting.</li>
+</ul>
+
+<h2 id="software">Under the hood</h2>
+<ul>
+  <li><strong>Database:</strong> SQLite, one file per journal, with full-text search (FTS5) and automatic migrations.</li>
+  <li><strong>Fonts:</strong> Inter and Literata, bundled; nothing is fetched.</li>
+  <li><strong>Licence:</strong> MIT. SQLite WebAssembly in the web version is Apache-2.0.</li>
+</ul>

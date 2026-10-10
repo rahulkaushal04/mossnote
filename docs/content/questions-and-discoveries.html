@@ -1,0 +1,51 @@
+---
+title: Questions and discoveries
+description: Flag notes as discoveries or open questions, answer a question in your own words later, and find them again.
+---
+
+<p>Two flags turn an ordinary note into something you can come back to. Mossnote never suggests or looks up an answer: the app knows nothing about any game, so every answer is yours.</p>
+
+<h2 id="discoveries">Discoveries ✦</h2>
+<p>A <strong>discovery</strong> is anything you found out. Turn on the star in the note box (or in the note's <strong>⋯</strong> menu, <em>Mark as discovery</em>) and the note shows a ✦ beside it.</p>
+<ul>
+  <li>Today lists your three newest discoveries, from any date, under <strong>Recent discoveries</strong>.</li>
+  <li>In the Journal, choose <strong>Discoveries</strong> to see only these notes.</li>
+  <li>In search, <code>is:discovery</code> finds them. See <a href="~/search/">Search</a>.</li>
+</ul>
+
+<h2 id="questions">Questions ?</h2>
+<p>A <strong>question</strong> is something you want to find out. Turn on the <strong>?</strong> in the note box, or use <em>Mark as question</em> in the note's menu. A question can be in one of two states:</p>
+<dl>
+  <dt>Open</dt>
+  <dd>The default. The note shows <em>open since Day 12</em> (the date the note carries) and a <strong>Mark solved</strong> button.</dd>
+  <dt>Solved</dt>
+  <dd>The note shows a ✓, <em>Solved Day 12</em> (the current in-game date when you solved it) and a <strong>Reopen</strong> button, followed by your answer if you gave one.</dd>
+</dl>
+
+<h3 id="solve">Solving a question</h3>
+<ol class="steps">
+  <li>Choose <strong>Mark solved</strong> under the question.</li>
+  <li>Type the answer in your own words (up to 2,000 characters) and press <kbd>Enter</kbd>, or choose <strong>Skip</strong> to solve it without writing an answer. <kbd>Esc</kbd> cancels.</li>
+  <li>The note changes to the solved state.</li>
+</ol>
+<shot name="question-solve" alt="A question note on Today with an answer field below it containing The key was in the lighthouse, and a Skip button. Orange boxes mark the field and the button.">Solving a question. (1) The answer field, (2) Skip.</shot>
+<shot name="question-solved" alt="The same note after solving: a check mark, the words Solved Day 12, a Reopen link outlined in orange, and the answer text below.">A solved question, with <strong>Reopen</strong> highlighted.</shot>
+<ul>
+  <li><strong>Reopen</strong> turns it back into an open question. Its answer stays, in case you solve it again.</li>
+  <li>Removing the ? flag from a note that has an answer asks <em>Remove the question?</em> first, because it also clears the answer.</li>
+  <li>If you solve a question without an answer, you can still add or change the answer later by reopening it and solving it again.</li>
+</ul>
+
+<h2 id="finding">Finding your questions</h2>
+<ul>
+  <li><strong>Today</strong> shows a link such as <em>1 open question</em> when any are open. It opens the Journal filtered to open questions.</li>
+  <li><strong>Journal → Questions</strong> has an <em>Open / Solved / All</em> switch, and <em>Open</em> is chosen for you.</li>
+  <li><strong>Search</strong> understands <code>is:question</code>, <code>is:open</code> and <code>is:solved</code>.</li>
+</ul>
+
+<callout type="limit" title="No “ignored” state">
+<p>The project's changelog mentions that a question can be "left open, marked solved, or ignored". The app has only <em>open</em> and <em>solved</em>: there is no way to mark a question as ignored. To stop seeing an old question, solve it, or remove the ? flag.</p>
+</callout>
+
+<h2 id="can-combine">Combining flags</h2>
+<p>A note can be both a discovery and a question. The two flags are independent of each other and of tags, people and links.</p>

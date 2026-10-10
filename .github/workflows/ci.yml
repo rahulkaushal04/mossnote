@@ -47,6 +47,8 @@ jobs:
         run: npm run build:standalone
       - name: Check for outbound URLs
         run: npm run check:network
+      - name: Build the documentation (fails on a broken link or missing picture)
+        run: npm run docs:build
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: End-to-end and accessibility tests (production build, full CSP, and the web version)

@@ -77,6 +77,8 @@ export default defineConfig(
   {
     ignores: [
       'dist',
+      // Browser script of the documentation site (not part of the app; checked by docs:build).
+      'docs/assets/js',
       'build',
       'release',
       '.tsbuild',

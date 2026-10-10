@@ -1,0 +1,57 @@
+---
+title: About these docs
+description: How this documentation was produced and checked, what was tested, what could not be, and how to regenerate the screenshots.
+---
+
+<p>These pages were written from the repository's source code, then checked by running the app. This page says how much each part can be trusted, and what is still unchecked.</p>
+
+<h2 id="method">How they were made</h2>
+<ol>
+  <li><strong>Read the code.</strong> The routes, components, data model, templates, search parser and settings were read to build a feature list (see the <a href="~/feature-inventory/">feature inventory</a>). A feature was only listed if its implementation exists, not because its button does.</li>
+  <li><strong>Run the app.</strong> The web version was built (<code>npm run build:standalone</code>) and served locally, and the computer version was built and started with a temporary data folder. A script drove them in Chromium with Playwright: typing into the real note box, clicking real buttons, dragging on the real map canvas.</li>
+  <li><strong>Capture.</strong> Every screenshot and recording on these pages comes from that run, not from mock-ups. Nothing in an image was edited except the annotations described below.</li>
+  <li><strong>Write.</strong> Instructions were written from what happened, including surprises, which are documented as limits.</li>
+</ol>
+
+<h2 id="annotations">How the pictures are annotated</h2>
+<p>The numbered orange boxes are drawn on the live page just before the screenshot is taken and removed straight afterwards, using the same colour and style everywhere. They mark the control a step refers to, and the caption lists what each number means. The two pictures that would show this computer's network address (the phone pairing code) cover it with a grey box saying so. Recordings show a small orange ring that follows the pointer. Their text equivalent is the numbered steps beside them. Each picture has alternative text, and each video has a label and a download link.</p>
+
+<h2 id="tested">What was run</h2>
+<ul>
+  <li>Writing and editing notes, all four pickers, flags, titles, dates, deleting and undoing, solving and reopening questions.</li>
+  <li>Setting and moving the in-game date in both calendars; the calendar editor's refusal when dates would be stranded.</li>
+  <li>Today, Day and Journal views and the filters; people (add, progress, notes, delete and restore); the Farm (add, harvest with count, plant again, entry page).</li>
+  <li>Tags (create, rename into a merge, merge); search syntax (tag, person, phrase, exclusion, flags, <code>in:</code>, day, typo tolerance).</li>
+  <li>Maps: creating, every drawing tool by keyboard, tidy-up, markers with details and linking, layers, view options, history, marker types, exploring mode, measuring, exporting PNG, SVG, PDF and the project file, re-importing it, duplicating, the Places list.</li>
+  <li>Journals: creating, switching, the delete window. Settings: every section. Export and import (JSON and Markdown downloads read back), snapshot back-up and restore, Recently deleted restore.</li>
+  <li>The computer version: the Phone section (switch, pairing panel), the data folder row.</li>
+  <li>The web version: the storage-protection panel and the one-tab screen.</li>
+  <li>Layouts at a wide, tablet and phone width.</li>
+</ul>
+<p>The project's own automated tests (unit, component and end-to-end, including accessibility scans) are described in <a href="~/how-it-works/#quality">How it works</a>. We read them to understand intended behaviour; we did not rerun the whole suite as part of writing the docs, except the build, type check, lint and format check listed in the repository's verification notes.</p>
+
+<h2 id="differences">Where the app and its own text disagree</h2>
+<p>Checking the app against its own words turned up these. They are documented here as limits rather than hidden.</p>
+<ul>
+  <li><kbd>⌘</kbd><kbd>K</kbd> is listed as working "Everywhere", but it does not fire while the cursor is in a text box (see <a href="~/search/#open">Search</a>).</li>
+  <li>The changelog says questions can be "ignored"; the app has only open and solved (see <a href="~/questions-and-discoveries/">Questions</a>).</li>
+  <li>Today focuses the note box at once, so the single-key shortcuts do nothing until you press <kbd>Esc</kbd> (see <a href="~/shortcuts/">Shortcuts</a>).</li>
+</ul>
+
+<h2 id="unverified">What could not be verified</h2>
+<ul>
+  <li><strong>A real phone.</strong> Pairing was checked from the computer's side only; scanning the code, using the app over the network and the Home Screen icon were not.</li>
+  <li><strong>Touch input.</strong> Pinch zoom, long-press names and touch menus in the map editor.</li>
+  <li><strong>Other browsers.</strong> Safari, Firefox and Edge; installing the web version; its offline use and update bar.</li>
+  <li><strong>The first public release.</strong> The <code>npx</code> and downloadable-program routes depend on a release that does not exist yet.</li>
+  <li><strong>GitHub Pages itself.</strong> The site was built and served locally with the project-site base path <code>/mossnote/</code> and its links, images and videos were checked there. The live deployment depends on the repository owner turning Pages on and running the workflow.</li>
+  <li><strong>Print output.</strong>, <strong>very large journals</strong> and <strong>paging beyond 50 notes</strong>.</li>
+  <li><strong>The integrity-check failure path</strong>, upgrade snapshots, and the web version's backup reminder and update bar, which need a particular situation to appear.</li>
+  <li><strong>Restoring a map version</strong>, and the exact behaviour of changing a marker type after use.</li>
+</ul>
+
+<h2 id="regenerate">Regenerating the pictures</h2>
+<p>The pictures were captured from the running app with a script that is kept outside the repository. If the interface changes, they have to be retaken. After replacing the images in <code>docs/assets</code>, rebuild the site with <code>npm run docs:build</code>. See <code>docs/README.md</code> in the repository for how to add or edit a page.</p>
+
+<h2 id="report">Found a mistake?</h2>
+<p>Please <a href="https://github.com/rahulkaushal04/mossnote/issues">open an issue</a> and say which page it is on. If the app behaves differently from these pages, one of the two is wrong, and either is worth knowing about.</p>

@@ -1,0 +1,57 @@
+---
+title: Maps overview
+description: Create, name, open, duplicate and delete maps, find a place across all your maps, and learn the parts of the map editor.
+---
+
+<p>Maps are a small drawing tool for the places you explore. You sketch rooms, paths and landmarks by hand, then drop <strong>markers</strong> that link back to your notes, people and farm entries. Mossnote has no map of any game: every map is drawn by you, and you cannot import a background picture (images are deliberately left out).</p>
+
+<h2 id="maps-page">The Maps page</h2>
+<shot name="maps-empty" alt="The Maps page of a new journal. At the top is a row to name a new map with a Start drawing button, a Start with layers checkbox, and an Open a map file button, each marked by an orange box. Below is the empty-state message and a Draw your first map button.">The Maps page. (1) Name for a new map, (2) start with layers, (3) open a map file, (4) start drawing.</shot>
+<ul>
+  <li><strong>New map.</strong> Type a name (optional, up to 80 characters; an unnamed map is called <em>Untitled map</em>) and choose <strong>Start drawing</strong>. You go straight into the editor.</li>
+  <li><strong>Start with layers.</strong> Tick this box to begin with five empty layers named Background, Terrain, Paths, Locations and Notes. Without it you get one layer, <em>Layer 1</em>. See <a href="~/maps-layers-and-files/#layers">Layers</a>.</li>
+  <li><strong>Open a map file.</strong> Imports an editable project file (<code>.mossmap.json</code>) that you exported earlier, as a new map. A file that is not a map Mossnote can open gives <em>That file isn't a map Mossnote can open.</em></li>
+  <li><strong>The list.</strong> Each map shows its name, how many markers it has and when it last changed. <strong>Duplicate</strong> makes a copy (named <em>… copy</em>) and opens it.</li>
+  <li><strong>Places.</strong> Once any map has markers, a <em>Places</em> list shows every marker from every map, with its map's name and note. A <em>Filter</em> field narrows it. Choosing a place opens that map with the marker selected.</li>
+</ul>
+<p>A journal can have many maps. Each map holds up to 3,000 shapes, 500 markers and 30 layers.</p>
+
+<h2 id="editor">The map editor</h2>
+<p>Opening a map shows the editor. A back arrow returns to the Maps page, the map's name is a field you can edit, and the <strong>⋯</strong> menu at the top right has <strong>Delete map</strong> (the map goes to <a href="~/data-and-backup/#trash">Recently deleted</a> for 30 days).</p>
+<shot name="map-editor" alt="The map editor with a small sample map. Eight orange numbered boxes mark: the Undo button, the Select tool in the tool strip on the left, the Explore button, the View menu, the Export menu, the History button, the Details tab of the side panel, and the Snap toggle in the status bar.">The editor. (1) Undo and redo, (2) the tool strip, (3) Explore, (4) View menu, (5) Export, (6) History, (7) side panel, (8) status bar toggles.</shot>
+<dl>
+  <dt>Top row of controls</dt>
+  <dd><strong>Undo</strong>, <strong>Redo</strong>, <strong>Zoom out</strong>, <strong>Zoom in</strong>, <strong>Fit</strong> (zoom to show the whole map), <strong>Explore</strong> (<a href="~/maps-markers/#explore">exploring mode</a>), <strong>View</strong> (what to show and how drawing behaves), <strong>Panel</strong> (show or hide the side panel), <strong>Export</strong>, <strong>History</strong> and a <strong>⋯</strong> menu with <em>Duplicate this map</em>, <em>Marker types…</em> and <em>Full screen</em>. On a narrow screen the buttons show only icons; press and hold one to see its name.</dd>
+  <dt>Tool strip</dt>
+  <dd>The vertical strip on the left holds the drawing tools. See <a href="~/maps-drawing/">Drawing tools</a>.</dd>
+  <dt>Canvas</dt>
+  <dd>The dotted drawing area. It also shows a compass and, in a corner, an overview map. The dots move and scale with the drawing.</dd>
+  <dt>Side panel</dt>
+  <dd>Two tabs. <strong>Details</strong> shows options for what is selected, or, with nothing selected, the style for new drawings, the measuring units and a <em>Marker types…</em> button. <strong>Layers</strong> lists layers and objects. See <a href="~/maps-layers-and-files/#layers">Layers</a>.</dd>
+  <dt>Status bar</dt>
+  <dd>Shows the pointer's position, the zoom level and <em>Saved</em>, and has the <strong>Snap</strong>, <strong>Grid</strong> and <strong>Rulers</strong> toggles.</dd>
+</dl>
+
+<h2 id="saving">Saving and undo</h2>
+<ul>
+  <li><strong>Autosave.</strong> Your drawing is saved as you work, in a single request, and the status bar shows <em>Saved</em>. There is no Save button.</li>
+  <li><strong>Undo and redo.</strong> <kbd>⌘</kbd><kbd>Z</kbd> and <kbd>⌘</kbd><kbd>Shift</kbd><kbd>Z</kbd>, or the buttons.</li>
+  <li><strong>History.</strong> Older versions of the map can be restored. See <a href="~/maps-layers-and-files/#history">Version history</a>.</li>
+</ul>
+
+<h2 id="navigate">Moving around the map</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>To</th><th>Do this</th></tr></thead>
+  <tbody>
+    <tr><td>Pan</td><td>Choose the <strong>Pan</strong> tool (<kbd>H</kbd>) and drag; or hold <kbd>Space</kbd> and drag; or scroll with a trackpad.</td></tr>
+    <tr><td>Zoom</td><td>Mouse wheel or a trackpad pinch zooms around the pointer. Or use <strong>Zoom in</strong> / <strong>Zoom out</strong>, or the <kbd>+</kbd> and <kbd>-</kbd> keys. <kbd>0</kbd> goes to 100%.</td></tr>
+    <tr><td>See everything</td><td><strong>Fit</strong> or <kbd>Shift</kbd><kbd>1</kbd>. <kbd>Shift</kbd><kbd>2</kbd> fits the selection.</td></tr>
+    <tr><td>Full screen</td><td><kbd>Shift</kbd><kbd>F</kbd> or <strong>⋯ → Full screen</strong>.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>On a touch screen a two-finger pinch zooms and pans. <status kind="unverified"></status> Touch gestures exist in the code but were not tested on a real touch device here.</p>
+
+<clip name="video-maps-drawing" alt="A screen recording of the map editor: a box, a circle and an arrow are drawn, a rough rectangle is tidied up automatically, a marker is dropped and named, then undo and redo are used.">Drawing a box, a circle and an arrow, a rough rectangle being tidied up, a named marker, and undo and redo.</clip>
+<p>The next pages go through <a href="~/maps-drawing/">the drawing tools</a>, <a href="~/maps-markers/">markers and exploring mode</a>, and <a href="~/maps-layers-and-files/">layers, history and export</a>.</p>

@@ -1,0 +1,359 @@
+{
+  "format": "mossnote-map",
+  "formatVersion": 1,
+  "exportedAt": "2026-10-10T00:00:00.000Z",
+  "name": "Willow Creek valley",
+  "scene": {
+    "v": 2,
+    "layers": [
+      {
+        "id": "terrain",
+        "name": "Terrain"
+      },
+      {
+        "id": "paths",
+        "name": "Paths"
+      },
+      {
+        "id": "places",
+        "name": "Places"
+      },
+      {
+        "id": "notes",
+        "name": "Notes"
+      }
+    ],
+    "shapes": [
+      {
+        "t": "rect",
+        "layer": "terrain",
+        "name": "North field",
+        "x": -110,
+        "y": -185,
+        "w": 210,
+        "h": 115,
+        "rot": -4,
+        "r": 10,
+        "style": {
+          "stroke": "moss",
+          "fill": "#e4ecc4",
+          "width": 2,
+          "dash": "dashed"
+        },
+        "id": "s1"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "name": "Old pond",
+        "pts": [
+          [-345, 110],
+          [-325, 62],
+          [-262, 38],
+          [-190, 52],
+          [-140, 92],
+          [-150, 150],
+          [-215, 182],
+          [-300, 170]
+        ],
+        "closed": true,
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": "#cfe3ee",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s6"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [-290, 105],
+          [-262, 98],
+          [-236, 106]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 1.5,
+          "dash": "solid"
+        },
+        "id": "s7"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "name": "Willow Creek",
+        "pts": [
+          [330, -275],
+          [290, -215],
+          [235, -165],
+          [172, -118],
+          [100, -72],
+          [30, -52],
+          [-45, -20],
+          [-110, 30],
+          [-150, 80]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#9cc7dd",
+          "fill": null,
+          "width": 18,
+          "dash": "solid"
+        },
+        "id": "s9"
+      },
+      {
+        "t": "path",
+        "layer": "terrain",
+        "pts": [
+          [330, -275],
+          [290, -215],
+          [235, -165],
+          [172, -118],
+          [100, -72],
+          [30, -52],
+          [-45, -20],
+          [-110, 30],
+          [-150, 80]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s10"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -364,
+        "cy": -168,
+        "rx": 18,
+        "ry": 17,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s11"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -292,
+        "cy": -155,
+        "rx": 16,
+        "ry": 14,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s12"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -407,
+        "cy": -121,
+        "rx": 17,
+        "ry": 16,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s13"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -364,
+        "cy": -96,
+        "rx": 19,
+        "ry": 18,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s14"
+      },
+      {
+        "t": "ellipse",
+        "layer": "terrain",
+        "cx": -247,
+        "cy": -179,
+        "rx": 21,
+        "ry": 19,
+        "style": {
+          "stroke": "moss",
+          "fill": "#a7c58f",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s15"
+      },
+      {
+        "t": "path",
+        "layer": "paths",
+        "name": "Road to the bridge",
+        "pts": [
+          [110, 78],
+          [98, 45],
+          [78, -5],
+          [58, -50],
+          [38, -100],
+          [-15, -125]
+        ],
+        "smooth": true,
+        "style": {
+          "stroke": "#8a6a3c",
+          "fill": null,
+          "width": 3,
+          "dash": "dashed"
+        },
+        "id": "s39"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Cabin",
+        "x": 62,
+        "y": 112,
+        "w": 96,
+        "h": 62,
+        "r": 4,
+        "style": {
+          "stroke": "ink",
+          "fill": "#f1e4c9",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s42"
+      },
+      {
+        "t": "polygon",
+        "layer": "places",
+        "name": "Roof",
+        "pts": [
+          [54, 114],
+          [110, 80],
+          [166, 114]
+        ],
+        "style": {
+          "stroke": "ink",
+          "fill": "#c9a27a",
+          "width": 3,
+          "dash": "solid"
+        },
+        "id": "s43"
+      },
+      {
+        "t": "rect",
+        "layer": "places",
+        "name": "Bridge",
+        "x": 22,
+        "y": -72,
+        "w": 76,
+        "h": 24,
+        "rot": -16,
+        "r": 3,
+        "style": {
+          "stroke": "ink",
+          "fill": "#c2955a",
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s45"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -150,
+        "y": -262,
+        "text": "Willow Creek valley",
+        "size": 26,
+        "kind": "plain",
+        "style": {
+          "stroke": "moss",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s48"
+      },
+      {
+        "t": "text",
+        "layer": "notes",
+        "x": -285,
+        "y": 135,
+        "text": "Old pond",
+        "size": 15,
+        "kind": "plain",
+        "style": {
+          "stroke": "sky",
+          "fill": null,
+          "width": 2,
+          "dash": "solid"
+        },
+        "id": "s51"
+      }
+    ],
+    "scale": {
+      "unit": "m",
+      "size": 25
+    }
+  },
+  "pins": [
+    {
+      "id": "01J8M5SSN0TE00000000000001",
+      "x": 110,
+      "y": 150,
+      "label": "Cabin",
+      "color": "moss",
+      "note": "",
+      "props": {
+        "icon": "house",
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000002",
+      "x": -128,
+      "y": 100,
+      "label": "Fishing spot",
+      "color": "sky",
+      "note": "",
+      "props": {
+        "icon": "water",
+        "status": "good in the evening",
+        "tags": ["fishing"],
+        "layer": "places"
+      }
+    },
+    {
+      "id": "01J8M5SSN0TE00000000000003",
+      "x": 60,
+      "y": -52,
+      "label": "Old bridge",
+      "color": "amber",
+      "note": "",
+      "props": {
+        "icon": "flag",
+        "layer": "places"
+      }
+    }
+  ]
+}

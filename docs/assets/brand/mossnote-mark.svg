@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mossnote">
+  <title>Mossnote</title>
+  <g fill="none" stroke="#1f5f56" stroke-width="46" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M132 350V268a62 62 0 0 1 124 0V350"/>
+    <path d="M256 268a62 62 0 0 1 124 0V308"/>
+  </g>
+  <circle cx="380" cy="382" r="27" fill="#d9962b"/>
+  <g fill="#6cc1ae"><circle cx="194" cy="150" r="13"/><circle cx="318" cy="122" r="9"/><circle cx="256" cy="176" r="7"/></g>
+</svg>

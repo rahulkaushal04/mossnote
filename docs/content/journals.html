@@ -1,0 +1,56 @@
+---
+title: Journals
+description: Keep one journal per game or playthrough, switch between them, rename them, download them and delete them safely.
+---
+
+<p>A <strong>journal</strong> is one self-contained notebook: its own notes, people, maps, calendar, tags and settings. Keep one per game, or one per playthrough, so notes about one never mix with another. Where it is stored depends on the version you use: in its own file in your data folder (computer version) or in its own database in the browser (web version).</p>
+<p>Each journal keeps the <a href="~/templates/">template</a> it was made from. To use another template you make another journal.</p>
+
+<h2 id="switch">Switching journals</h2>
+<p>The <strong>journal switcher</strong> is at the top of the sidebar (under <strong>More</strong> on a phone). It shows the journal you are in with a check mark.</p>
+<shot name="journal-switcher" alt="The journal switcher open in the sidebar, outlined in orange. It lists the journal Rainy run with a check mark and the word Default, then New journal, Rename this journal and Manage journals.">The journal switcher. With more than one journal, each is listed and the current one has a check mark.</shot>
+<ul>
+  <li>Choose another journal to open it. The app reloads on it, so screens, caches and drafts never mix between journals. A failure shows a short message.</li>
+  <li><strong>New journal…</strong> opens the new-journal window (below).</li>
+  <li><strong>Rename this journal…</strong> changes its name.</li>
+  <li><strong>Manage journals</strong> goes to <a href="~/settings/#journals">Settings → Journals</a>.</li>
+</ul>
+<p>The computer version remembers the last journal you used and opens it next time. You can also choose one when starting: <code>mossnote --journal rainy-run</code> (the file name without <code>.db</code>) or <code>MOSS_JOURNAL</code>.</p>
+
+<h2 id="new">Making a new journal</h2>
+<ol class="steps">
+  <li>Choose <strong>New journal…</strong> in the switcher, in Settings → Journals, or in Settings → Template and sections.</li>
+  <li>Pick a template and type a name (up to 60 characters).</li>
+  <li>Choose <strong>Create journal</strong>. Mossnote opens it, empty.</li>
+</ol>
+<shot name="new-journal-dialog" alt="The New journal window with two template cards, Default and Stardew Valley, a Journal name field and a Create journal button, each outlined in orange.">The New journal window. (1) Template, (2) name, (3) create.</shot>
+
+<h2 id="manage">Managing journals in Settings</h2>
+<p><a href="~/settings/#journals">Settings → Journals</a> lists every journal with its template, counts of notes, people and maps, and its size.</p>
+<shot name="settings-journals" alt="Settings, Journals section. Two journals are listed: Rainy run with Open, Rename, JSON, Markdown and Delete buttons, and Spring farm marked open now. Below is a New journal button. The Open button and the New journal button are outlined in orange.">Settings → Journals. (1) Open another journal, (2) make a new one.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Button</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Open</td><td>Switches to that journal. Not shown for the one that is open.</td></tr>
+    <tr><td>Rename</td><td>Changes the name shown in Mossnote. The journal's file name on disk does not change.</td></tr>
+    <tr><td>JSON, Markdown</td><td>Downloads that journal, even if it is not the open one. See <a href="~/data-and-backup/#export">Export</a>.</td></tr>
+    <tr><td>Delete</td><td>Removes the journal, after you confirm. See below.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A journal that was made by a <strong>newer</strong> version of Mossnote than yours is listed but cannot be opened: <em>Made with a newer Mossnote. Update the app to open it. Nothing was changed.</em> One that cannot be read says <em>Mossnote can't read this file. Nothing was changed.</em></p>
+
+<h2 id="delete">Deleting a journal</h2>
+<p>Deleting is deliberately hard to do by accident.</p>
+<shot name="delete-journal-dialog" alt="The Delete journal window. It says the journal will be removed from this browser with its notes, people and maps, offers Download JSON and Download Markdown buttons, a checked box Keep a last copy in this browser, and a field asking you to type the journal's name. The checkbox and the field are outlined in orange.">The delete window. (1) Keep a last copy, (2) type the name to confirm.</shot>
+<ol class="steps">
+  <li>Choose <strong>Delete</strong> next to the journal in Settings → Journals.</li>
+  <li>Optionally download a copy first (JSON or Markdown).</li>
+  <li>Leave <strong>Keep a last copy</strong> ticked (it is, by default) to save a final snapshot: in your <code>backups</code> folder on the computer, or in the browser in the web version.</li>
+  <li>Type the journal's name exactly. <strong>Delete journal</strong> stays disabled until it matches.</li>
+</ol>
+<p>This removes the journal from Mossnote. Mossnote has no undo for it; the last-copy snapshot and any file you downloaded are how you get it back.</p>
+
+<h2 id="syncing">Two windows</h2>
+<p>If you switch journals in one window, any other open window says <em>You switched journals in another window. Reload to keep working here.</em> with a <strong>Reload</strong> button, instead of quietly writing into the wrong journal.</p>

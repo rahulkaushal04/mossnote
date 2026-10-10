@@ -32,10 +32,6 @@ export function GlobalHotkeys({ onShowShortcuts }: { onShowShortcuts: () => void
       event.preventDefault();
       palette.openPalette();
     }),
-    n: singleKey((event) => {
-      event.preventDefault();
-      newNote.requestNewNote();
-    }),
     'g t': go('/'),
     'g j': go('/journal'),
     'g p': go('/people'),
@@ -45,6 +41,10 @@ export function GlobalHotkeys({ onShowShortcuts }: { onShowShortcuts: () => void
     'd n': singleKey(day.next),
     'd p': singleKey(day.previous),
     'd s': singleKey(openSetDate),
+    n: singleKey((event) => {
+      event.preventDefault();
+      newNote.requestNewNote();
+    }),
     '?': singleKey(onShowShortcuts, { allowShift: true }),
     'Shift+?': singleKey(onShowShortcuts, { allowShift: true }),
   });

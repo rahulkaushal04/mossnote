@@ -1,0 +1,48 @@
+---
+title: Phone access
+description: Write in your journal on a phone or tablet while the journal stays on the computer that runs Mossnote.
+---
+
+<p>If you play on the computer that runs Mossnote, you can write on a phone or tablet instead of switching windows. The journal stays on the computer; the phone opens it over your home network. This is only in the <strong>computer version</strong>. The web version has no Phone section, because it has no server to connect to.</p>
+<callout type="note" title="What we checked here">
+<p>We ran the computer version, turned phone access on and off, and generated a pairing code to confirm what the screen shows. We did <strong>not</strong> pair a real phone, so the phone side of pairing (scanning the code, the Home Screen icon) is described from the code and the project's own tests. <status kind="unverified"></status></p>
+</callout>
+
+<h2 id="turn-on">Turn it on and pair a phone</h2>
+<ol class="steps">
+  <li>On the computer, open <strong>Settings → Phone</strong>.</li>
+  <li>Tick <strong>Let phones and tablets on my network open Mossnote</strong>. If the computer asks about a firewall, allow Mossnote on <em>private</em> networks.</li>
+  <li>Choose <strong>Show pairing code</strong>. A QR code appears with the steps <em>Connect the phone to the same Wi-Fi as this computer</em> and <em>Scan this code with the phone's camera and open the link</em>.</li>
+  <li>Scan the code with the phone. Or, if you cannot scan it, open the address shown (<code>http://&lt;computer&gt;:4317/pair</code>) on the phone and type the code. Codes look like <code>ABCDE-FGHJK</code>.</li>
+  <li>The phone is paired. Add it to the Home Screen if you like. Choose <strong>Done</strong> on the computer.</li>
+</ol>
+<shot name="phone-off" alt="Settings, Phone section, with phone access off. It describes taking notes on a phone while playing on the computer, and shows the unticked box Let phones and tablets on my network open Mossnote, with a note about trusting the network and the firewall.">The Phone section with phone access off, which is the default.</shot>
+<shot name="phone-pairing" alt="The pairing panel on the computer. Steps explain connecting to the same Wi-Fi and scanning the code. The QR code and the typed address and code are hidden in this picture. A Done button is outlined in orange.">The pairing panel. The QR code and the typed code are hidden in this picture, because they contain this computer's address.</shot>
+
+<h2 id="rules">How it stays safe</h2>
+<ul>
+  <li><strong>Off by default.</strong> Mossnote listens only on the computer itself until you turn this on.</li>
+  <li><strong>Only paired devices get in.</strong> Anything else is answered with <em>This device is not paired with this computer</em>, or sent to the pairing page. The computer itself is always trusted.</li>
+  <li><strong>A code works once</strong>, expires after <strong>ten minutes</strong>, and only one code is live at a time. Ten wrong guesses within a minute lock pairing for a minute.</li>
+  <li><strong>Paired phones cannot change phone access</strong> or manage the list of devices. That can only be done on the computer.</li>
+  <li><strong>The connection is plain HTTP.</strong> It is not encrypted, so use it only on a network you trust, such as home Wi-Fi.</li>
+</ul>
+
+<h2 id="devices">Paired devices</h2>
+<p>The <strong>Paired devices</strong> list in the Phone section shows each paired device's name and when it was last seen. <strong>Remove</strong> unpairs one device, and <strong>Remove all devices</strong> (after <em>Remove every paired device?</em>) unpairs them all, so each needs pairing again. With none, the list says <em>No device is paired yet.</em> A removed phone sees <em>This device isn't paired anymore</em> with a button to pair again.</p>
+
+<h2 id="start-on">Turning it on from the command line</h2>
+<ul>
+  <li><code>mossnote --lan</code> (or <code>MOSS_LAN=1</code>) turns phone access on at start.</li>
+  <li><code>MOSS_LAN=0</code> keeps it off whatever the setting says.</li>
+  <li>Unset, the choice saved in Settings applies.</li>
+</ul>
+
+<h2 id="problems">If the phone cannot connect</h2>
+<ul>
+  <li>The computer must be on and running Mossnote. The phone shows <em>Can't reach your journal</em> with a <strong>Retry</strong> button and keeps trying every few seconds.</li>
+  <li>The phone must be on the <strong>same Wi-Fi</strong>. A guest network or one with "client isolation" is the usual cause when it will not connect.</li>
+  <li>Allow Mossnote through the computer's firewall on private networks.</li>
+  <li>If you switch journals on the computer, a phone that is still open on the old one says <em>You switched journals in another window. Reload to keep working here.</em></li>
+</ul>
+<p>See also <a href="~/troubleshooting/">Troubleshooting</a>.</p>

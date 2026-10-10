@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 320" role="img" aria-label="Mossnote">
+  <title>Mossnote</title>
+  <g transform="translate(0 20) scale(.55)">
+    <rect width="512" height="512" rx="112" fill="#1f5f56"/>
+    <g fill="none" stroke="#f7f5f0" stroke-width="46" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M132 350V268a62 62 0 0 1 124 0V350"/>
+      <path d="M256 268a62 62 0 0 1 124 0V308"/>
+    </g>
+    <circle cx="380" cy="382" r="27" fill="#F4C25B"/>
+    <g fill="#6cc1ae"><circle cx="194" cy="150" r="13"/><circle cx="318" cy="122" r="9"/><circle cx="256" cy="176" r="7"/></g>
+  </g>
+  <text x="330" y="196" font-family="'Avenir Next Rounded','Nunito','Quicksand','Segoe UI',system-ui,sans-serif" font-size="128" font-weight="700" letter-spacing="-2" fill="#1f5f56"><tspan>moss</tspan><tspan fill="#2f8a7a">note</tspan></text>
+</svg>
