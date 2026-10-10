@@ -1,0 +1,96 @@
+---
+title: Data and backups
+description: Where your journal is stored, how to export and import it, how snapshots work, and how to get back something you deleted.
+---
+
+<p>Your journal belongs to you and stays with you. This page explains where it lives, how to copy it out, and the safety nets Mossnote keeps for you. Everything is under <a href="~/settings/#data">Settings → Data &amp; backup</a>.</p>
+
+<h2 id="where">Where your journal lives</h2>
+<dl>
+  <dt>Computer version</dt>
+  <dd>Each journal is one <strong>SQLite file</strong> (<code>&lt;name&gt;.db</code>) in a data folder just for you. The default folder is:
+    <div class="table-wrap"><table>
+      <thead><tr><th>System</th><th>Default folder</th></tr></thead>
+      <tbody>
+        <tr><td>macOS</td><td><code>~/Library/Application Support/Mossnote/</code></td></tr>
+        <tr><td>Linux</td><td><code>$XDG_DATA_HOME/mossnote/</code> (usually <code>~/.local/share/mossnote/</code>)</td></tr>
+        <tr><td>Windows</td><td><code>%APPDATA%\Mossnote\</code></td></tr>
+      </tbody>
+    </table></div>
+    Inside are one <code>.db</code> per journal, a <code>backups/</code> folder of snapshots and a few small bookkeeping files. Change the folder with <code>--data-dir</code> or <code>MOSS_DATA_DIR</code>. Installing, upgrading or reinstalling Mossnote never touches this folder.</dd>
+  <dt>Web version</dt>
+  <dd>Each journal is a database in <strong>the browser's own storage</strong> on that device. Clearing the site's data, or losing the device, loses it unless you exported a copy. See <a href="~/web-version/">The web version</a>.</dd>
+</dl>
+<p>The Data &amp; backup section shows which of the two you have and, on a computer, the exact folder with a <strong>Copy</strong> button and an <strong>Open folder</strong> button.</p>
+<shot name="server-data" alt="Settings, Data and backup, on the computer version. The Data folder row shows the full path with Copy and Open folder buttons. Below are the journal's records and the export, import and back-up buttons. An orange box marks the data folder line and another marks the Open folder button.">On the computer version. (1) The data folder, (2) a button that opens it in your file manager.</shot>
+<callout type="warning" title="Not encrypted">
+<p>The journal is plain SQLite and is <strong>not encrypted</strong>. Use your system's disk encryption if that matters to you. Do not copy a <code>.db</code> file by hand as a backup while Mossnote runs: recent changes may still be in a separate write-ahead log. Use a snapshot or an export instead.</p>
+</callout>
+
+<h2 id="export">Export</h2>
+<p>Exporting makes a file you can keep, read or move.</p>
+<shot name="settings-data" alt="The Data and backup section of Settings. A summary of the journal, then four buttons outlined in orange and numbered: Export JSON, Export Markdown, Import JSON and Back up now.">The Data &amp; backup buttons. (1) Export JSON, (2) Export Markdown, (3) Import JSON, (4) Back up now.</shot>
+<ul>
+  <li><strong>Export JSON</strong> downloads <code>mossnote-YYYY-MM-DD-HHMM.json</code>, a complete copy that Mossnote can import again. It holds your notes, people, farm entries, maps, tags and settings. Keep this one as your real backup. <a href="~/reference/#export-format">Format details</a>.</li>
+  <li><strong>Export Markdown</strong> downloads <code>mossnote-YYYY-MM-DD.md</code>, a plain-text version you can read anywhere: your journal by day, undated notes, questions (open and solved), people, farm entries and maps. It cannot be imported back.</li>
+  <li>You can also download any journal, open or not, from <a href="~/journals/#manage">Settings → Journals</a>.</li>
+</ul>
+
+<h2 id="import">Import</h2>
+<p>Import <strong>replaces everything in the journal that is open</strong> with the contents of a JSON file. Your other journals are untouched.</p>
+<ol class="steps">
+  <li>Choose <strong>Import JSON</strong> and pick a file made by <strong>Export JSON</strong> (up to 50 MB).</li>
+  <li>Mossnote checks the file without changing anything. If it is not valid, you get a list of what is wrong (up to 20 items) and <em>Nothing was changed.</em>, for example <em>That file isn't a Mossnote export.</em></li>
+  <li>If it is valid, you see what it holds: <em>Contains 3 notes, 0 NPCs, 0 maps, 0 tags. Importing replaces everything in “…” only.</em> Choose <strong>Replace this journal</strong> or <strong>Cancel</strong>.</li>
+  <li>Confirm <em>Replace your journal?</em> Mossnote saves the journal as a snapshot first (<em>Before an import</em>), runs the import in one step, and reloads.</li>
+</ol>
+<p>If the import fails part-way, the journal is left as it was and the message names the snapshot that was saved first. To bring a journal back onto the other kind of Mossnote, export it from one and import the file in the other.</p>
+<p>A <em>single map</em> has its own export and import: see <a href="~/maps-layers-and-files/#export">Exporting a map</a>.</p>
+
+<h2 id="snapshots">Snapshots</h2>
+<p>A <strong>snapshot</strong> is a full copy of a journal at one moment. They are safe to take while the app runs. Restoring one puts the journal back to that moment.</p>
+<shot name="settings-snapshots" alt="The Snapshots list in Settings. Each row shows a date and time, a reason such as Automatic or Made by you, the size, and Restore and Delete buttons.">The snapshot list. Newest first, each with its reason.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Shown as</th><th>Made</th><th>Kept (per journal)</th></tr></thead>
+  <tbody>
+    <tr><td>Automatic</td><td>At start, if the newest snapshot is over 24 hours old (computer version)</td><td>The newest 14 (<code>MOSS_BACKUP_KEEP</code>)</td></tr>
+    <tr><td>Before an update</td><td>Before an upgrade changes a journal</td><td>The newest 3</td></tr>
+    <tr><td>Before an import</td><td>Before an import replaces the journal</td><td>The newest 5</td></tr>
+    <tr><td>Before a restore</td><td>Before a snapshot is restored</td><td>The newest 5</td></tr>
+    <tr><td>Made by you</td><td>When you choose <strong>Back up now</strong>, and when you delete a journal</td><td>All of them</td></tr>
+  </tbody>
+</table>
+</div>
+<ul>
+  <li><strong>Back up now</strong> makes a snapshot at once and says <em>Saved a snapshot: …</em>. The summary above the buttons shows the last snapshot's time and how many you have.</li>
+  <li><strong>Restore</strong> asks <em>Restore this snapshot?</em>, saves the journal as it is now first (<em>Before a restore</em>), then goes back. To undo a restore, restore that newer snapshot.</li>
+  <li><strong>Delete</strong> removes one snapshot; your journal is unaffected.</li>
+</ul>
+<p>We tested the full cycle in the web version: <em>Back up now</em>, change the journal, <em>Restore</em>, and the journal returned to the snapshot while a <em>Before a restore</em> snapshot appeared.</p>
+
+<h3 id="integrity">Starting safely (computer version)</h3>
+<ul>
+  <li>Every start runs an <strong>integrity check</strong>. If it fails, Mossnote refuses to start and names the newest snapshot. To restore by hand: stop Mossnote, copy the snapshot from <code>backups/</code> over the journal's <code>.db</code> file, delete that journal's <code>.db-wal</code> and <code>.db-shm</code> files, and start again.</li>
+  <li><strong>Upgrades.</strong> A journal is brought up to date automatically the first time a newer version opens it, after a <em>Before an update</em> snapshot. A journal made by a <em>newer</em> version is left untouched and not opened.</li>
+  <li><strong>Going back</strong> to an older version of Mossnote is not supported. If you must, restore the <em>Before an update</em> snapshot.</li>
+  <li>Only one copy of Mossnote can have a journal open at a time: a lock file next to the journal guards it, and a second copy for the same journal refuses to start.</li>
+</ul>
+
+<h2 id="trash">Recently deleted</h2>
+<p>When you delete a note, person, farm entry or map, Mossnote does not destroy it. It moves to <strong>Settings → Recently deleted</strong> for <strong>30 days</strong>, then is removed for good.</p>
+<shot name="settings-trash" alt="Settings, Recently deleted. A line says After 30 days, deleted items are gone for good, a button to delete everything here forever, and a list of deleted items, each with its kind, text, deletion time and Restore and Delete forever buttons." >Recently deleted. Each item can be restored or deleted for good.</shot>
+<ul>
+  <li><strong>Restore</strong> puts the item back, with its tags and links.</li>
+  <li><strong>Delete forever</strong> (and <strong>Delete everything here forever</strong>) asks first and cannot be undone.</li>
+  <li>An empty list says <em>Nothing here. Anything you delete stays here for 30 days first.</em></li>
+  <li>A deleted note shows <em>Note deleted</em> with Undo for a few seconds first. See <a href="~/writing-notes/#deleting">Deleting and undoing</a>.</li>
+  <li>Deleting a whole <em>journal</em> is different: it does not go here. See <a href="~/journals/#delete">Deleting a journal</a>.</li>
+</ul>
+
+<h2 id="privacy">Privacy</h2>
+<ul>
+  <li>Mossnote never sends your notes anywhere. There are no accounts, analytics, crash reports or update checks. The source has an automated check that fails the build if it contains a web address that could be fetched.</li>
+  <li>Nothing is shared unless you export a file and send it yourself.</li>
+  <li>Phone access (computer version) is off until you turn it on, and then lets only the devices you paired reach your own computer. See <a href="~/phone-access/">Phone access</a>.</li>
+</ul>

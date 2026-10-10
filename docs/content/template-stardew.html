@@ -1,0 +1,94 @@
+---
+title: Stardew Valley template
+description: The Farm section, the calendar of seasons, NPCs and the four quick actions that the Stardew Valley template adds.
+---
+
+<p>The <strong>Stardew Valley</strong> template is the Default template plus a Farm section, a calendar of four seasons, four quick actions under the note box, and different names for two sections. Its tint is plum. Like every template it contains <strong>no game information</strong>: the seasons are just names you can change, and every crop, villager and place in your journal is something you typed.</p>
+
+<h2 id="differences">What is different</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Area</th><th>Default</th><th>Stardew Valley</th></tr></thead>
+  <tbody>
+    <tr><td>Journal section is called</td><td>Journal</td><td>Daily journal</td></tr>
+    <tr><td>People section is called</td><td>People</td><td>NPCs</td></tr>
+    <tr><td>Farm section</td><td>No</td><td>Yes, called <em>Farm</em>; its entries are called crops</td></tr>
+    <tr><td>Calendar</td><td>Day counter</td><td>Four seasons of 28 days, editable</td></tr>
+    <tr><td>Quick actions</td><td>None</td><td>Met someone, Found something, Wondering, To do</td></tr>
+    <tr><td>Today extras</td><td>Recent discoveries, open questions</td><td>Also <em>Growing</em></td></tr>
+  </tbody>
+</table>
+</div>
+<shot name="stardew-today-empty" alt="Today in a new Stardew Valley journal, in plum colours. The sidebar lists Today, Daily journal, NPCs, Farm and Maps. Under the note box are four pill buttons: Met someone, Found something, Wondering and To do. Orange boxes mark the Farm link, the NPCs link, the row of quick actions and the Set date button.">Today in a Stardew Valley journal. (1) Farm, (2) NPCs, (3) quick actions, (4) the date button.</shot>
+
+<h2 id="calendar">The calendar of seasons</h2>
+<p>Dates look like <em>Spring 3</em>, or <em>Spring 3 · Year 2</em> when the year matters. Set today's date with the picker (<a href="~/dates-and-calendar/#picker-seasons">how</a>); moving to the next day rolls Summer 28 over to Fall 1 and Winter 28 into Spring 1 of the next year. Rename seasons or change their lengths in <a href="~/dates-and-calendar/#calendar-settings">Settings → Calendar</a>.</p>
+
+<h2 id="quick-actions">Quick actions</h2>
+<p>Four pill buttons sit under the note box. Each one sets a flag or tag on the note you are writing, so a note taken in the middle of play takes one tap instead of several.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Button</th><th>Sets</th></tr></thead>
+  <tbody>
+    <tr><td>Met someone</td><td>The tag <code>#met</code></td></tr>
+    <tr><td>Found something</td><td>The discovery flag ✦</td></tr>
+    <tr><td>Wondering</td><td>The question flag ?</td></tr>
+    <tr><td>To do</td><td>The tag <code>#tasks</code></td></tr>
+  </tbody>
+</table>
+</div>
+<shot name="stardew-quick-action" alt="The note box with the text Introduced myself to the shopkeeper and Pel. Under it, the Met someone button is filled dark to show it is on, and the tag chip met and a link chip to Pel sit above the options row. The Met someone button and the met chip are outlined in orange.">After choosing <em>Met someone</em>: (1) the button shows it is on, (2) the <code>#met</code> tag has been added to the note.</shot>
+<ul>
+  <li>Tap a button again to turn it off. Several can be on at once. We confirmed that the flag buttons toggle the flags and that <em>Met someone</em> and <em>To do</em> add and remove their tags.</li>
+  <li>The tags are created the first time you use them. The buttons never create anything on their own.</li>
+  <li>To hide the row, untick <em>Show quick actions above the note box</em> in <a href="~/settings/#sections">Settings → Template and sections</a>.</li>
+</ul>
+
+<h2 id="npcs">NPCs</h2>
+<p>This is the <a href="~/people/">People</a> section under another name. Use <strong>Track progress</strong> on an NPC's page to count anything you like with a row of dots, such as friendship steps. Mossnote does not know how many steps a game has: you set the maximum, from 1 to 99.</p>
+
+<h2 id="farm">The Farm</h2>
+<p>The Farm lists what you have planted. An entry is "a crop" in this template's words, but you can record anything that has a planted date and a harvested date.</p>
+<shot name="farm-list" alt="The Farm page: an Add an entry row at the top, then two groups. Growing, with two entries Cauliflower and Potatoes planted on Spring 3, and Done, with Parsnips planted Spring 3 and harvested Spring 7 with a harvested count of 15. Orange boxes mark the add row, the Growing group and the Done group.">The Farm. (1) Add an entry, (2) growing, (3) done.</shot>
+<ul>
+  <li><strong>Add an entry</strong> by typing a name (up to 80 characters) in <em>Add an entry…</em> and pressing <kbd>Enter</kbd>. Names you used before are suggested as you type. If an in-game date is set, the entry starts as <em>planted</em> on that date.</li>
+  <li>Entries are grouped. <strong>Growing</strong> has a planted date and no harvest. <strong>Done</strong> has a harvest date. <strong>Noted</strong> has neither (you recorded it but have not planted it, or no date was set). Each group shows a count.</li>
+  <li>Each row shows its name, then its dates (for example <em>Spring 3 → Spring 7</em>, with the year added when it differs from the current year) and counts (<em>planted 20</em>, <em>harvested 15</em>), and its tags on the right.</li>
+</ul>
+
+<h3 id="harvest">Harvesting and planting again</h3>
+<p>Point at (or focus) a row to reveal its quick action. On a touch screen the action is always shown.</p>
+<ol class="steps">
+  <li>On a <strong>Growing</strong> entry choose <strong>Harvested today</strong>. It records the current in-game date as the harvest date. (With no date set, a date picker opens instead.)</li>
+  <li>A <strong>Harvested count</strong> box opens. Type a whole number from 0 to 999,999 and press <kbd>Enter</kbd> or <strong>Save</strong>, or press <kbd>Esc</kbd> to skip it.</li>
+  <li>The entry moves to <strong>Done</strong>. A harvest date earlier than the planting date is refused: <em>Harvest can't be before planting.</em></li>
+</ol>
+<shot name="farm-harvest" alt="A Done farm entry, Parsnips, planted Spring 3 and harvested Spring 7, with a Plant again link at the right and, below it, a Harvested count field containing 15 and a Save button, both outlined in orange.">Entering the harvested count. (1) The count, (2) Save.</shot>
+<p>On a <strong>Done</strong> entry, <strong>Plant again</strong> creates a new entry with the same name and tags, planted on the current in-game date, so you can track the next round.</p>
+
+<h3 id="entry-page">An entry's page</h3>
+<p>Choose an entry to open its page. On a wide screen it slides in from the right over the list; on a narrow screen it is a full page. It has its own address, closes with <kbd>Esc</kbd> or <em>Back</em>, and can be bookmarked.</p>
+<shot name="planting-sheet" alt="The Farm page with an entry's page open as a panel on the right. It shows the name Potatoes, Dates with a Planted chip reading Spring 3 Year 1 and an empty Harvested chip, Counts with Planted count and Harvested count fields, a Notes box and a Tags field. The planted date chip and the planted count field are outlined in orange.">An entry's page. (1) The planted date, (2) the planted count.</shot>
+<dl>
+  <dt>Name</dt><dd>Edit it in place.</dd>
+  <dt>Dates</dt><dd>Planted and Harvested, each a date chip you can set or clear.</dd>
+  <dt>Counts</dt><dd>How many you planted and harvested (whole numbers up to 999,999).</dd>
+  <dt>Notes, Tags, Fields</dt><dd>As on a <a href="~/people/#page">person's page</a>: free text, tags and your own label-and-value pairs.</dd>
+  <dt>Notes about this</dt><dd>Every note that links to the entry. <strong>Write about this</strong> opens a note with the link attached.</dd>
+  <dt>On maps</dt><dd>Map markers linked to the entry.</dd>
+  <dt>⋯ menu</dt><dd><strong>Delete</strong>, which sends it to <a href="~/data-and-backup/#trash">Recently deleted</a>.</dd>
+</dl>
+
+<h3 id="today">On Today</h3>
+<p>Up to three <strong>Growing</strong> entries appear on Today with their planted date, and a link to the Farm.</p>
+
+<h2 id="extra">Suggested tags and sections</h2>
+<p>The template suggests two tags, <em>tasks</em> and <em>custom notes</em>. Under <a href="~/settings/#sections">Settings → Template and sections → Extra sections</a>, a click creates the tag and pins it, so it shows up in the sidebar under <em>Pinned</em>. Neither tag exists until you click.</p>
+
+<h2 id="journal-differences">Things you might expect that are not there</h2>
+<ul>
+  <li><strong>No game data.</strong> There is no crop list, villager list, gift guide or calendar of events. Mossnote will not suggest one; the project excludes it on purpose.</li>
+  <li><strong>No automatic harvest times.</strong> Growing is a label, not a timer.</li>
+  <li><strong>No completion tracking, statistics or checklists.</strong> These are deliberately out of scope.</li>
+</ul>
+<p>See <a href="~/tutorial-stardew-season/">Tutorial: a season on the farm</a> for a walkthrough.</p>

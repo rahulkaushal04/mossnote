@@ -13,7 +13,19 @@ You write down what you find out, in your own words, and Mossnote remembers it f
 - **No accounts, no tracking.** Nothing is uploaded. There are no analytics, crash reports or update checks.
 - **Made for playing.** Write on the same screen, or on a phone or tablet beside the game.
 
+<p align="center">
+  <img src="docs/assets/readme/today-default.png" alt="Mossnote's Today screen: a note box with date, flag, tag and link options, and the day's notes below, with a sidebar listing Today, Journal, People and Maps." width="860">
+</p>
+
+[![A recording of writing a note: setting the in-game day, mentioning a person with @, adding a tag with #, flagging a question and saving.](docs/assets/img/video-quick-capture-poster.png)](docs/assets/video/video-quick-capture.webm)
+
+_Click the picture for a 20-second recording of writing a note (opens the video file)._
+
 > **Status:** Mossnote has not had a public release yet. Until it does, [run it from source](#run-it-from-source). The `npx` and download options below will work once the first release is published.
+
+## Documentation
+
+Guides, tutorials and reference live in [`docs/`](docs/README.md) and are published at `/docs/` next to the web version (build them with `npm run docs:build`).
 
 ## Contents
 
@@ -89,6 +101,8 @@ If you play on the computer that runs Mossnote, you can write in your journal on
 3. Choose **Show pairing code**. On the phone, on the same Wi-Fi, scan the QR code with the camera and open the link. Or open the address shown and type the code.
 4. The phone is paired. Add it to the Home Screen if you like. Remove a phone later from the same screen.
 
+<img src="docs/assets/readme/phone.png" alt="Mossnote on a phone-width screen: the note box fills the width and a bar at the bottom lists Today, Journal, People, Maps and More." width="240" align="right">
+
 Good to know:
 
 - Only paired devices can use it. A code works once and expires after ten minutes. Paired phones cannot change phone access.
@@ -115,6 +129,10 @@ The first time you open Mossnote it asks one question: **Which template?** Pick 
 - **Default** fits any game. It has Today, Journal, People and Maps, and counts days ("Day 12").
 - **Stardew Valley** adds a Farm section, a calendar of four seasons, and a few one-tap actions.
 
+| Default                                                                                                                         | Stardew Valley                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <img src="docs/assets/readme/today-default.png" alt="Today in a Default journal: four sections and a day counter." width="420"> | <img src="docs/assets/readme/today-stardew.png" alt="Today in a Stardew Valley journal: a plum colour scheme, a Farm section, a season date, and four quick-action buttons under the note box." width="420"> |
+
 A template only changes wording and structure. It carries no facts about a game, and it stays with the journal. To use another template, make another journal. Don't see your game? The same screen links to a form for requesting one.
 
 Keep one journal per game or playthrough. The journal switcher is at the top of the sidebar (under **More** on a small screen). Press `?` in the app to see the keyboard shortcuts.
@@ -131,6 +149,10 @@ Keep one journal per game or playthrough. The journal switcher is at the top of 
 - **Many journals.** One per game, each with its own notes, calendar and sections.
 - **Stay safe.** Export as JSON or Markdown, import a file, snapshots you can restore, and 30 days of Recently deleted.
 - **Works on any screen.** Sidebar on a wide screen, rail on a tablet, bottom bar on a phone. Light and dark themes. Fully usable by keyboard.
+
+![The map editor with a small hand-drawn map: boxes, an area, a sticky note and two named markers, with the tool strip on the left and style options on the right.](docs/assets/readme/map.png)
+
+The [documentation](docs/README.md) has a guide for each of these, step-by-step tutorials and a feature-by-feature reference.
 
 ## Your data and backups
 

@@ -1,0 +1,78 @@
+---
+title: How Mossnote works
+description: A codebase overview for the curious and for contributors, covering the architecture, the main areas of functionality and how this site is deployed.
+---
+
+<p>This page is an overview of how Mossnote is built, based on the source in the repository. It is not needed to use the app. For contributing, the repository's <code>CONTRIBUTING.md</code> is the authority.</p>
+
+<h2 id="shape">The shape of it</h2>
+<p>Mossnote is a single npm package (<code>mossnote</code>, version 0.1.0, Node 22.12 to 24) written in TypeScript. The same app and the same services run in two places:</p>
+<ul>
+  <li><strong>The computer version:</strong> a small <strong>Hono</strong> web server bound to the loopback address, a <strong>SQLite</strong> database per journal, and the React app served from the same process.</li>
+  <li><strong>The web version:</strong> the same server code compiled into a <strong>web worker</strong> in the browser, using SQLite compiled to WebAssembly, with the React app talking to it as if it were a server.</li>
+</ul>
+<p>Only the parts that touch files differ, behind two small interfaces: <code>Sqlite</code> (the connection) and <code>Storage</code> (where journals and snapshots live).</p>
+
+<div class="table-wrap"><table>
+  <caption>The four source folders (an ESLint rule enforces who may import whom)</caption>
+  <thead><tr><th>Folder</th><th>Contains</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/shared</code></td><td>Schemas (zod), game dates, constants and limits, the search-query parser, templates. No Node or browser APIs.</td></tr>
+    <tr><td><code>src/server</code></td><td>The Hono API, SQLite access (Drizzle ORM plus hand-written SQL where needed), migrations, snapshots, the journal manager, phone access.</td></tr>
+    <tr><td><code>src/standalone</code></td><td>The server's app running in a browser worker: SQLite WebAssembly, the browser's storage and snapshots.</td></tr>
+    <tr><td><code>src/web</code></td><td>The React app: routes, features, components, styles.</td></tr>
+  </tbody>
+</table></div>
+<p>Other folders: <code>drizzle/</code> (SQL migrations), <code>scripts/</code> (build, dev, packaging and these docs), <code>tests/</code> (Playwright end-to-end tests), <code>bin/</code> (the <code>mossnote</code> command).</p>
+
+<h2 id="data-model">Data model</h2>
+<ul>
+  <li><strong>Records:</strong> notes, people, plantings (farm entries), maps with markers, tags, links, settings. Identifiers are ULIDs created in the browser, which makes a retried save safe.</li>
+  <li><strong>Deletes are soft.</strong> A <code>deleted_at</code> time moves a record into Recently deleted; a purge removes records after 30 days.</li>
+  <li><strong>Links</strong> join a note to another note, person or planting. Map markers can target the same three.</li>
+  <li><strong>Dates</strong> are one integer, <code>year × 10000 + season × 100 + day</code>, which sorts correctly. A day counter is a calendar of one 99-day "season".</li>
+  <li><strong>Settings</strong> hold the calendar, layout (template, section order, names, hidden sections, quick actions), preferences and marker types, as JSON.</li>
+  <li><strong>Search</strong> uses SQLite's FTS5 full-text index (a hand-written migration), plus a vocabulary table for typo tolerance. The query language is parsed by one shared function so the server and the screen agree.</li>
+  <li><strong>Maps</strong> are stored as a versioned scene (layers and shapes) plus marker rows, with saved versions.</li>
+</ul>
+
+<h2 id="server">The API and its safeguards</h2>
+<p>The web app talks to a JSON API under <code>/api</code>: <code>health</code>, <code>journals</code>, <code>settings</code>, <code>notes</code>, <code>people</code>, <code>plantings</code>, <code>maps</code>, <code>tags</code>, <code>field-labels</code>, <code>search</code>, <code>pick</code> (the typeahead lists), <code>data</code> (export, import, snapshots), <code>trash</code> and <code>phone</code>. Requests are validated with zod and errors share one shape.</p>
+<ul>
+  <li>The server listens on the loopback address only, checks the <code>Host</code> and <code>Origin</code> headers, requires a custom header on every write, and sends strict security headers including a Content-Security-Policy with a fresh nonce per response.</li>
+  <li>Phone access adds a gate: a device without a paired session cookie is refused or sent to <code>/pair</code>. See <a href="~/phone-access/">Phone access</a>.</li>
+  <li>SQLite runs in WAL mode with foreign keys on. A lock file keeps two copies from opening one journal, an integrity check runs at start, and snapshots can be taken while the app runs.</li>
+  <li>An automated check fails the build if the source or the built output contains a web address that could be fetched. The web version's tests also block every non-local request.</li>
+</ul>
+
+<h2 id="web-app">The React app</h2>
+<ul>
+  <li><strong>Routing:</strong> React Router with the routes listed in <a href="~/reference/#addresses">App addresses</a>; Settings, Search and the map editor load on demand.</li>
+  <li><strong>Data:</strong> TanStack Query caches API results; saves are optimistic where it is safe.</li>
+  <li><strong>Features</strong> live in <code>src/web/features/&lt;name&gt;</code>: calendar, capture (the note box and its pickers), farm, journal, journals, maps, notes, people, search, settings, tags, today.</li>
+  <li><strong>The map editor</strong> is the largest feature: an SVG canvas with a pure-function engine (shapes, snapping, alignment, recognising rough strokes, measuring) and an editor around it (toolbar, panels, shortcuts, history).</li>
+  <li><strong>Interface:</strong> Radix primitives for dialogs, menus and popovers, Tailwind CSS with design tokens in <code>tokens.css</code>, bundled Inter and Literata fonts, no icon library. Every template picks a tint.</li>
+  <li><strong>Accessibility:</strong> lint rules for accessibility, and Playwright tests that run axe scans on the main screens in both themes.</li>
+</ul>
+
+<h2 id="templates-code">Templates in code</h2>
+<p>A template is an object in <code>src/shared/templates</code>: an id and name, a tint, a one-line description, names for each of five sections, the sections it uses in order, a calendar kind, quick actions and suggested tags. Two exist. Nothing in them may carry game facts. A journal stores the template id in its layout setting.</p>
+
+<h2 id="web-version-code">The web version</h2>
+<ul>
+  <li><code>src/standalone/worker.ts</code> runs the server app and a SQLite WebAssembly build in a worker; <code>src/web/standalone</code> starts it before showing the app and routes API calls to it.</li>
+  <li>Journals live in the browser's origin-private storage (or memory when that is unavailable); a Web Locks lock allows one tab at a time.</li>
+  <li>A service worker keeps every file of the app for offline use and switches to a new copy only when the page asks.</li>
+  <li>A manifest and icons make it installable. The build also writes <code>404.html</code> as a copy of the app so an address typed into a static host still opens it.</li>
+</ul>
+
+<h2 id="quality">Tests and checks</h2>
+<p><code>npm run check</code> runs lint, type checking and the unit, integration and component tests (Vitest). Further: <code>npm run test:wasm</code> runs the server's tests on SQLite WebAssembly; <code>npm run test:e2e</code> builds and runs Playwright end-to-end tests against the real server and the web version; <code>npm run check:network</code> looks for outbound URLs. CI runs these on Node 22 and 24, plus a WebKit smoke test on macOS.</p>
+
+<h2 id="hosting">Deployment and these docs</h2>
+<p>The <em>Web version</em> workflow (<code>.github/workflows/pages.yml</code>) is started by hand from the Actions tab; nothing is published by a push or a tag. It runs the tests, builds the web version with <code>MOSS_BASE=/&lt;repository&gt;/</code>, runs the outbound-URL check, then <strong>builds the documentation into the same folder</strong> and uploads <code>dist/standalone</code> to GitHub Pages. So:</p>
+<ul>
+  <li>the app is at <code>https://&lt;owner&gt;.github.io/&lt;repository&gt;/</code>, and</li>
+  <li>these pages are at <code>https://&lt;owner&gt;.github.io/&lt;repository&gt;/docs/</code>.</li>
+</ul>
+<p>The documentation is plain HTML with no framework. Pages are fragments in <code>docs/content</code>; <code>npm run docs:build</code> (<code>scripts/docs/build.ts</code>) wraps them in one layout, writes relative addresses (so any base path works), builds the contents list and a small search index, and copies the images and recordings. The app's service worker deliberately lets page loads under <code>docs/</code> go to the network, so the documentation is never replaced by the app's own page. The screenshots and recordings are produced from the running app by <code>scripts/docs/capture.ts</code>. See <a href="~/about-these-docs/">About these docs</a>.</p>

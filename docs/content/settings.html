@@ -1,0 +1,65 @@
+---
+title: Settings reference
+description: Every section and control in Settings, what it does and where it is saved.
+---
+
+<p>Open <strong>Settings</strong> from the sidebar (or <kbd>g</kbd> then <kbd>s</kbd>). It is one scrolling page with anchored sections: a side list follows the section in view from 900 pixels wide, and a row of pill links does the same on narrower screens. Each section has its own address, for example <code>/settings#calendar</code>.</p>
+<shot name="settings-appearance" alt="The top of Settings. A list of section links on the left with Appearance current, and the Appearance section with Theme and Reading size choices. Three orange boxes mark the section list, the theme choice and the reading size choice.">Settings. (1) Sections, (2) theme, (3) reading size.</shot>
+
+<h2 id="appearance">Appearance</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Control</th><th>Choices</th><th>Saved</th></tr></thead>
+  <tbody>
+    <tr><td>Theme</td><td>System (follow the device), Light, Dark</td><td>In this browser</td></tr>
+    <tr><td>Reading size</td><td>Comfortable, Large (bigger note text)</td><td>With the journal's settings, and remembered in this browser so it shows at once</td></tr>
+  </tbody>
+</table></div>
+<p>If the reading size cannot be saved, it is undone and a message says so.</p>
+
+<h2 id="journals">Journals</h2>
+<p>Lists every journal with <strong>Open</strong>, <strong>Rename</strong>, <strong>JSON</strong>, <strong>Markdown</strong> and <strong>Delete</strong>, plus <strong>New journal…</strong>. Full details: <a href="~/journals/">Journals</a>.</p>
+
+<h2 id="sections">Template and sections</h2>
+<shot name="settings-sections" alt="Settings, Template and sections. The template is named Stardew Valley with a short description. Below is a list of sections, Today, Daily journal, NPCs, Farm and Maps, each with a name field, a Show checkbox and up and down buttons. A checkbox Show quick actions above the note box follows. Orange boxes mark the section list and that checkbox." >Template and sections. (1) Rename, hide and reorder, (2) quick actions switch.</shot>
+<ul>
+  <li><strong>Template.</strong> Shows the name and description of this journal's template. It cannot be changed here; make a new journal for another one. <strong>New journal…</strong> and <strong>Request a template</strong> are here too.</li>
+  <li><strong>Sections.</strong> One row per section. Edit the <strong>name</strong> (up to 30 characters; it saves when you press <kbd>Enter</kbd> or click away; emptying it restores the template's name). Untick <strong>Show</strong> to hide a section from the menus (<em>Today</em> and <em>Journal</em> cannot be hidden). Use <strong>↑</strong> and <strong>↓</strong> to reorder.</li>
+  <li><strong>Show quick actions above the note box.</strong> Appears only for templates that have quick actions (Stardew Valley).</li>
+  <li><strong>Extra sections.</strong> Buttons such as <em>Add “tasks”</em> create a suggested tag and pin it. A pinned tag appears in the sidebar as a shortcut.</li>
+  <li><strong>Reset sections to the template's defaults.</strong> Undoes your names, hiding, order and quick-action choice.</li>
+</ul>
+<p>Hiding a section only removes it from navigation. Its records are still there, and hidden pages still open by address.</p>
+
+<h2 id="calendar">Calendar</h2>
+<p>Editable seasons for the Stardew Valley template; a note that days are just counted for the Default template. See <a href="~/dates-and-calendar/#calendar-settings">Editing the calendar</a>.</p>
+
+<h2 id="tags">Tags</h2>
+<p>Rename, pin, merge and delete tags, with a count of their uses. See <a href="~/tags/#manage">Managing tags</a>.</p>
+
+<h2 id="phone">Phone (computer version only)</h2>
+<p>The switch for phone access, the pairing code and the paired-devices list. See <a href="~/phone-access/">Phone access</a>. This section does not exist in the web version.</p>
+
+<h2 id="data">Data &amp; backup</h2>
+<p>Where the journal is stored, record counts, <strong>Export JSON</strong>, <strong>Export Markdown</strong>, <strong>Import JSON</strong>, <strong>Back up now</strong>, the web version's storage protection and the snapshot list. See <a href="~/data-and-backup/">Data and backups</a>.</p>
+
+<h2 id="trash">Recently deleted</h2>
+<p>Notes, people, farm entries and maps deleted in the last 30 days, with <strong>Restore</strong> and <strong>Delete forever</strong>. See <a href="~/data-and-backup/#trash">Recently deleted</a>.</p>
+
+<h2 id="about">Shortcuts and about</h2>
+<shot name="settings-about" alt="The last part of Settings: a Single-key shortcuts checkbox with an explanation, the shortcuts list, then the version, where the data is stored, the licence and the privacy statements." >Shortcuts and about.</shot>
+<ul>
+  <li><strong>Single-key shortcuts.</strong> Turn off shortcuts that are one key (<kbd>n</kbd>, <kbd>g</kbd>, <kbd>?</kbd>…). See <a href="~/shortcuts/#turn-off">Keyboard shortcuts</a>.</li>
+  <li><strong>The shortcuts list.</strong> The same list as <kbd>?</kbd> shows.</li>
+  <li><strong>Version</strong>, <strong>Data folder</strong> (or <em>Stored in: This browser, on this device</em> for the web version) and <strong>Licence</strong> (MIT).</li>
+  <li><strong>Privacy.</strong> Plain statements of what Mossnote does and does not do with your data.</li>
+</ul>
+
+<h2 id="where-saved">Where each setting is kept</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Setting</th><th>Kept</th></tr></thead>
+  <tbody>
+    <tr><td>Calendar, sections, quick actions, marker types, reading size, the "hide this tip" choice</td><td>In the journal (so they travel in an export and differ per journal)</td></tr>
+    <tr><td>Theme, single-key shortcuts, map View choices and the style for new map drawings</td><td>In the browser (the same for every journal, not exported)</td></tr>
+  </tbody>
+</table></div>
+<p>The journal's settings are written into <strong>Export JSON</strong> and restored by an import. See <a href="~/reference/#export-format">Export format</a>.</p>

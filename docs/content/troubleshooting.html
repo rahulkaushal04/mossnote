@@ -1,0 +1,113 @@
+---
+title: Troubleshooting
+description: Messages you may see, what they mean, and how to fix common problems in both versions of Mossnote.
+---
+
+<p>Messages are quoted as the app shows them. Wherever one says <em>Nothing you wrote is lost</em>, that is true: Mossnote only shows it when your journal has not been changed.</p>
+
+<h2 id="start">Mossnote will not open</h2>
+<dl>
+  <dt>“Mossnote is open in another tab.” (web version)</dt>
+  <dd>A journal can be open in only one tab. Close the other Mossnote tab or window, then choose <strong>Try again</strong>.</dd>
+  <dt>“This browser can't keep your journal.” (web version)</dt>
+  <dd>The browser refused storage. The usual cause is a private window. Open Mossnote in a normal window, in an up-to-date Safari, Chrome, Edge or Firefox, on an HTTPS address. The message names what is missing: secure connection, web workers, WebAssembly or file storage.</dd>
+  <dt>“Mossnote couldn't open your journal.” (web version)</dt>
+  <dd>Startup failed for another reason; the message includes what the browser said. Choose <strong>Try again</strong>. If it keeps failing, try another browser, and restore from a downloaded copy if you have one (<a href="~/data-and-backup/#import">Import</a>).</dd>
+  <dt>“Can't reach your journal.” (computer version, or a phone)</dt>
+  <dd>Mossnote may not be running. Start it again (open the program, or run <code>mossnote</code> / <code>npm start</code> in a terminal) and choose <strong>Retry</strong>. The page tries again by itself every five seconds. On a phone, check the computer is on and phone access is still on.</dd>
+  <dt>The computer version refuses to start and names a snapshot</dt>
+  <dd>The start-up integrity check failed. Restore that snapshot by hand: stop Mossnote, copy it from <code>backups/</code> over the journal's <code>.db</code> file, delete that journal's <code>.db-wal</code> and <code>.db-shm</code>, and start again. See <a href="~/data-and-backup/#integrity">Starting safely</a>.</dd>
+  <dt>A second copy will not start</dt>
+  <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start. Close the first one (look for a program window or a terminal that is still running it).</dd>
+  <dt>Port 4317 is busy</dt>
+  <dd>Start on another port: <code>mossnote --port 4400</code>. <status kind="unverified"></status> We did not provoke this.</dd>
+  <dt>“Something went wrong on this page.”</dt>
+  <dd>Your journal is safe. Reload the page. The page offers the technical details to copy if you want to report it.</dd>
+</dl>
+
+<h2 id="journals">Journals</h2>
+<dl>
+  <dt>“Made with a newer Mossnote. Update the app to open it. Nothing was changed.”</dt>
+  <dd>That journal was saved by a newer version than the one you run. Update Mossnote. It is never changed by an older version.</dd>
+  <dt>“Mossnote can't read this file. Nothing was changed.”</dt>
+  <dd>The file is damaged or is not a journal. Restore a snapshot from <code>backups/</code> or import an export.</dd>
+  <dt>“You switched journals in another window. Reload to keep working here.”</dt>
+  <dd>You (or another device) switched journals elsewhere. Choose <strong>Reload</strong> so this window does not write into the wrong one.</dd>
+  <dt>I made a journal with the wrong template</dt>
+  <dd>A journal keeps its template. Make a new journal with the right one, then export the old one and import the file into it: notes, people and maps come across. A template's calendar comes from the journal, so check <a href="~/settings/#calendar">Settings → Calendar</a> afterwards. <status kind="unverified"></status> We did not test importing across templates.</dd>
+</dl>
+
+<h2 id="writing">Writing and saving</h2>
+<dl>
+  <dt>“Couldn't save. Your text is still here.”</dt>
+  <dd>Choose <strong>Retry</strong>. It saves the same note, never a second copy.</dd>
+  <dt>“Too long: … of 50,000 characters.”</dt>
+  <dd>Shorten the note, or split it in two. Save stays off until it fits.</dd>
+  <dt>“Drafts won't be kept in this browser.”</dt>
+  <dd>The browser cannot keep drafts (often a private window). Notes you save are kept if the journal itself opens; only unsaved drafts are at risk.</dd>
+  <dt>⌘/Ctrl+Enter does not save</dt>
+  <dd>The cursor must be in the note box. If you just clicked a button in the options row (Discovery, Question…), click back into the text first.</dd>
+  <dt>The <code>#</code>, <code>@</code> or <code>[[</code> list does not open</dt>
+  <dd>It opens for typed characters only, not for pasted text or input-method text. <code>#</code> and <code>@</code> must start the line or follow a space. For <code>/</code>, it must be the first character on its line. Or use the <strong>Tag</strong> and <strong>Link</strong> buttons. After pressing <kbd>Esc</kbd> in a list, the same spot will not reopen it.</dd>
+  <dt>My <code>#tag</code> stayed as text</dt>
+  <dd>Only choosing a row from the list creates a tag, or putting <code>#tags</code> alone on the last line of a new note. A tag typed in the middle of a sentence and not chosen stays plain text.</dd>
+  <dt>I deleted a note by mistake</dt>
+  <dd>Choose <strong>Undo</strong> in the message (or press <kbd>u</kbd>), or restore it from <a href="~/data-and-backup/#trash">Settings → Recently deleted</a> within 30 days.</dd>
+</dl>
+
+<h2 id="finding">I cannot find something</h2>
+<ul>
+  <li><strong>The Journal looks short.</strong> A filter may be on. Active filters show as highlighted choices; choose <strong>Clear filters</strong> if the page offers it, or open <code>/journal</code> with nothing after it. Note that <em>Questions</em> starts on <em>Open</em>.</li>
+  <li><strong>A note is missing from Today.</strong> Today shows the notes for the current in-game day. Check the date chip, or look in the Journal. Notes with no date appear under <strong>Not dated</strong>.</li>
+  <li><strong>A section disappeared.</strong> You may have hidden it: Settings → Template and sections → tick <em>Show</em>.</li>
+  <li><strong>The Farm is missing.</strong> Only Stardew Valley journals have one. A Default journal shows <em>Not found</em> at <code>/farm</code>.</li>
+  <li><strong>Search does not find a word.</strong> Typo tolerance helps but is not magic. Try fewer words, remove <code>-</code> exclusions, check the tabs under the search field, and remember search covers notes, people, farm entries, maps and tags.</li>
+  <li><strong>Something I deleted is gone.</strong> Look in <strong>Settings → Recently deleted</strong>. After 30 days it is removed for good; a snapshot may still hold it.</li>
+</ul>
+
+<h2 id="keys">Keyboard shortcuts do not work</h2>
+<ul>
+  <li>Single-key shortcuts need the cursor <strong>outside</strong> a text box. Today focuses the note box when it opens, so press <kbd>Esc</kbd> first.</li>
+  <li><kbd>⌘</kbd><kbd>K</kbd> is ignored while the cursor is in a text box; press <kbd>Esc</kbd> or use the Search field.</li>
+  <li>They are off while a dialog or menu is open, with <kbd>⌘</kbd>, <kbd>Ctrl</kbd> or <kbd>Alt</kbd> held, and when <em>Single-key shortcuts</em> is unticked in Settings.</li>
+  <li><kbd>g</kbd> and <kbd>d</kbd> are two-key sequences: press the second key within a second.</li>
+</ul>
+
+<h2 id="dates">Dates</h2>
+<ul>
+  <li><strong>New notes have no date.</strong> No in-game date is set. Choose <strong>Set date</strong> on Today.</li>
+  <li><strong>The picker changed the year, not the day.</strong> In the season picker the cursor starts in the Year field; click a day in the grid.</li>
+  <li><strong>“3 notes use day 3 of Spring.”</strong> A calendar change would strand those dates. Move those notes' dates first, or keep that season's length.</li>
+  <li><strong>The date moved by mistake.</strong> Press <strong>Undo</strong> in the <em>Now Day …</em> message.</li>
+</ul>
+
+<h2 id="backup">Backup, import and export</h2>
+<ul>
+  <li><strong>“That file isn't valid JSON.”</strong> Import needs the JSON file from <em>Export JSON</em>. Markdown exports cannot be imported.</li>
+  <li><strong>“That file isn't a Mossnote export.”</strong> or a list of problems: the file is not one of ours, or was edited. Nothing was changed. The list shows where each problem is.</li>
+  <li><strong>“That file is larger than 50 MB, so it was not opened.”</strong> The import limit.</li>
+  <li><strong>The import failed.</strong> The message names the snapshot saved just before; your journal is as it was.</li>
+  <li><strong>The download did not start.</strong> Check the browser's download permission and where it saves files. The web version's file is made in the browser; nothing is fetched.</li>
+  <li><strong>I want to undo a restore or import.</strong> Both take a snapshot first (<em>Before a restore</em>, <em>Before an import</em>); restore that one.</li>
+</ul>
+
+<h2 id="maps">Maps</h2>
+<ul>
+  <li><strong>“That file isn't a map Mossnote can open.”</strong> Use a <code>.mossmap.json</code> file from the map's <em>Export → Editable project file</em>. A whole-journal export is a different file.</li>
+  <li><strong>A rough drawing turned into a clean shape.</strong> That is tidy-up. Choose <strong>Keep my drawing</strong> in the message, or turn it off in <strong>View → Tidy up rough shapes</strong>.</li>
+  <li><strong>Things will not move or select.</strong> They may be locked, or their layer is. Check the <strong>Layers</strong> tab.</li>
+  <li><strong>I can't see an object.</strong> It may be hidden or on a hidden layer. Use the eye buttons in <strong>Layers</strong>.</li>
+  <li><strong>Measure shows odd angles.</strong> Snapping rounds angles to 15°. Hold <kbd>Alt</kbd> or turn snapping off.</li>
+  <li><strong>The PDF's text cannot be selected.</strong> The PDF holds the map as a picture. Use SVG for a vector version.</li>
+  <li><strong>Lost recent drawing.</strong> Maps autosave; look at <strong>History</strong> for an earlier version and use <strong>Undo</strong>.</li>
+</ul>
+
+<h2 id="phone">Phone and tablet</h2>
+<ul>
+  <li><strong>The phone cannot connect.</strong> Same Wi-Fi? Not a guest network? Computer on, Mossnote running, phone access on? Firewall allowing private networks? See <a href="~/phone-access/#problems">Phone access</a>.</li>
+  <li><strong>“This device isn't paired anymore.”</strong> It was removed from the computer's list. Pair again under Settings → Phone.</li>
+  <li><strong>A pairing code does not work.</strong> A code works once and expires after ten minutes. Make a new one.</li>
+</ul>
+
+<h2 id="still-stuck">Still stuck?</h2>
+<p>See the project's <a href="https://github.com/rahulkaushal04/mossnote/blob/main/.github/SUPPORT.md">support page</a>, and report a bug with the <a href="https://github.com/rahulkaushal04/mossnote/issues">issue form</a>. Please never paste your notes into a public issue.</p>

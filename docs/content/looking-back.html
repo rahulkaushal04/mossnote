@@ -1,0 +1,60 @@
+---
+title: Looking back
+description: Read your notes by day or all together, and narrow the Journal with filters that you can bookmark.
+---
+
+<p>Three screens show your notes: <strong>Today</strong> (the day you are on), a <strong>Day</strong> page (any one day) and the <strong>Journal</strong> (everything). In the Stardew Valley template the Journal is called <em>Daily journal</em>.</p>
+
+<h2 id="today">Today</h2>
+<p>Today is the screen you land on. From top to bottom:</p>
+<ol>
+  <li>The real weekday and date in large type, and a line of help.</li>
+  <li>The <a href="~/dates-and-calendar/#current-date">in-game date controls</a>.</li>
+  <li>The <a href="~/writing-notes/#note-box">note box</a> (and, in the Stardew Valley template, the <a href="~/template-stardew/#quick-actions">quick actions</a> under it).</li>
+  <li>The notes for the current in-game day, newest first. With no in-game date set, it shows the notes you wrote on the real day. When there are none it says <em>Nothing written for this day. A quiet day is fine.</em></li>
+  <li>Optional sections that disappear when empty: <strong>Recent discoveries</strong> (the three newest ✦ notes of any date), <strong>Growing</strong> (up to three planted, unharvested farm entries; Stardew Valley only) and a link such as <em>2 open questions</em> that opens the Journal filtered to open questions.</li>
+</ol>
+<p>In the web version, a <a href="~/web-version/#backup-reminder">backup reminder</a> can appear at the top of the page.</p>
+
+<h2 id="day">A single day</h2>
+<p>A Day page shows every note dated that day, with a note box that stamps new notes with that day. Reach it by choosing a day's heading in the Journal. Its address is <code>/day/…</code>, so you can bookmark it.</p>
+<shot name="day-page" alt="The Day 13 page: the title Day 13, a chip showing Day 13 with previous and next buttons, outlined in orange, then a note box and the notes written on that day.">A Day page. (1) The controls to jump to a day or step to the next or previous one.</shot>
+<ul>
+  <li>The chip jumps to any day. The <strong>‹</strong> and <strong>›</strong> buttons, or <kbd>[</kbd> and <kbd>]</kbd>, step one day back or forward.</li>
+  <li>Viewing a day does <em>not</em> change today's in-game date; that only changes on Today.</li>
+</ul>
+
+<h2 id="journal">The Journal</h2>
+<p>Every note, grouped under day headings with the newest day first. Under the title a row of controls filters the list.</p>
+<shot name="journal-view" alt="The Journal page with notes grouped under Day 14, Day 13 and Day 12. Above them four orange boxes mark the All, Discoveries and Questions switch, the Tag button, the Not dated button and the Newest first button.">The Journal. (1) Show all, discoveries or questions, (2) filter by tag, (3) undated notes, (4) sort order.</shot>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Control</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><strong>All / Discoveries / Questions</strong></td><td>Shows every note, only ✦ notes, or only ? notes. Choosing <em>Questions</em> reveals a second switch: <em>Open</em> (the default), <em>Solved</em> or <em>All</em>.</td></tr>
+    <tr><td><strong>Tag</strong></td><td>Opens a list of your tags to tick. With several tags ticked, a note must have <em>all</em> of them to be shown.</td></tr>
+    <tr><td>Pinned tag chips</td><td>Up to eight pinned tags appear as chips for one-click filtering. See <a href="~/tags/#pinning">Pinning</a>.</td></tr>
+    <tr><td><strong>Not dated</strong></td><td>Shows only notes with no in-game date.</td></tr>
+    <tr><td><strong>Newest first / Oldest first</strong></td><td>Switches the order. The label shows the order you are in.</td></tr>
+  </tbody>
+</table>
+</div>
+<shot name="journal-questions" alt="The Journal filtered to Questions, with a second switch outlined in orange offering Open, Solved and All. Two open questions are listed under Day 13 and Day 12.">With <em>Questions</em> chosen, the second switch picks open, solved or all.</shot>
+<shot name="journal-tag-filter" alt="The Journal with the Tag filter open: a small panel outlined in orange with a Find a tag field and a list with a checkbox for each tag.">The tag filter panel.</shot>
+
+<h3 id="filter-addresses">Filters live in the address</h3>
+<p>The filters are written into the page address, for example <code>/journal?flag=question&amp;state=open&amp;tag=lead&amp;order=asc</code>. Reloading or bookmarking reproduces the same view. Changing a filter replaces the address rather than adding to your history, so <em>Back</em> leaves the Journal instead of undoing each filter.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Address part</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>flag=discovery</code> or <code>flag=question</code></td><td>Only discoveries, or only questions</td></tr>
+    <tr><td><code>state=open</code> or <code>state=solved</code></td><td>Only with <code>flag=question</code></td></tr>
+    <tr><td><code>tag=name</code> (repeatable)</td><td>Notes with that tag</td></tr>
+    <tr><td><code>undated=1</code></td><td>Only notes with no date</td></tr>
+    <tr><td><code>order=asc</code></td><td>Oldest first (the default is newest first)</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Visiting <code>/tags/name</code> sends you to the Journal filtered to that tag, which is also where a pinned tag in the sidebar leads.</p>
+<p>When a filter hides everything, the page offers a way to clear the filters. The list loads 50 notes at a time and fetches the next 50 as you scroll to the end.</p>

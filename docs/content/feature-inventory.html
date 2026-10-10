@@ -1,0 +1,140 @@
+---
+title: Feature inventory
+description: Every user-facing feature of Mossnote in both templates, with its status, how we checked it and any known limit.
+---
+
+<p>This is the complete list of what Mossnote does, built by reading the source code and then using the running app. Use it to find a feature, to see how it differs between templates, and to see what is solid and what has gaps.</p>
+
+<h2 id="how-to-read">How to read it</h2>
+<ul>
+  <li><strong>Default</strong> and <strong>Stardew</strong> columns: ● the feature is there, ○ it is not, and a word where it differs.</li>
+  <li><status kind="implemented"></status> works as described. <status kind="partial"></status> works, with gaps. <status kind="limitation"></status> works, with a limit you should know. <status kind="unverified"></status> exists in the code, but we could not run it here.</li>
+  <li><strong>Checked</strong> says how: <em>Ran</em> means we used it in the running app (web version, in Chromium, unless it says <em>computer version</em>); <em>Code</em> means we read the implementation and the project's own tests describe it, but we did not use it ourselves.</li>
+  <li>Possible improvements are marked <status kind="idea"></status>. They are not built, and nothing here promises they will be.</li>
+</ul>
+
+<h2 id="notes">Notes and writing</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Note box on Today and Day pages, save with ⌘/Ctrl+Enter</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Shortcut works only with the cursor in the box.</td></tr>
+    <tr><td>Drafts survive refresh; failed save keeps text with Retry</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (draft); Code (retry)</td><td>Separate drafts for Today, each Day and the New note window.</td></tr>
+    <tr><td>New note window (<code>n</code>, New note button)</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Focuses the box on Today instead.</td></tr>
+    <tr><td>Titles, per-note dates, discovery and question flags</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td><code>#</code>, <code>@</code>, <code>[[</code>, <code>/</code> pickers; Tag and Link buttons</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Only typed characters open lists. <code>[[</code> finds farm entries only in Stardew.</td></tr>
+    <tr><td>Last line of <code>#tags</code> becomes tags on a new note</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Code</td><td>Not applied when editing.</td></tr>
+    <tr><td>Markdown subset in notes (bold, italic, code, lists, quotes, links)</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Code</td><td>No headings, tables, images or HTML.</td></tr>
+    <tr><td>Edit in place (menu or <code>e</code>), note menu, delete with Undo</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Note's own page with <em>Linked from</em> and <em>On maps</em></td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Reached by links; there is no list of note pages.</td></tr>
+    <tr><td>Quick actions (Met someone, Found something, Wondering, To do)</td><td>○</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Fixed set; cannot be edited. Can be hidden in Settings.</td></tr>
+    <tr><td>Rich text, images or attachments in notes</td><td>○</td><td>○</td><td></td><td></td><td>Left out on purpose by the project.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="dates">Dates and the calendar</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Current in-game date, previous/next day, <em>Stop dating new notes</em></td><td>Day counter</td><td>Seasons</td><td><status kind="implemented"></status></td><td>Ran</td><td>Next-day shows an Undo message.</td></tr>
+    <tr><td>Date picker</td><td>Number field</td><td>Year, season, day grid</td><td><status kind="implemented"></status></td><td>Ran</td><td>Opens as a bottom sheet on a phone.</td></tr>
+    <tr><td>Day pages, jump to a day</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td><code>[</code> and <code>]</code> step days.</td></tr>
+    <tr><td>Notes without a date; <em>Not dated</em> filter; real-day fallback on Today</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Editable calendar (names, days per season, add/remove seasons)</td><td>○ (no seasons)</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (refusal); Code</td><td>Refused when it would strand existing dates.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="views">Looking back</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Today with recent discoveries and open-question link</td><td>●</td><td>● plus Growing</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Journal grouped by day with All/Discoveries/Questions (Open/Solved/All), tag filter, pinned-tag chips, Not dated, sort</td><td>●</td><td>● (<em>Daily journal</em>)</td><td><status kind="implemented"></status></td><td>Ran</td><td>Filters live in the address. Infinite scroll in blocks of 50 untested above 50 notes.</td></tr>
+    <tr><td>Questions: mark solved with optional answer, reopen, remove flag</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>No <em>ignored</em> state, although the changelog mentions one.</td></tr>
+    <tr><td>Wide-screen margin for date, tags and links</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="records">People, farm, tags</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>People list: add, filter, tag filter, sort; person page</td><td>People</td><td>NPCs</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Progress dots (1 to 99), notes, tags, fields, backlinks, On maps</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Fields autosave.</td></tr>
+    <tr><td>Farm: add, Growing/Done/Noted, Harvested today, Plant again, counts, entry page, Growing on Today</td><td>○</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>No timers or game data.</td></tr>
+    <tr><td>Tags: create, pin (up to 8 shown), rename, merge, delete, usage counts</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Tag rename onto an existing tag offers a merge.</td></tr>
+    <tr><td>Suggested tags (<em>tasks</em>, <em>custom notes</em>)</td><td>○</td><td>●</td><td><status kind="implemented"></status></td><td>Code</td><td>Created and pinned on click.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="search">Search</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Search window with commands, scope tabs and results</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td><kbd>⌘K</kbd> does not fire inside a text box.</td></tr>
+    <tr><td>Results page with removable chips and Search tips</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Typo tolerance, phrases, <code>-exclude</code>, <code>#tag</code>, <code>@person</code>, <code>is:</code>, <code>in:</code></td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Date search</td><td><code>day 12</code></td><td><code>spring 3 y2</code></td><td><status kind="implemented"></status></td><td>Ran (<code>day 5</code>)</td><td>Season forms read from code.</td></tr>
+    <tr><td>Search maps and markers by text</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="maps">Maps</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Maps list, new map (optional layers), duplicate, delete, open a map file, Places list</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Tools: select, pan, draw, line, arrow, box, circle, area, connect, text, note, marker, measure</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Selecting several with Shift: unverified.</td></tr>
+    <tr><td>Tidy-up drawing with <em>Keep my drawing</em></td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Rectangle recognised in testing; other shapes read from code.</td></tr>
+    <tr><td>Snapping (objects, alignment, grid, 15° angles), grid, rulers, guides, minimap, compass</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (snap, grid, rulers); Code (guides)</td><td>Alt pauses snapping.</td></tr>
+    <tr><td>Selection: move, resize, rotate, group, lock, hide, rename, order, align, distribute, same size, copy/paste across maps, copy/paste style</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (select all, align panel); Code</td><td>The clipboard is inside the app, not the system clipboard.</td></tr>
+    <tr><td>Styles: colour, fill, width, dash, corners, text kinds, connectors, saved style presets</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (panel); Code</td><td></td></tr>
+    <tr><td>Measure tool with your own units</td><td>●</td><td>●</td><td><status kind="limitation"></status></td><td>Ran</td><td>Reading disappears on release; snapped to 15° while snapping is on.</td></tr>
+    <tr><td>Markers: icon, colour, status, tags, note, fields, layer, link to note/person/farm entry, types</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Farm entries only in Stardew.</td></tr>
+    <tr><td>Exploring mode</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Layers (30 max), show/hide, lock, reorder, move selection</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (list); Code</td><td>Deleting a layer moves its objects to a neighbour.</td></tr>
+    <tr><td>Autosave, undo/redo, version history (automatic and named)</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (save version); Code (restore)</td><td></td></tr>
+    <tr><td>Export PNG, SVG, PDF, editable project file; re-import project file</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>PDF holds a picture; exports are trimmed to the drawing.</td></tr>
+    <tr><td>Touch gestures (pinch, long-press names)</td><td>●</td><td>●</td><td><status kind="unverified"></status></td><td>Code</td><td>No touch device available.</td></tr>
+    <tr><td>Background images or map import from pictures</td><td>○</td><td>○</td><td></td><td></td><td>Left out on purpose.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="journals-templates">Journals, templates, settings</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Default</th><th>Stardew</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>First-run template picker; many journals; switch, rename, new</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Delete a journal with name confirmation and optional last copy</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (dialog)</td><td>No undo besides the last copy.</td></tr>
+    <tr><td>Changing a journal's template afterwards</td><td>○</td><td>○</td><td><status kind="limitation"></status></td><td>Code</td><td>Make a new journal and import if needed. <status kind="idea"></status></td></tr>
+    <tr><td>Rename, hide, reorder sections; reset to defaults</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Today and Journal cannot be hidden.</td></tr>
+    <tr><td>Theme (system/light/dark), reading size, template tint</td><td>moss</td><td>plum</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Single-key shortcuts switch; shortcuts list; command palette commands</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
+    <tr><td>Responsive layouts: sidebar, rail, bottom bar and More sheet</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (screenshots)</td><td></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="data">Data safety and versions</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Where</th><th>Status</th><th>Checked</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Export JSON and Markdown; import with preview and refusal of bad files</td><td>Both versions</td><td><status kind="implemented"></status></td><td>Ran</td><td>Import replaces the open journal only.</td></tr>
+    <tr><td>Snapshots: automatic, manual, before import/restore/update; restore; delete</td><td>Both versions</td><td><status kind="implemented"></status></td><td>Ran (web version)</td><td>Automatic timing differs by version.</td></tr>
+    <tr><td>Recently deleted (30 days): restore, delete forever, empty</td><td>Both versions</td><td><status kind="implemented"></status></td><td>Ran (restore)</td><td></td></tr>
+    <tr><td>Integrity check at start, newer-journal protection, upgrade snapshot</td><td>Computer version</td><td><status kind="unverified"></status></td><td>Code</td><td>Described in the README; not provoked here.</td></tr>
+    <tr><td>Data folder with Copy and Open folder</td><td>Computer version</td><td><status kind="implemented"></status></td><td>Ran (shown); Open folder not clicked</td><td></td></tr>
+    <tr><td>Phone access: switch, pairing code and QR, paired devices, <code>--lan</code></td><td>Computer version</td><td><status kind="partial"></status></td><td>Ran (computer side)</td><td>No real phone paired.</td></tr>
+    <tr><td>Backup reminder, storage protection, one-tab guard, update bar, offline use</td><td>Web version</td><td><status kind="implemented"></status></td><td>Ran (storage panel, second tab); Code (rest)</td><td>Reminder and update bar not triggered.</td></tr>
+    <tr><td>Installable app (manifest, icons, service worker)</td><td>Web version</td><td><status kind="unverified"></status></td><td>Code</td><td>Install was not tried.</td></tr>
+    <tr><td>Other browsers (Safari, Firefox, Edge) and phones</td><td>Web version</td><td><status kind="unverified"></status></td><td></td><td>Only Chromium was used.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="not-built">Not built, on purpose or not yet</h2>
+<p>The project's README lists things it will not do: image attachments, imported map images, tag colours, checklists, completion tracking, cloud sync, accounts, rich text, statistics, AI features and plugins. They are decisions, not a backlog. Beyond that list, we noticed these gaps:</p>
+<ul>
+  <li><status kind="idea"></status> A way to change a journal's template after it is made.</li>
+  <li><status kind="idea"></status> <kbd>⌘</kbd><kbd>K</kbd> working while typing in a note, as the shortcut list already promises.</li>
+  <li><status kind="idea"></status> The <em>ignored</em> question state that the changelog mentions.</li>
+  <li><status kind="idea"></status> A link from inside the app to these documentation pages.</li>
+  <li><status kind="idea"></status> A way to create your own template without editing the source.</li>
+</ul>

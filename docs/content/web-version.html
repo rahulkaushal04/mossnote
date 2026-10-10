@@ -1,0 +1,74 @@
+---
+title: The web version
+description: Use Mossnote in a browser with no server. Your journal is kept in that browser, works offline, and needs an occasional backup.
+---
+
+<p>The web version is the same app with the server built into the page. Your journals live in the browser's own storage, nothing is sent anywhere, and it keeps working offline once it has loaded. It is for people with no computer to run Mossnote on, such as someone playing on a console with a phone beside them.</p>
+
+<h2 id="open">Opening it</h2>
+<ul>
+  <li>Open the address where it is published, in Safari, Chrome, Edge or Firefox, in a normal (not private) window. The <strong>Open Mossnote</strong> button at the top of these pages goes to it.</li>
+  <li>The page must be served over <strong>HTTPS</strong> (or from <code>localhost</code>). Mossnote checks this, along with web workers, WebAssembly and file storage, and tells you what is missing.</li>
+  <li>The first screen asks for a template and a name, as in <a href="~/getting-started/#first-journal">Getting started</a>.</li>
+</ul>
+
+<h2 id="differences">How it differs from the computer version</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th></th><th>Computer version</th><th>Web version</th></tr></thead>
+  <tbody>
+    <tr><td>Journal stored in</td><td>A folder of files on the computer</td><td>The browser's storage on the device</td></tr>
+    <tr><td>Works offline</td><td>Yes, once running locally</td><td>Yes, after the first load</td></tr>
+    <tr><td>Phone access section in Settings</td><td>Yes</td><td>No (there is no server to pair with)</td></tr>
+    <tr><td><em>Open folder</em> button</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Automatic snapshots</td><td>At start, if the newest is over 24 hours old</td><td>Taken in the browser, listed in Settings</td></tr>
+    <tr><td>Several tabs</td><td>Yes</td><td>One tab at a time</td></tr>
+    <tr><td>Backup reminders</td><td>No</td><td>Yes</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Everything you do in notes, people, farm entries, maps, search and settings works the same way. <status kind="unverified"></status> We ran the web version, in Chromium, for all the screenshots in these guides. We did not test it in Safari, Firefox or Edge, or on a phone.</p>
+
+<h2 id="install">Add it to the Home Screen</h2>
+<p>The web version is installable: it has a manifest and icons. <strong>Add it to the Home Screen</strong> (Share → Add to Home Screen on iPhone and iPad, or the install prompt on Android and in desktop browsers). Browsers look after an installed app's data more carefully than a normal tab's. <status kind="unverified"></status> Installing was not tested here.</p>
+
+<h2 id="backup">Keep a backup</h2>
+<p>The journal lives <strong>only</strong> in that browser on that device. If you clear the site's data, or lose the device, it is gone. So:</p>
+<ul>
+  <li><strong>Download a copy now and then</strong> (Settings → Data &amp; backup → <strong>Export JSON</strong>, or <strong>Download a copy</strong> in the reminder).</li>
+  <li><strong>Ask the browser to keep it.</strong> <em>Keep your journal safe</em> in Settings → Data &amp; backup says whether the browser has promised not to clear your journal when space runs low, and has an <strong>Ask the browser to keep it</strong> button. It also shows how much of the site's storage you use.</li>
+</ul>
+<shot name="web-storage-protection" alt="Settings, Data and backup, in the web version. A box outlined in orange is headed Keep your journal safe. It says the browser may delete the journal if the device runs low on space, advises downloading a copy, and has a button Ask the browser to keep it and a line about storage used.">The <em>Keep your journal safe</em> panel in the web version.</shot>
+<h3 id="backup-reminder">Backup reminders</h3>
+<p>A reminder appears at the top of the page, on any screen, when the journal has something in it and:</p>
+<ul>
+  <li>you have <strong>never</strong> downloaded a copy and the journal is <strong>3 days</strong> old, or</li>
+  <li>your last downloaded copy is <strong>14 days</strong> old.</li>
+</ul>
+<p>It reads <em>This journal is only saved in this browser, and you haven't downloaded a copy yet.</em> (or <em>Your last downloaded copy was N days ago.</em>) with <strong>Download a copy</strong> and <strong>Remind me later</strong>. <em>Remind me later</em> quiets it for 3 days.</p>
+
+<h2 id="one-tab">One tab at a time</h2>
+<p>Two tabs writing to one journal could corrupt it, so a second tab refuses to start.</p>
+<shot name="web-second-tab" alt="A plain page headed Mossnote is open in another tab. It explains that the journal can only be open in one tab at a time, to close the other tab or window and open this one again, that nothing you wrote is lost, and has a Try again button.">What a second tab shows.</shot>
+<p>Close the other tab or window and choose <strong>Try again</strong>.</p>
+
+<h2 id="updates">Updates and offline use</h2>
+<ul>
+  <li>After the first load the app is kept on your device, so it opens with no connection.</li>
+  <li>When a new version is published and your browser has fetched it, a bar says <em>A new version of Mossnote is ready.</em> with <strong>Reload to update</strong>. The page is never half old and half new: it switches only when you choose.</li>
+  <li>The only time the web version uses the network is to look for a newer copy of the app when you open the page with a connection. It never sends your notes.</li>
+  <li>These documentation pages are separate from the app and are <em>not</em> kept for offline use.</li>
+</ul>
+
+<h2 id="problems">If the browser cannot keep your journal</h2>
+<ul>
+  <li><strong>Private windows</strong> often cannot keep files. Mossnote says <em>This browser can't keep your journal</em> and why. Use a normal window.</li>
+  <li>Drafts need local storage too. Without it the note box says <em>Drafts won't be kept in this browser</em>.</li>
+  <li>If startup fails for any other reason you see <em>Mossnote couldn't open your journal</em>, with the browser's message and <strong>Try again</strong>. Nothing you wrote is changed.</li>
+</ul>
+
+<h2 id="moving">Moving a journal between versions</h2>
+<p>There is no sync. To move a journal from a browser to a computer (or the reverse), export it as JSON on one side and import the file on the other. See <a href="~/data-and-backup/#import">Import</a>.</p>
+
+<h2 id="hosting">Hosting it yourself</h2>
+<p>For people who run the project: build it with <code>npm run build:standalone</code> and put <code>dist/standalone</code> on any static host. For a GitHub project site, set <code>MOSS_BASE=/repository-name/</code> before building. The repository's <em>Web version</em> workflow does this and also adds these documentation pages at <code>/docs/</code>. See <a href="~/how-it-works/#hosting">How it works</a>.</p>

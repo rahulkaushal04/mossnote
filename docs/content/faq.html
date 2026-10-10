@@ -1,0 +1,93 @@
+---
+title: FAQ
+description: Short answers to the questions people ask most about Mossnote, based on how it actually works.
+---
+
+<h2 id="basics">The basics</h2>
+<h3>Can Mossnote spoil a game for me?</h3>
+<p>No. It ships with no information about any game: no names, items, places or mechanics. A new journal is empty and everything in it is something you wrote. Even the Stardew Valley template carries only wording and a calendar. See <a href="~/templates/#never">What a template never contains</a>.</p>
+
+<h3>Does it need the internet?</h3>
+<p>The computer version never uses the network, except locally between your computer and a phone you paired. The web version needs a connection only to load the page the first time (and to check for a newer copy of the app when you open it); after that it works offline. Neither sends your notes anywhere.</p>
+
+<h3>Do I need an account?</h3>
+<p>No. There are no accounts, analytics, crash reports or update checks.</p>
+
+<h3>Is it free? What is the licence?</h3>
+<p>It is MIT-licensed open source. Its fonts are under the SIL Open Font Licence and the web version bundles SQLite WebAssembly (Apache-2.0).</p>
+
+<h3>Has it been released?</h3>
+<p>Not yet. Until the first release you run it from the source code (<a href="~/getting-started/#install-computer">how</a>), or use the web version if the project owner has published it.</p>
+
+<h2 id="data">Your data</h2>
+<h3>Where are my notes stored?</h3>
+<p>Computer version: one file per journal in your user folder. Web version: in that browser's storage. See <a href="~/data-and-backup/#where">Where your journal lives</a>.</p>
+
+<h3>Can I sync between my computer and my phone?</h3>
+<p>There is no sync. Two options: <a href="~/phone-access/">phone access</a> lets a phone write into the journal that lives on your computer; or <a href="~/data-and-backup/#import">export and import</a> a JSON file to move a journal. A journal on a computer and a journal in a browser are separate.</p>
+
+<h3>How do I back up?</h3>
+<p>Use <strong>Export JSON</strong> and keep the file somewhere safe. Mossnote also keeps snapshots you can restore. In the web version, backing up matters most: clearing the browser's data deletes the journal.</p>
+
+<h3>Is my journal encrypted?</h3>
+<p>No. It is a plain SQLite file (or browser storage). Use your system's disk encryption.</p>
+
+<h3>I deleted something. Can I get it back?</h3>
+<p>Notes, people, farm entries and maps stay in <a href="~/data-and-backup/#trash">Recently deleted</a> for 30 days. A deleted note also shows an Undo message. A deleted <em>journal</em> is gone unless you kept its last copy or downloaded it.</p>
+
+<h3>Can I open my notes without Mossnote?</h3>
+<p>Yes. The Markdown export is plain text, and the JSON export is documented in <a href="~/reference/#export-format">Export format</a>. The computer version's journal is an ordinary SQLite database.</p>
+
+<h2 id="using">Using it</h2>
+<h3>What is the difference between the Default and Stardew Valley templates?</h3>
+<p>Stardew Valley adds a Farm section, a calendar of seasons, four quick actions and different names for two sections. Everything else is the same. <a href="~/templates/#compare">Comparison table</a>.</p>
+
+<h3>Can I change a journal's template later?</h3>
+<p>No. A journal keeps its template. Make a new journal with the other one and move your notes with an export and import (see <a href="~/troubleshooting/#journals">Troubleshooting</a>).</p>
+
+<h3>My game isn't listed. What do I do?</h3>
+<p>Use Default. You can rename and hide sections, so it can read the way you like. The template picker links to a form to request a template.</p>
+
+<h3>What is a discovery, and what is a question?</h3>
+<p>Two flags you put on notes: ✦ for something you found out, ? for something you want to find out. A question can later be marked solved with your own answer. See <a href="~/questions-and-discoveries/">Questions and discoveries</a>.</p>
+
+<h3>What does “Set date” do, and do I have to?</h3>
+<p>It tells Mossnote which in-game day you are on so notes can be grouped by it. You do not have to. Undated notes work fine and you can add dates later. See <a href="~/dates-and-calendar/">Dates and the calendar</a>.</p>
+
+<h3>Why did my <code>@name</code> or <code>#tag</code> stay as text?</h3>
+<p>Only choosing from the list that opens as you type creates a person or tag. See <a href="~/troubleshooting/#writing">Troubleshooting</a>.</p>
+
+<h3>Can I add pictures to notes or maps?</h3>
+<p>No. Images in notes and imported images on maps are left out on purpose. You can draw on maps and export them as pictures.</p>
+
+<h3>Can I use it on a phone?</h3>
+<p>Yes, two ways: the <a href="~/web-version/">web version</a> in the phone's browser (the journal is kept on the phone), or <a href="~/phone-access/">phone access</a> to a journal on your computer. The layout adapts with a bottom bar.</p>
+
+<h3>Does it work with a keyboard only?</h3>
+<p>Yes. See <a href="~/shortcuts/">Keyboard shortcuts</a>. Press <kbd>?</kbd> outside a text box.</p>
+
+<h3>How many notes can I have?</h3>
+<p>The app sets no limit on the number of notes. Individual items have size limits; see <a href="~/reference/#limits">Limits</a>. We did not test very large journals.</p>
+
+<h3>How do I search for notes on a certain day?</h3>
+<p>Type <code>day 12</code> (Default) or <code>spring 3</code> (seasons) in the search window, or choose the day's heading in the Journal. See <a href="~/search/#syntax">Search syntax</a>.</p>
+
+<h2 id="maps">Maps</h2>
+<h3>Why did my freehand shape change?</h3>
+<p>Tidy-up drawing turned it into a clean shape. Choose <em>Keep my drawing</em>, or turn it off in <em>View</em>.</p>
+
+<h3>How do I put a note on a map?</h3>
+<p>Drop a marker and link it to a note (or write a new note from the marker's panel). The note then lists the marker under <em>On maps</em>. Or place a sticky note on the map itself with the Note tool.</p>
+
+<h3>Can I move a map to another journal?</h3>
+<p>Yes. Export it as an <em>Editable project file</em> and use <em>Open a map file</em> in the other journal.</p>
+
+<h2 id="project">The project</h2>
+<h3>How do I report a bug or suggest a feature?</h3>
+<p>Open an issue on the project's GitHub page. Please do not paste your notes into it.</p>
+
+<h3>Will you add feature X?</h3>
+<p>The README lists features the project has decided against: image attachments, imported map images, tag colours, checklists, completion tracking, cloud sync, accounts, rich text, statistics, AI features and plugins. Requests for those will be closed. Other ideas are welcome as issues.</p>
+
+<h3>How can I contribute a template?</h3>
+<p>A template is a small file of wording and structure. Read the project's CONTRIBUTING guide first, and never add game-specific facts.</p>

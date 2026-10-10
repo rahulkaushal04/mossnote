@@ -1,0 +1,70 @@
+---
+title: Getting started
+description: Open Mossnote on a computer or in a browser, choose a template, and write your first note.
+---
+
+<h2 id="what-it-is">What Mossnote is</h2>
+<p>Mossnote is a private journal for the games you play. You write what you discover, who you meet and what you wonder about. It knows nothing about any game: there are no names, items, places or mechanics built in, so a new journal is empty and nothing can be spoiled. It has no accounts, no analytics and no sync. Your notes stay on your own device unless you export a file yourself.</p>
+
+<h2 id="choose-a-version">Choose how to run it</h2>
+<p>The same app comes in two forms. They look and behave the same, apart from the differences listed in the table.</p>
+<div class="table-wrap">
+<table>
+  <caption>The two versions of Mossnote</caption>
+  <thead><tr><th>You play on</th><th>Use</th><th>Your journal is kept</th></tr></thead>
+  <tbody>
+    <tr><td>A PC or laptop, with notes on the same machine</td><td>The <strong>computer version</strong> (runs from Node or as a downloaded program)</td><td>In a folder on the computer</td></tr>
+    <tr><td>A PC or laptop, with notes on a phone or tablet</td><td>The computer version with <a href="~/phone-access/">phone access</a> turned on</td><td>In a folder on the computer</td></tr>
+    <tr><td>A console, with notes on a phone</td><td>The <a href="~/web-version/">web version</a> on the phone</td><td>In the phone's browser</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A journal kept on a computer and one kept in a browser are separate. To move one, <a href="~/data-and-backup/#export">export</a> it from one side and <a href="~/data-and-backup/#import">import</a> the file on the other.</p>
+
+<h3 id="open-web">Open the web version</h3>
+<p>The web version is a website with the journal built into the page. Open the address where it is published (the <strong>Open Mossnote</strong> button at the top of these pages goes there). Use an up-to-date Safari, Chrome, Edge or Firefox in a normal, not private, window. Nothing is installed and nothing is uploaded. <a href="~/web-version/">Read more about the web version.</a></p>
+
+<h3 id="install-computer">Install the computer version</h3>
+<callout type="note" title="No public release yet">
+<p>Mossnote has not had a public release. Until it does, run it from the source code. The <code>npx</code> and download routes below will work once the first release is published.</p>
+</callout>
+<ol>
+  <li><strong>From source (works today).</strong> You need <a href="https://nodejs.org">Node.js</a> 22.12 or newer. In a terminal:
+<pre><code>git clone https://github.com/rahulkaushal04/mossnote.git
+cd mossnote
+npm install
+npm start</code></pre>
+  <code>npm start</code> builds the app if needed, starts it and opens your browser at <code>http://127.0.0.1:4317</code>.</li>
+  <li><strong>With Node, once released.</strong> <code>npx mossnote</code> to try it, or <code>npm install -g mossnote</code> and then <code>mossnote</code>.</li>
+  <li><strong>As a program, once released.</strong> Download the Windows <code>.exe</code> or the Linux <code>.tar.gz</code> from the releases page and run it. macOS users use the Node route.</li>
+</ol>
+<p>Run <code>mossnote --help</code> for the options <code>--port</code>, <code>--data-dir</code>, <code>--journal</code>, <code>--no-open</code> and <code>--lan</code>. See <a href="~/reference/#options">Options</a>.</p>
+
+<h2 id="first-journal">Make your first journal</h2>
+<p>The first time you open Mossnote it asks one question: <strong>Which template?</strong></p>
+<shot name="first-run" alt="The welcome screen. On the right, two template cards, Default and Stardew Valley, a Journal name field containing My journal, and a Start my journal button. Numbered orange boxes mark each of those four items.">The first screen. (1) Default template, (2) Stardew Valley template, (3) the journal's name, (4) the button that creates it.</shot>
+<ol class="steps">
+  <li>Pick a template. <strong>Default</strong> fits any game; <strong>Stardew Valley</strong> adds a Farm section and a calendar of seasons. A template only changes wording and structure, never facts about a game. See <a href="~/templates/">Templates</a>. A journal keeps its template for good, so to use the other one later you make another journal.</li>
+  <li>Type a name for the journal (up to 60 characters). Only you see it; it helps you tell journals apart.</li>
+  <li>Choose <strong>Start my journal</strong>. You land on <strong>Today</strong> with the note box ready.</li>
+</ol>
+<p>The same screen links to <strong>Request a template</strong>, which opens the project's feature-request form on GitHub in a new tab.</p>
+
+<h2 id="first-note">Write your first note</h2>
+<ol class="steps">
+  <li>Click in the note box on Today (it is already focused when the page opens) and type something you just found out.</li>
+  <li>Press <kbd>⌘</kbd><kbd>Enter</kbd> (<kbd>Ctrl</kbd><kbd>Enter</kbd> on Windows and Linux), or choose <strong>Save</strong>.</li>
+  <li>The note appears under the box at once, the box empties and stays focused, and the next note can follow straight away.</li>
+</ol>
+<p>Your text is kept as a draft while you type, so a refresh or an interrupted connection does not lose it.</p>
+
+<h3 id="set-date">Tell it the in-game day</h3>
+<p>Choose <strong>Set date</strong> above the note box. With the Default template you type a day number (Day 12); with Stardew Valley you pick a year, a season and a day. Every note you save from then on is stamped with that date, and your journal groups notes by game day. You can skip this: notes without a date still work, and you can add dates later. See <a href="~/dates-and-calendar/">Dates and the calendar</a>.</p>
+
+<h2 id="next">Where to go next</h2>
+<ul>
+  <li><a href="~/tour/">A tour of the screen</a> to learn where everything is.</li>
+  <li><a href="~/writing-notes/">Writing notes</a> to use tags, people and links as you type.</li>
+  <li><a href="~/tutorial-first-session/">Tutorial: your first session</a> for a worked example.</li>
+  <li><a href="~/data-and-backup/">Data and backups</a>, so you know how your journal is kept safe.</li>
+</ul>

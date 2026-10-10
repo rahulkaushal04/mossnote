@@ -1,0 +1,39 @@
+[
+  { "section": "Start here", "pages": ["index", "getting-started", "tour"] },
+  {
+    "section": "Everyday use",
+    "pages": [
+      "writing-notes",
+      "dates-and-calendar",
+      "looking-back",
+      "questions-and-discoveries",
+      "people",
+      "tags",
+      "search"
+    ]
+  },
+  {
+    "section": "Maps",
+    "pages": ["maps-basics", "maps-drawing", "maps-markers", "maps-layers-and-files"]
+  },
+  {
+    "section": "Journals and templates",
+    "pages": ["journals", "templates", "template-default", "template-stardew"]
+  },
+  { "section": "Your data", "pages": ["data-and-backup", "web-version", "phone-access"] },
+  {
+    "section": "Tutorials",
+    "pages": [
+      "tutorial-first-session",
+      "tutorial-solve-a-mystery",
+      "tutorial-map-an-area",
+      "tutorial-stardew-season"
+    ]
+  },
+  {
+    "section": "Reference",
+    "pages": ["settings", "shortcuts", "reference", "feature-inventory"]
+  },
+  { "section": "Help", "pages": ["troubleshooting", "faq"] },
+  { "section": "About", "pages": ["how-it-works", "about-these-docs"] }
+]

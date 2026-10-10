@@ -1,0 +1,77 @@
+---
+title: Dates and the calendar
+description: How Mossnote tracks the in-game day, how notes get dates, and how to set up or change the calendar.
+---
+
+<p>Mossnote groups your notes by <strong>in-game day</strong>, not by the real day you wrote them. That way "what happened on Day 12" is one click away even if you played it three weeks ago. Dates are optional: a note without one is simply <em>not dated</em>.</p>
+
+<h2 id="two-calendars">Two kinds of calendar</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th></th><th>Day counter</th><th>Seasons and years</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Which template</th><td><a href="~/template-default/">Default</a></td><td><a href="~/template-stardew/">Stardew Valley</a></td></tr>
+    <tr><th scope="row">A date looks like</th><td><code>Day 12</code></td><td><code>Spring 3</code>, or <code>Spring 3 · Year 2</code> where the year matters</td></tr>
+    <tr><th scope="row">Picking a date</th><td>Type a number</td><td>Choose a year, a season and a day</td></tr>
+    <tr><th scope="row">Can you edit the calendar?</th><td>No: it just counts days</td><td>Yes: rename seasons, set days per season, add or remove seasons</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="current-date">The current in-game date</h2>
+<p>Each journal remembers <strong>today's in-game date</strong>. It is shown in the date controls under the title on Today. Every note you save from the Today box is stamped with it.</p>
+<shot name="today-date-header" alt="The date controls on Today: a chip reading Day 12, then a Previous day button and a Next day button, each outlined in orange and numbered one, two and three.">The date controls. (1) The current date, (2) previous day, (3) next day.</shot>
+<ul>
+  <li><strong>Set it</strong> by choosing the date chip (it reads <em>Set date</em> until you have set one). Press <kbd>d</kbd> then <kbd>s</kbd> outside a text box, or use <em>Set in-game date</em> in the search window.</li>
+  <li><strong>Move it on a day</strong> with the <strong>›</strong> button, or <kbd>d</kbd> then <kbd>n</kbd>. Go back with <strong>‹</strong> or <kbd>d</kbd> then <kbd>p</kbd>. The calendar rolls over: Summer 28 is followed by Fall 1, and a season-and-year calendar moves into the next year after the last season.</li>
+  <li>Moving the day shows a message such as <em>Now Day 13</em> with an <strong>Undo</strong> button.</li>
+  <li><strong>Stop dating new notes.</strong> The picker has a <em>Stop dating new notes</em> button that clears the current date. Notes you save afterwards have no date until you set one again.</li>
+</ul>
+
+<h3 id="picker-counter">Picking a day number (Default template)</h3>
+<ol class="steps">
+  <li>Choose the date chip. A small panel opens with a number field.</li>
+  <li>Type a day number, or use <strong>−</strong>, <strong>+</strong> or the arrow keys.</li>
+  <li>Press <kbd>Enter</kbd> or choose <strong>Set date</strong>.</li>
+</ol>
+<shot name="date-picker-counter" alt="The date picker for a day counter: a Day label, a number field showing 1 with minus and plus buttons, a line saying Type a number or use the arrow keys, Enter confirms, and two buttons, Set date and Stop dating new notes.">The picker with the Default template.</shot>
+<p>On a phone the picker opens as a sheet from the bottom of the screen instead of a small panel.</p>
+
+<h3 id="picker-seasons">Picking a season and day (Stardew Valley template)</h3>
+<ol class="steps">
+  <li>Choose the date chip. The panel shows <strong>Year</strong> (with − and + buttons), <strong>Season</strong> (radio buttons) and <strong>Day</strong> (a grid).</li>
+  <li>Change the year with the number field or the buttons, choose a season, then click a day. With the keyboard, move around the day grid with the arrow keys; typing digits sets the day.</li>
+  <li>Choose <strong>Set date</strong> (or press <kbd>Enter</kbd>).</li>
+</ol>
+<shot name="date-picker-seasons" alt="The date picker for seasons: a Year field set to 1, four season options Spring, Summer, Fall and Winter with Spring selected, and a grid of days 1 to 28 with day 1 highlighted, then Set date and Stop dating new notes buttons.">The picker with the Stardew Valley template.</shot>
+<callout type="tip">
+<p>When the panel opens, the cursor is in the <em>Year</em> field, so typing a number there changes the year, not the day. Click a day, or move into the day grid first.</p>
+</callout>
+
+<h2 id="note-dates">Dates on individual notes</h2>
+<ul>
+  <li>A new note gets the current in-game date. Use the date chip in the note box to give it a different one, or <em>Clear date</em> for none.</li>
+  <li>For an existing note, use <strong>Set date</strong> in its <strong>⋯</strong> menu.</li>
+  <li>Notes written on a <a href="~/looking-back/#day">Day page</a> default to that day.</li>
+  <li><strong>When no in-game date is set</strong>, Today lists the notes you wrote on the real calendar day instead, and shows the tip <em>Set the in-game date and your notes will be grouped by game day.</em> Choose <strong>Hide this tip</strong> to dismiss it for good.</li>
+</ul>
+
+<h2 id="calendar-settings">Editing the calendar (Stardew Valley)</h2>
+<p>Open <a href="~/settings/#calendar">Settings → Calendar</a>. A Default-template journal shows only a note that it just counts days.</p>
+<shot name="settings-calendar" alt="Settings, Calendar section: four rows for Spring, Summer, Fall and Winter, each with a name field and 28 days. Below are Add season, Reset to defaults and Save calendar buttons. Orange boxes mark the first name field, Add season and Save calendar.">Calendar settings. (1) A season's name and days, (2) add a season, (3) save.</shot>
+<ul>
+  <li>Each season has a <strong>name</strong> (1 to 20 characters, different from the others) and a number of <strong>days</strong> (1 to 99).</li>
+  <li>You can have <strong>1 to 12 seasons</strong>. <em>Add season</em> and the ✕ button change the list; <em>Reset to defaults</em> restores four seasons of 28 days.</li>
+  <li><strong>Save calendar</strong> applies the changes. <em>Renaming a season only changes how dates look.</em></li>
+  <li>A change that would leave existing dates without a valid day is refused, and nothing changes. The message says how many records are affected, for example <em>3 notes use day 3 of Spring.</em></li>
+</ul>
+
+<h2 id="search-dates">Dates in search</h2>
+<p>You can type a date into <a href="~/search/#dates">search</a>: <code>day 12</code> with the Default template, or <code>spring 3</code>, <code>y2 summer</code> or <code>year 1 fall 12</code> with seasons. A season name only needs its first three letters if that is unique.</p>
+
+<h2 id="behind">Good to know</h2>
+<ul>
+  <li><strong>Limits.</strong> Years run from 1 to 99,999. Days per season: 1 to 99.</li>
+  <li><strong>Day counter and "year".</strong> The counter calendar is stored as one period of 99 days, so Day 100 is stored as day 1 of year 2. You still see <em>Day 100</em>, and a journal can count to day 9,899,901.</li>
+  <li><strong>Exports</strong> write each date as year, season and day numbers, plus the season's name for notes. See <a href="~/reference/#export-format">Export format</a>.</li>
+</ul>
