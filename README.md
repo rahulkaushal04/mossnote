@@ -1,4 +1,6 @@
-# Mossnote
+<p align="center">
+  <img src="docs/assets/brand/mossnote-logo.svg" alt="Mossnote" width="360">
+</p>
 
 [![CI](https://github.com/rahulkaushal04/mossnote/actions/workflows/ci.yml/badge.svg)](https://github.com/rahulkaushal04/mossnote/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
