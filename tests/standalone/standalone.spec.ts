@@ -66,6 +66,7 @@ test.describe('the journal in the browser', () => {
       .first()
       .click();
     await page.getByRole('button', { name: 'Restore', exact: true }).click();
+    await expect(page.getByText(/Before a restore/)).toBeVisible();
 
     await page.goto('/journal');
     await expect(page.getByRole('article', { name: 'Before the snapshot' })).toBeVisible();
