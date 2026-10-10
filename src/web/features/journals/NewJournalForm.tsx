@@ -63,7 +63,7 @@ export function NewJournalForm({
           </p>
         ) : (
           <p className="text-sm text-ink-muted">
-            Only you see it. It is how you tell your journals apart.
+            Only you see this. It just helps you tell your journals apart.
           </p>
         )}
       </div>
@@ -74,7 +74,7 @@ export function NewJournalForm({
       ) : null}
       <div className="flex flex-wrap gap-2">
         <button type="submit" className="btn btn-primary tap" disabled={busy}>
-          {busy ? 'Working…' : submitLabel}
+          {busy ? 'Just a moment…' : submitLabel}
         </button>
         {actions}
       </div>

@@ -24,8 +24,8 @@ export function AboutSection() {
         <span>
           Single-key shortcuts
           <span className="block text-sm text-ink-muted">
-            Turn off letters and symbols such as n, g and ? as shortcuts. Shortcuts that use ⌘ or
-            Ctrl stay on.
+            Turn off shortcuts that are a single key, like n, g and ?. Shortcuts with ⌘ or Ctrl keep
+            working.
           </span>
         </span>
       </label>
@@ -58,16 +58,16 @@ export function AboutSection() {
         <ul className="m-0 mt-1 ml-6 list-disc">
           <li>
             {location?.kind === 'browser'
-              ? 'Once it has loaded, Mossnote never connects to the internet, and it never sends your notes anywhere. It has no accounts, analytics or crash reporting. It only checks for a newer version of itself when this page is opened with a connection.'
-              : 'Mossnote never connects to the internet. It has no accounts, analytics, crash reporting, or update checks.'}
+              ? 'Once the page has loaded, Mossnote doesn’t use the internet and never sends your notes anywhere. There are no accounts, analytics or crash reports. It only looks for a newer version of the app when you open this page with a connection.'
+              : 'Mossnote never uses the internet. There are no accounts, analytics, crash reports or update checks.'}
           </li>
           <li>
             {location?.kind === 'browser'
-              ? 'Everything you write is stored in this browser, on this device. It never leaves unless you export a file, so export one now and then as a backup.'
-              : 'Everything you write is stored in one file on your computer, at the path shown above.'}
+              ? 'Everything you write is saved in this browser, on this device. It only leaves if you export a file, so export one every now and then as a backup.'
+              : 'Everything you write is saved in one file on your computer, at the path shown above.'}
           </li>
-          <li>Nothing is shared unless you export a file and share it yourself.</li>
-          <li>The app ships with no game information of any kind.</li>
+          <li>Nothing is shared unless you export a file and send it to someone yourself.</li>
+          <li>Mossnote doesn’t come with any game data.</li>
         </ul>
       </div>
     </div>

@@ -74,7 +74,7 @@ export function VersionsDialog({
         if (!o) onClose();
       }}
       title="Version history"
-      description="Earlier states of this map. Restoring one keeps what it replaces."
+      description="Older versions of this map. When you restore one, the current map is saved too."
       placement="right"
     >
       <form
@@ -107,8 +107,8 @@ export function VersionsDialog({
       ) : null}
       {list.data?.length === 0 ? (
         <p className="text-ink-muted">
-          Nothing saved yet. A version is kept automatically after you change a map and ten minutes
-          have passed.
+          Nothing saved yet. Mossnote saves a version by itself once you&apos;ve changed the map and
+          ten minutes have passed.
         </p>
       ) : null}
       <ul aria-label="Versions" className="m-0 list-none p-0">

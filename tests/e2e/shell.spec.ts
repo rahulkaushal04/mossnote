@@ -170,7 +170,29 @@ test.describe('responsive layout', () => {
     }
   });
 
-  test('the content column is 44rem at most and centred in the space beside the sidebar', async ({
+  test('a page is 54rem plus the gutter at most and centred in the space beside the sidebar', async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 800, height: 900 },
+      { width: 1280, height: 900 },
+      { width: 1920, height: 900 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/people');
+      const main = await page.getByRole('main').boundingBox();
+      // 54rem of reading column plus the 11rem gutter.
+      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(1040);
+    }
+    // At 1920 it is wider than it is allowed to be, so it must sit in the middle of what is left.
+    const main = await page.getByRole('main').boundingBox();
+    const nav = await page.getByRole('navigation', { name: 'Primary' }).boundingBox();
+    const left = (main?.x ?? 0) - ((nav?.x ?? 0) + (nav?.width ?? 0));
+    const right = 1920 - ((main?.x ?? 0) + (main?.width ?? 0));
+    expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
+  });
+
+  test('every page adds a gutter beside the column, and the composer keeps the column', async ({
     page,
   }) => {
     for (const viewport of [
@@ -180,15 +202,13 @@ test.describe('responsive layout', () => {
     ]) {
       await page.setViewportSize(viewport);
       await page.goto('/');
+      // 54rem of reading column plus the 11rem gutter, and never more.
       const main = await page.getByRole('main').boundingBox();
-      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(704);
+      expect(main?.width, `${viewport.width}px main`).toBeLessThanOrEqual(1040);
+      // The header and the composer keep the reading measure whatever the page allows.
+      const composer = await page.getByRole('region', { name: 'New note' }).boundingBox();
+      expect(composer?.width, `${viewport.width}px composer`).toBeLessThanOrEqual(864);
     }
-    // At 1920 it is wider than it is allowed to be, so it must sit in the middle of what is left.
-    const main = await page.getByRole('main').boundingBox();
-    const nav = await page.getByRole('navigation', { name: 'Primary' }).boundingBox();
-    const left = (main?.x ?? 0) - ((nav?.x ?? 0) + (nav?.width ?? 0));
-    const right = 1920 - ((main?.x ?? 0) + (main?.width ?? 0));
-    expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
   });
 
   test('a phone reaches Settings and the journals from the More tab', async ({ page }) => {

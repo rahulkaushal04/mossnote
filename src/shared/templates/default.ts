@@ -7,6 +7,7 @@ import type { GameTemplate } from './types';
 export const defaultTemplate: GameTemplate = {
   id: 'default',
   name: 'Default',
+  tint: 'moss',
   about: 'Plain wording and a day counter. Fits any single-player game.',
   terms: {
     today: { label: 'Today', one: 'day', many: 'days' },

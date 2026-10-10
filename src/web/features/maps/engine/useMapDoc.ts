@@ -3,9 +3,12 @@
  * and autosave (debounced, plus a keepalive save when the page is hidden).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { MapChanges } from '@shared/schemas/map';
 import type { MapDetail, MapPin } from '@shared/types';
 import { api } from '../../../lib/api';
+import { queryKeys } from '../../../lib/queryKeys';
+import { refreshMaps } from '../hooks';
 import type { Doc } from './doc';
 
 const HISTORY_LIMIT = 100;
@@ -44,6 +47,7 @@ export function diffDoc(saved: Doc, now: Doc): MapChanges | null {
  * closed in between.
  */
 export function useMapDoc(map: MapDetail) {
+  const client = useQueryClient();
   const initial = useMemo<Doc>(() => ({ scene: map.scene, pins: map.pins }), [map]);
   const [doc, setDoc] = useState<Doc>(initial);
   const docRef = useRef(doc);
@@ -57,6 +61,8 @@ export function useMapDoc(map: MapDetail) {
   const [error, setError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const chain = useRef<Promise<void>>(Promise.resolve());
+  /** True once this visit has written anything, so leaving refreshes the lists that show it. */
+  const wrote = useRef(false);
 
   const syncDepth = () => {
     setDepth({ past: past.current.length, future: future.current.length });
@@ -76,6 +82,7 @@ export function useMapDoc(map: MapDetail) {
       try {
         await api.saveMapChanges(map.id, changes);
         saved.current = target;
+        wrote.current = true;
         setError(null);
         setState(docRef.current === target ? 'saved' : 'dirty');
       } catch (e) {
@@ -189,7 +196,7 @@ export function useMapDoc(map: MapDetail) {
       const changes = diffDoc(saved.current, docRef.current);
       if (changes) {
         saved.current = docRef.current;
-        api.saveMapChangesOnExit(map.id, changes);
+        void api.saveMapChangesOnExit(map.id, changes);
       }
     };
     const onHide = () => {
@@ -203,12 +210,22 @@ export function useMapDoc(map: MapDetail) {
       // Leaving the editor (navigating inside the app) saves at once.
       const changes = diffDoc(saved.current, docRef.current);
       clearTimeout(timer.current);
+      // The map is cached for the editor's own use and never refetched, so what was drawn here must
+      // be written into the cache, or reopening the map would show the copy fetched before the edits
+      // and the next save would overwrite the real drawing with it.
+      const { scene, pins } = docRef.current;
+      client.setQueryData<MapDetail>(queryKeys.map(map.id), (old) =>
+        old ? { ...old, scene, pins, pinCount: pins.length } : old,
+      );
       if (changes) {
         saved.current = docRef.current;
-        api.saveMapChangesOnExit(map.id, changes);
+        // The lists (Maps, Places, search) are refreshed once the server has the last change.
+        void api.saveMapChangesOnExit(map.id, changes).then(() => refreshMaps(client));
+      } else if (wrote.current) {
+        void refreshMaps(client);
       }
     };
-  }, [map.id]);
+  }, [map.id, client]);
 
   return {
     doc,

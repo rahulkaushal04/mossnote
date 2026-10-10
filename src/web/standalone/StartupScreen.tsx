@@ -20,31 +20,31 @@ export function StartupScreen({ problem, message }: StartupScreenProps) {
   }, [title]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">{title}</h1>
       {problem === 'unsupported' ? (
         <>
           <p>
-            Mossnote keeps your journal inside the browser, and this one does not allow that.
+            Mossnote keeps your journal inside the browser, and this browser doesn&apos;t allow
+            that.
             {message ? ` ${message}` : ''}
           </p>
           <p>
-            Try a current version of Safari, Chrome, Edge or Firefox, in a normal window rather than
-            a private one. Or run Mossnote on your computer instead, where it keeps your journals in
-            a folder.
+            Try an up-to-date Safari, Chrome, Edge or Firefox, in a normal window instead of a
+            private one. Or run Mossnote on your computer, where it keeps your journals in a folder.
           </p>
         </>
       ) : null}
       {problem === 'storage_busy' ? (
         <p>
-          Your journal can only be used in one tab at a time, so it can never be changed from two
+          Your journal can only be open in one tab at a time, so it can&apos;t be changed in two
           places at once. Close the other Mossnote tab or window, then open this one again. Nothing
           you wrote is lost.
         </p>
       ) : null}
       {problem === 'failed' ? (
         <p>
-          Something went wrong while starting. Nothing you wrote was changed.
+          Something went wrong while starting up. Nothing you wrote was changed.
           {message ? ` The browser said: ${message}` : ''}
         </p>
       ) : null}

@@ -1,3 +1,4 @@
+import { defineConfig } from 'eslint/config';
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -72,7 +73,7 @@ const NO_FETCH_GLOBALS = [
   { name: 'EventSource', message: 'No network access other than through src/web/lib/api.ts.' },
 ];
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: [
       'dist',
@@ -84,6 +85,7 @@ export default tseslint.config(
       'drizzle',
       'playwright-report',
       'test-results',
+      'local_reference',
     ],
   },
   js.configs.recommended,

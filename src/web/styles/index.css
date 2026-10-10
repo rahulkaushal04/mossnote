@@ -134,18 +134,23 @@
     min-height: var(--control-h);
     border-radius: var(--radius-md);
     padding: 0.25rem 0.875rem;
-    border: 1px solid var(--control);
-    background-color: var(--surface);
+    /* A hairline on a raised fill: the label names the button, so its edge need not be loud. Text
+       fields keep the stronger --control outline, because their edge is what says "type here". */
+    border: 1px solid var(--hairline);
+    background-color: var(--raised);
     color: var(--ink);
     font-weight: 500;
     cursor: pointer;
     text-decoration: none;
+    box-shadow: var(--elev-1);
     transition:
       background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
       transform var(--dur-fast) var(--ease-out);
   }
   .btn:hover {
     background-color: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
   }
   .btn:active {
     transform: scale(0.98);
@@ -155,6 +160,7 @@
     color: var(--ink-muted);
     border-color: var(--line);
     background-color: transparent;
+    box-shadow: none;
     cursor: default;
     transform: none;
   }
@@ -167,9 +173,11 @@
     background-color: var(--accent);
     border-color: var(--accent);
     color: var(--accent-ink);
+    box-shadow: none;
   }
   .btn-primary:hover {
     background-color: var(--accent);
+    border-color: var(--accent);
     filter: brightness(1.1);
   }
   .btn-primary:disabled {
@@ -180,17 +188,21 @@
   .btn-ghost {
     border-color: transparent;
     background-color: transparent;
+    box-shadow: none;
   }
   .btn-ghost:hover {
     background-color: var(--surface);
+    border-color: transparent;
   }
   .btn-danger {
     border-color: transparent;
     background-color: transparent;
     color: var(--danger);
+    box-shadow: none;
   }
   .btn-danger:hover {
     background-color: var(--surface);
+    border-color: transparent;
   }
   /* Square, for icon-only buttons: 36px with a mouse, 44px on touch. */
   .btn-icon {
@@ -312,6 +324,17 @@
     display: none;
   }
 
+  /* A row that scrolls: its last 1.5rem fades out, so a cut-off item reads as "more this way". When
+     everything fits there is empty space at the end and the fade is invisible. */
+  .fade-end {
+    mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+  }
+  @media (min-width: 40rem) {
+    .fade-end {
+      mask-image: none;
+    }
+  }
+
   /* Small section label above a group of rows. Sentence case, not shouting. */
   .section-label {
     margin: 0;
@@ -355,7 +378,8 @@
     min-width: 0;
     white-space: nowrap;
     display: flex;
-    flex: 1;
+    /* Sized by content first, so a longer section name gets the room it needs. */
+    flex: 1 1 auto;
     flex-direction: column;
     align-items: center;
     gap: 0.125rem;
@@ -365,10 +389,16 @@
     background: transparent;
     color: var(--ink-muted);
     font: inherit;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     line-height: 1rem;
     text-decoration: none;
     cursor: pointer;
+  }
+  /* A long section name is cut with an ellipsis; its full name is still the link's text. */
+  .tab-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tab-item .tab-icon {
     display: grid;
@@ -427,6 +457,39 @@
     border-color: var(--danger);
   }
 
+  /* The add row: one rounded box. The box shows focus (a ring, and a real outline in forced-colours
+     mode); the field inside keeps a transparent outline so that mode still draws one. */
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.875rem;
+    border: 1px solid var(--control);
+    border-radius: var(--radius-md);
+    background-color: var(--raised);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .add-row:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+  .add-row-input {
+    flex: 1;
+    min-width: 0;
+    min-height: calc(var(--control-h) - 0.25rem);
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1rem;
+    outline: 2px solid transparent;
+  }
+  .add-row-input::placeholder {
+    color: var(--ink-muted);
+  }
+
   /* Chips: small pills for tags and filters. Toggles keep a 44px hit area on touch. */
   .chip {
     display: inline-flex;
@@ -461,7 +524,7 @@
   /* Segmented control: joined radio options. */
   .segmented {
     display: inline-flex;
-    border: 1px solid var(--control);
+    border: 1px solid var(--hairline);
     border-radius: var(--radius-md);
     background-color: var(--surface);
     padding: 2px;
@@ -739,13 +802,31 @@
     background-color: var(--hover);
     color: var(--ink);
   }
-  .side-link[aria-current='page'] {
-    background-color: var(--raised);
-    color: var(--ink);
-    box-shadow: var(--elev-1);
+  /* The current page: the journal's tint as a soft fill, tinted text and a short marker on the
+     panel's edge. The fill and the marker are not the only cue: the text is heavier too. */
+  .side-link {
+    position: relative;
   }
-  .side-link[aria-current='page'] svg {
+  .side-link[aria-current='page'],
+  .side-link[aria-current='location'] {
+    background-color: var(--accent-soft);
     color: var(--accent);
+    font-weight: 600;
+  }
+  .side-link[aria-current='page']::before,
+  .side-link[aria-current='location']::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 9999px;
+    background-color: var(--accent);
+  }
+  .side-link[aria-current='page'] .side-count,
+  .side-link[aria-current='location'] .side-count {
+    color: inherit;
   }
   .side-count {
     margin-left: auto;
@@ -773,6 +854,43 @@
     border-color: var(--control);
   }
 
+  /* The journal switcher: the tint dot, the journal's name, and the game it is for. */
+  .journal-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+    background-color: var(--raised);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .journal-chip:hover {
+    border-color: var(--control);
+  }
+  .journal-dot {
+    flex: none;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  /* A quiet line at the foot of the sidebar. */
+  .side-note {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0 0.625rem;
+    color: var(--ink-muted);
+    font-size: 0.75rem;
+  }
+
   /* Tablet rail: icons only, in a slim inset column. */
   .rail-icon {
     display: grid;
@@ -792,9 +910,8 @@
     color: var(--ink);
   }
   .rail-icon[aria-current='page'] {
-    background-color: var(--raised);
+    background-color: var(--accent-soft);
     color: var(--accent);
-    box-shadow: var(--elev-1);
   }
 
   /* Phone bottom nav: a floating bar with a margin and the safe area. */
@@ -817,6 +934,97 @@
     }
   }
 
+  /*
+   * An entry is a grid: marks, the text, and its metadata. The metadata sits under the text, and
+   * once the list is wide enough (a container query on .entries, so a narrow list in a sheet or
+   * on a person's page stays stacked) it moves into a right-hand gutter, as in a margin of notes.
+   */
+  .entries {
+    container: entries / inline-size;
+  }
+  .entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.25rem;
+    padding-block: 1rem;
+  }
+  .entry-body {
+    padding-right: 2.25rem;
+  }
+  .entry-menu {
+    position: absolute;
+    top: 0.5rem;
+    right: -0.5rem;
+  }
+  .entry-meta:not(:has(> :not(.sr-only):not(.entry-menu))) {
+    margin-top: 0;
+  }
+  .entry-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    margin-top: 0.5rem;
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+  }
+  @media (min-width: 40rem) {
+    .entry {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      column-gap: 0.5rem;
+      padding-block: 1.25rem;
+    }
+    .entry-meta,
+    .entry-edit {
+      grid-column: 2;
+    }
+  }
+  @container entries (min-width: 50rem) {
+    .entry {
+      grid-template-columns: 1.5rem minmax(0, 1fr) var(--gutter-w);
+    }
+    .entry-body {
+      padding-right: 0;
+    }
+    .entry-menu {
+      position: static;
+    }
+    .entry-meta {
+      grid-column: 3;
+      grid-row: 1;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.125rem;
+      margin-top: 0;
+      padding: 0.25rem 0 0 0.75rem;
+    }
+    .entry-edit {
+      grid-column: 2 / -1;
+    }
+  }
+  /* A page whose lists use the gutter is wider than the reading column; everything but the lists
+     stays at the reading measure. */
+  .gutter-page > :not([data-wide]) {
+    max-width: var(--column);
+  }
+
+  /*
+   * The map editor from 640px: controls across the top, the tool strip, the canvas and the panel
+   * in one grid. Separators are margins, not gaps, so a closed panel leaves no empty column behind.
+   */
+  @media (min-width: 40rem) {
+    /* `display: grid` comes from the phone:grid utility on the element, which outranks this layer. */
+    .map-grid {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas:
+        'controls controls controls'
+        'tools canvas panel';
+      row-gap: 0.5rem;
+    }
+  }
+
   /* Sticky day label in a long list. */
   .day-label {
     position: sticky;
@@ -829,15 +1037,6 @@
     font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: 0.01em;
-  }
-
-  /* Dotted canvas for the map editor. */
-  .dotted {
-    background-image: radial-gradient(
-      color-mix(in srgb, var(--control) 55%, transparent) 1px,
-      transparent 1px
-    );
-    background-size: 1.25rem 1.25rem;
   }
 
   /* Palette: blurred backdrop with a solid fallback. */
@@ -914,8 +1113,10 @@
 }
 
 @media (forced-colors: active) {
+  .add-row:focus-within,
   .composer:focus-within,
   .side-link[aria-current='page'],
+  .side-link[aria-current='location'],
   .rail-icon[aria-current='page'] {
     outline: 2px solid Highlight;
   }

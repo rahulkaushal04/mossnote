@@ -64,7 +64,7 @@ describe('Settings → Phone', () => {
   it('says plainly when the computer is not on a network', async () => {
     show(status({ addresses: [] }));
 
-    expect(await screen.findByText(/doesn.t seem to be connected to a network/i)).toBeTruthy();
+    expect(await screen.findByText(/doesn.t look like it.s on a network/i)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /show pairing code/i })).toBeNull();
   });
 
@@ -143,7 +143,7 @@ describe('Settings → Phone', () => {
     renderWithProviders(<PhoneSection />);
 
     await waitFor(() => {
-      expect(screen.getByText(/managed on that computer/i)).toBeTruthy();
+      expect(screen.getByText(/manage phone access on that computer/i)).toBeTruthy();
     });
   });
 });

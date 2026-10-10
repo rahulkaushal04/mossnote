@@ -19,7 +19,8 @@ export function EmptyState({
   if (!icon && !art && !action) return <p className="py-8 text-base text-ink-muted">{children}</p>;
   return (
     <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
-      {art ? <span className="text-ink-muted">{art}</span> : null}
+      {/* The line art wears the journal's tint, quietly: it is the one place colour is decoration. */}
+      {art ? <span className="text-accent opacity-70">{art}</span> : null}
       {icon && !art ? (
         <span
           aria-hidden="true"
@@ -28,7 +29,15 @@ export function EmptyState({
           {icon}
         </span>
       ) : null}
-      <p className="m-0 max-w-sm text-base text-ink-muted">{children}</p>
+      <p
+        className={
+          art || icon
+            ? 'm-0 max-w-sm font-serif text-lg leading-snug text-ink-2'
+            : 'm-0 max-w-sm text-base text-ink-muted'
+        }
+      >
+        {children}
+      </p>
       {action}
     </div>
   );

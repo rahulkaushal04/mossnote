@@ -24,9 +24,17 @@ export interface QuickAction {
 /** How dates are written: counted days, or the seasons-and-years calendar. */
 export type CalendarKind = 'counter' | 'seasons';
 
+/**
+ * The colour a journal made from a template wears: it replaces the accent family (buttons, active
+ * items, the italic word in titles) so a journal for one game looks different from another. Moss
+ * is the app's own colour. A tint is a name; the colours live in tokens.css.
+ */
+export type Tint = 'moss' | 'plum';
+
 export interface GameTemplate {
   id: string;
   name: string;
+  tint: Tint;
   /** One line shown where a template is picked. */
   about: string;
   /** Wording for every section; sections the template does not use are never shown. */

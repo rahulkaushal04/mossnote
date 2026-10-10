@@ -63,6 +63,14 @@ export const ArrowUpRightIcon = stroked(['M7 17L17 7M8 7h9v9']);
 export const ChevronLeftIcon = stroked(['M15 5l-7 7 7 7']);
 export const ChevronRightIcon = stroked(['M9 5l7 7-7 7']);
 export const ChevronDownIcon = stroked(['M5 9l7 7 7-7']);
+export const LockIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" />
+    <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+  </svg>
+);
+export const HashIcon = stroked(['M9.5 4L8 20M16 4l-1.5 16M5 9h15M4 15h15']);
+export const TitleIcon = stroked(['M5 7V5h14v2M12 5v14M9 19h6']);
 export const FilterIcon = stroked(['M4 6h16M7 12h10M10 18h4']);
 export const SearchIcon = (props: IconProps) => (
   <svg {...base(props)}>

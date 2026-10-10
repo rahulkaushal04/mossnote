@@ -99,11 +99,14 @@ function Btn({
   icon: Icon,
   label,
   className,
+  iconOnly = false,
   ...rest
 }: {
   icon: Icon;
   label: string;
   className?: string;
+  /** Never show the name beside the icon (the tool strip: names are tooltips and screen-reader text). */
+  iconOnly?: boolean;
   title?: string;
   disabled?: boolean;
   onClick?: () => void;
@@ -119,10 +122,10 @@ function Btn({
       type="button"
       {...rest}
       {...press}
-      className={cx('btn btn-ghost btn-icon shrink-0 wide:px-3', className)}
+      className={cx('btn btn-ghost btn-icon shrink-0', !iconOnly && 'wide:px-3', className)}
     >
       <Icon className="size-5" />
-      <span className="sr-only wide:not-sr-only">{label}</span>
+      <span className={iconOnly ? 'sr-only' : 'sr-only wide:not-sr-only'}>{label}</span>
     </button>
   );
 }
@@ -133,8 +136,18 @@ export function Toolbar(p: ToolbarProps) {
   const mod = modLabel();
   const phone = useIsPhone();
   const hidden = phone && p.collapsed;
-  const row =
-    'scroll-row flex items-center gap-1 overflow-x-auto phone:flex-wrap phone:overflow-visible';
+  // From 640px the toolbar is two cells of the editor's grid (see MapEditor): the controls above
+  // the canvas, and the tools in a vertical strip beside it. On a phone both stay as scrolling rows.
+  const panelBox =
+    'phone:rounded-lg phone:border phone:border-hairline phone:bg-raised phone:p-1 phone:shadow-1';
+  const controlsRow = cx(
+    'scroll-row flex items-center gap-1 overflow-x-auto phone:flex-wrap phone:overflow-visible phone:[grid-area:controls]',
+    panelBox,
+  );
+  const toolsRow = cx(
+    'scroll-row flex items-center gap-1 overflow-x-auto phone:min-h-0 phone:flex-col phone:flex-nowrap phone:overflow-x-visible phone:overflow-y-auto phone:mr-2 phone:[grid-area:tools] phone:self-start phone:max-h-full',
+    panelBox,
+  );
 
   const extras: ReactNode = (
     <>
@@ -254,7 +267,7 @@ export function Toolbar(p: ToolbarProps) {
 
   return (
     <HintContext value={setHint}>
-      <div className="relative flex flex-col gap-1 rounded-lg border border-hairline bg-raised p-1 shadow-1">
+      <div className="relative flex flex-col gap-1 rounded-lg border border-hairline bg-raised p-1 shadow-1 phone:contents">
         {hint ? (
           <p
             aria-hidden="true"
@@ -265,10 +278,16 @@ export function Toolbar(p: ToolbarProps) {
           </p>
         ) : null}
         {hidden ? null : (
-          <div role="toolbar" aria-label="Map tools" className={row}>
+          <div
+            role="toolbar"
+            aria-label="Map tools"
+            aria-orientation={phone ? 'horizontal' : 'vertical'}
+            className={toolsRow}
+          >
             {TOOLS.map((t) => (
               <Btn
                 key={t.id}
+                iconOnly
                 icon={TOOL_ICONS[t.id]}
                 label={t.label}
                 aria-pressed={p.tool === t.id}
@@ -282,7 +301,7 @@ export function Toolbar(p: ToolbarProps) {
             ))}
           </div>
         )}
-        <div role="toolbar" aria-label="Map controls" className={row}>
+        <div role="toolbar" aria-label="Map controls" className={controlsRow}>
           {phone ? (
             <Btn
               icon={ChevronUpIcon}

@@ -157,7 +157,7 @@ test-results
 *.tsbuildinfo
 
 # Local reference docs (kept on this machine only)
-local_docs_reference/
+local_reference/
 
 # Standalone program builds (npm run package:binary)
 /build/

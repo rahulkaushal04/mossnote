@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { TEMPLATES } from '@shared/templates';
 import { THEME_COLOR } from '../lib/theme';
 
 /**
@@ -183,6 +184,89 @@ for (const [name, tokens] of Object.entries(themes)) {
     }
   });
 }
+
+/**
+ * Journal tints replace the accent family only. Each one, in each theme, is merged over the base
+ * tokens and held to the bars the moss accent meets: accent text on every surface and on a hovered
+ * or selected row, ink on a selected card, text on an accent fill, and accent graphics.
+ */
+const TINTS = {
+  moss: { light: "[data-tint='moss']", dark: ":root[data-theme='dark'][data-tint='moss']" },
+  plum: { light: "[data-tint='plum']", dark: ":root[data-theme='dark'][data-tint='plum']" },
+} as const;
+
+for (const [tint, selectors] of Object.entries(TINTS)) {
+  for (const theme of ['light', 'dark'] as const) {
+    const base = themes[theme];
+    const tokens = { ...base, ...readTokens(selectors[theme]) };
+    const alpha = { ...alphaThemes[theme], ...readAlphaTokens(selectors[theme]) };
+    describe(`${tint} tint, ${theme} theme`, () => {
+      // Moss is the base: restating it is for cards nested in another tint, and must match it.
+      it(
+        tint === 'moss' ? 'restates the base accent exactly' : 'overrides the accent family',
+        () => {
+          for (const token of ['accent', 'accent-ink', 'accent-soft'] as const) {
+            if (tint === 'moss') expect(tokens[token]).toBe(base[token]);
+            else if (token !== 'accent-ink') expect(tokens[token]).not.toBe(base[token]);
+          }
+          if (tint === 'moss') expect(alpha.ring).toEqual(alphaThemes[theme].ring);
+          else expect(alpha.ring).not.toEqual(alphaThemes[theme].ring);
+        },
+      );
+      for (const bg of SURFACES) {
+        it(`text: accent on ${bg} is at least 4.5:1`, () => {
+          const ratio = contrast(tokens.accent ?? '', tokens[bg] ?? '');
+          expect(ratio, `accent on ${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+        });
+        it(`graphics: accent on ${bg} is at least 3:1`, () => {
+          expect(contrast(tokens.accent ?? '', tokens[bg] ?? '')).toBeGreaterThanOrEqual(3);
+        });
+        it(`text: accent on a hovered ${bg} is at least 4.5:1`, () => {
+          const hover = alpha.hover;
+          if (!hover) throw new Error('missing --hover');
+          const ratio = contrast(tokens.accent ?? '', over(hover, tokens[bg] ?? ''));
+          expect(ratio, `accent on hover/${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+        });
+        it(`the focus ring is visible on ${bg} (at least 1.2:1)`, () => {
+          if (!alpha.ring) throw new Error('missing --ring');
+          const ratio = contrast(over(alpha.ring, tokens[bg] ?? ''), tokens[bg] ?? '');
+          expect(ratio, `ring on ${bg} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(1.2);
+        });
+      }
+      it('accent text on a selected (accent-soft) row is at least 4.5:1', () => {
+        expect(contrast(tokens.accent ?? '', tokens['accent-soft'] ?? '')).toBeGreaterThanOrEqual(
+          4.5,
+        );
+      });
+      for (const fg of ['ink', 'ink-2', 'ink-muted'] as const) {
+        it(`text: ${fg} on a selected card (accent-soft) is at least 4.5:1`, () => {
+          const ratio = contrast(tokens[fg] ?? '', tokens['accent-soft'] ?? '');
+          expect(ratio, `${fg} on accent-soft = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+      it('text on accent fills (accent-ink on accent) is at least 4.5:1', () => {
+        expect(contrast(tokens['accent-ink'] ?? '', tokens.accent ?? '')).toBeGreaterThanOrEqual(
+          4.5,
+        );
+      });
+    });
+  }
+}
+
+describe('template tints', () => {
+  it('every template names a tint whose colours are defined above', () => {
+    for (const template of TEMPLATES) {
+      expect(template.tint in TINTS, `${template.id} uses the tint "${template.tint}"`).toBe(true);
+    }
+  });
+  it('theme-init.js knows every tint it may be asked to apply', () => {
+    const init = fs.readFileSync(new URL('../public/theme-init.js', import.meta.url), 'utf8');
+    // Moss is the default the script starts from; every other tint must be named in it.
+    for (const tint of Object.keys(TINTS).filter((t) => t !== 'moss')) {
+      expect(init).toContain(`'${tint}'`);
+    }
+  });
+});
 
 describe('theme-color meta', () => {
   it('uses the paper colour of each theme', () => {

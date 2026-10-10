@@ -27,11 +27,11 @@ export function NewJournalDialog({
       open={open}
       onOpenChange={onOpenChange}
       title="New journal"
-      description="Each journal keeps its own notes, people, maps and calendar. Your other journals are not touched."
+      description="Each journal has its own notes, people, maps and calendar. Your other journals stay as they are."
     >
       <NewJournalForm
         idPrefix="new-journal"
-        submitLabel="Make journal"
+        submitLabel="Create journal"
         busy={busy}
         error={error}
         initialName=""
@@ -57,7 +57,7 @@ export function NewJournalDialog({
             })
             .catch((e: unknown) => {
               setBusy(false);
-              setError(journalProblem(e, "Couldn't make the journal. Nothing was changed."));
+              setError(journalProblem(e, "Couldn't create the journal. Nothing was changed."));
             });
         }}
       />
@@ -212,12 +212,12 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
         {counts
           ? `, with its ${plural(counts.notes, 'note')}, ${plural(counts.people, 'person', 'people')} and ${plural(counts.maps, 'map')}`
           : ''}
-        . It can&apos;t be undone from inside Mossnote.
+        . You can&apos;t undo this in Mossnote.
       </p>
       <div>
         <p className="font-semibold">Want a copy first?</p>
         <p className="text-sm text-ink-muted">
-          Download one now ({formatBytes(journal.bytes)} on disk). Either file can be read without
+          Download one now ({formatBytes(journal.bytes)} on disk). You can open either file without
           Mossnote.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ function DeleteForm({ journal, onClose }: { journal: JournalInfo; onClose: () =>
         <span>
           Keep a last copy {WHERE_IT_LIVES.lastCopy}
           <span className="block text-sm text-ink-muted">
-            Recommended. It is a snapshot file you can open later or copy back.
+            Recommended. It&apos;s a snapshot file you can open later or copy back.
           </span>
         </span>
       </label>

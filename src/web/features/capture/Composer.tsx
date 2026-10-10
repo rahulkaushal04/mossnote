@@ -148,7 +148,11 @@ export function Composer({
           actions={
             <button type="button" className="btn btn-primary" disabled={!savable} onClick={submit}>
               Save
-              <span className="text-sm opacity-80" aria-hidden="true">
+              {/* A keyboard hint: a touch screen has no use for it, and it costs a phone its width. */}
+              <span
+                className="text-sm opacity-80 [@media(pointer:coarse)]:hidden"
+                aria-hidden="true"
+              >
                 {modLabel()}↵
               </span>
             </button>

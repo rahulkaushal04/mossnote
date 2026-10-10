@@ -15,8 +15,8 @@ function SetDateHint() {
   const update = useUpdateSettings();
   if (settings.data?.prefs.hintDismissed !== false) return null;
   return (
-    <p className="mt-2 flex items-center gap-1 text-sm text-ink-muted" role="note">
-      <span>Set the in-game date to group notes by game day.</span>
+    <p className="mt-2 flex flex-wrap items-center gap-x-1 text-sm text-ink-muted" role="note">
+      <span>Set the in-game date and your notes will be grouped by game day.</span>
       <button
         type="button"
         className="btn btn-ghost shrink-0 whitespace-nowrap"
@@ -58,14 +58,17 @@ export function TodayPage() {
             <em>{weekday}</em> <span className="muted">{date}</span>
           </>
         }
-        intro="Write it down while it is fresh."
+        intro="Write it down while you still remember it."
+        introFrom="phone"
+        meta={
+          <>
+            <TodayDateHeader />
+            {current === null ? <SetDateHint /> : null}
+          </>
+        }
       />
       <Composer scope="home" defaultGameDate={current} focusOnMount textareaRef={area} />
-      <div className="mt-2">
-        <TodayDateHeader />
-        {current === null ? <SetDateHint /> : null}
-      </div>
-      <div className="mt-6">
+      <div data-wide className="mt-6">
         <DayNotes
           filters={
             current === null

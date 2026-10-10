@@ -32,7 +32,7 @@ export function NotePage() {
       ) : null}
       {query.data ? (
         <>
-          <ul className="m-0 list-none p-0">
+          <ul data-wide className="entries m-0 list-none p-0">
             <NoteEntry note={query.data} collapsible={false} />
           </ul>
           {query.data.linkedFrom.length > 0 ? (

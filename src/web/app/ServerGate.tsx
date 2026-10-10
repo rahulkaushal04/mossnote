@@ -19,13 +19,13 @@ export function Unreachable({ onRetry }: { onRetry: () => void }) {
     document.title = "Can't reach your journal · Mossnote";
   }, []);
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">Can&apos;t reach your journal.</h1>
       <p>
-        Mossnote may not be running. Start it again (open the app, or run{' '}
+        Mossnote might not be running. Start it again (open the app, or run{' '}
         <code className="rounded-md bg-surface px-1.5 py-0.5">mossnote</code> in a terminal), then
-        try again. On a phone or tablet, check that the computer is on and that phone access is
-        still turned on. Nothing you wrote is lost.
+        try again. On a phone or tablet, make sure the computer is on and phone access is still
+        turned on. Nothing you wrote is lost.
       </p>
       <div>
         <button type="button" className="btn tap" onClick={onRetry}>
@@ -45,11 +45,11 @@ function NotPaired() {
     document.title = "This device isn't paired · Mossnote";
   }, []);
   return (
-    <main className="mx-auto flex min-h-screen max-w-[44rem] flex-col justify-center gap-4 px-4">
-      <h1 className="text-2xl font-semibold">This device isn&apos;t paired any more.</h1>
+    <main className="mx-auto flex min-h-screen max-w-176 flex-col justify-center gap-4 px-4">
+      <h1 className="text-2xl font-semibold">This device isn&apos;t paired anymore.</h1>
       <p>
-        It was removed from the computer&apos;s list of devices, or its pairing expired. Pair it
-        again from Settings, then Phone, on the computer. Nothing you wrote is lost.
+        It was removed from the computer&apos;s list of devices, or the pairing ran out. Pair it
+        again on the computer, under Settings, then Phone. Nothing you wrote is lost.
       </p>
       <div>
         <a className="btn btn-primary tap no-underline" href="/pair">

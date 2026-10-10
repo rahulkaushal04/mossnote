@@ -6,3 +6,4 @@ package-lock.json
 drizzle
 playwright-report
 test-results
+local_reference

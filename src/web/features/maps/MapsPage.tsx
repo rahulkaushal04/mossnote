@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
 import { ulid } from 'ulid';
+import { AddRow } from '../../components/ui/AddRow';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { MapArt } from '../../components/ui/art';
@@ -80,64 +81,53 @@ export function MapsPage() {
   return (
     <>
       <PageHeader title={terms.maps.label} intro="Sketch where you are, then pin what you find." />
-      <form
-        className="flex flex-col gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add();
-        }}
-      >
-        <label htmlFor="new-map-name" className="text-sm font-medium text-ink-2">
-          New map
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="new-map-name"
-            value={name}
-            placeholder="Name (optional)"
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-            className="field-input min-w-0 flex-1"
-          />
-          <Button type="submit" variant="primary" busy={create.isPending}>
-            Start drawing
-          </Button>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <label className="flex min-h-11 items-center gap-2">
+      <AddRow
+        id="new-map-name"
+        label="New map"
+        placeholder="Name a new map (optional)…"
+        value={name}
+        busy={create.isPending}
+        submitLabel="Start drawing"
+        onChange={setName}
+        onSubmit={add}
+        note={
+          <>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+              <label className="flex min-h-11 items-center gap-2 text-sm text-ink-2">
+                <input
+                  type="checkbox"
+                  checked={layered}
+                  onChange={(e) => {
+                    setLayered(e.target.checked);
+                  }}
+                  className="size-4 accent-accent"
+                />
+                Start with layers
+              </label>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  file.current?.click();
+                }}
+              >
+                Open a map file
+              </Button>
+            </div>
             <input
-              type="checkbox"
-              checked={layered}
+              ref={file}
+              type="file"
+              accept=".json,application/json"
+              className="sr-only"
+              tabIndex={-1}
+              aria-label="Map file"
               onChange={(e) => {
-                setLayered(e.target.checked);
+                void importFile(e.target.files?.[0]);
+                e.target.value = '';
               }}
-              className="size-4 accent-accent"
             />
-            Start with layers
-          </label>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              file.current?.click();
-            }}
-          >
-            Open a map file
-          </Button>
-        </div>
-        <input
-          ref={file}
-          type="file"
-          accept=".json,application/json"
-          className="sr-only"
-          tabIndex={-1}
-          aria-label="Map file"
-          onChange={(e) => {
-            void importFile(e.target.files?.[0]);
-            e.target.value = '';
-          }}
-        />
-      </form>
+          </>
+        }
+      />
       {message ? (
         <p role="alert" className="mt-2 text-danger">
           {message}

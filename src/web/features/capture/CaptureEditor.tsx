@@ -10,7 +10,7 @@ import {
   type RefObject,
 } from 'react';
 import { ulid } from 'ulid';
-import { SparkIcon } from '../../components/ui/icons';
+import { ArrowUpRightIcon, HashIcon, SparkIcon, TitleIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { caretPosition } from '../../lib/caret';
 import { GameDateChip } from '../calendar/GameDateChip';
@@ -39,9 +39,10 @@ export interface CaptureEditorProps {
   describedBy?: string | undefined;
 }
 
-const TEXT_BUTTON = 'tap rounded-md px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
+const TEXT_BUTTON =
+  'tap inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md px-2 text-sm text-ink-muted hover:bg-surface hover:text-ink';
 const TOGGLE =
-  'tap inline-flex items-center justify-center rounded-md px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
+  'tap inline-flex shrink-0 items-center justify-center rounded-md px-2 text-sm hover:bg-surface aria-pressed:bg-surface aria-pressed:font-semibold';
 
 /**
  * The shared text area, chips, flags and trigger handling used by the composer and by inline
@@ -80,8 +81,11 @@ export function CaptureEditor({
   }, [value.body, area]);
 
   useEffect(() => {
-    if (focusOnMount) area.current?.focus();
-  }, [focusOnMount, area]);
+    const el = area.current;
+    if (!focusOnMount || !el) return;
+    el.focus();
+    if (mode === 'edit') el.setSelectionRange(el.value.length, el.value.length);
+  }, [focusOnMount, area, mode]);
 
   /** Anchor the picker to the caret. Measured in event handlers, where reading the DOM is fine. */
   const placeAnchor = (offset: number) => {
@@ -331,76 +335,82 @@ export function CaptureEditor({
       ) : null}
 
       {/* Always shown, so the layout below the composer never jumps when focus moves: a click
-          that starts by blurring the editor would land on whatever slid into its place. */}
-      <div
-        className="flex flex-wrap items-center gap-1 text-ink-muted"
-        role="group"
-        aria-label="Note options"
-      >
-        <GameDateChip
-          value={date}
-          onChange={(key) => {
-            onChange({ ...value, gameDate: key });
-          }}
-          emptyLabel="Add date"
-          clearLabel="Clear date"
-          title="Date of this note"
-          open={dateOpen}
-          onOpenChange={setDateOpen}
-        />
-        <button
-          type="button"
-          className={`${TOGGLE} ${value.isDiscovery ? 'text-discovery' : ''}`}
-          aria-pressed={value.isDiscovery}
-          aria-label="Discovery"
-          onClick={() => {
-            onChange({ ...value, isDiscovery: !value.isDiscovery });
-          }}
+          that starts by blurring the editor would land on whatever slid into its place. One row that
+          never wraps: the options scroll sideways on a narrow screen and the action (Save) stays put. */}
+      <div className="mt-1 flex items-center gap-2 border-t border-hairline pt-2">
+        <div
+          className="scroll-row fade-end -ml-1 flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-1 pr-6 pl-1 text-ink-muted phone:pr-0"
+          role="group"
+          aria-label="Note options"
         >
-          <SparkIcon />
-        </button>
-        <button
-          type="button"
-          className={`${TOGGLE} ${value.isQuestion ? 'text-question' : ''}`}
-          aria-pressed={value.isQuestion}
-          aria-label="Question"
-          onClick={() => {
-            onChange({ ...value, isQuestion: !value.isQuestion });
-          }}
-        >
-          ?
-        </button>
-        {value.title === null ? (
+          <GameDateChip
+            value={date}
+            onChange={(key) => {
+              onChange({ ...value, gameDate: key });
+            }}
+            emptyLabel="Add date"
+            clearLabel="Clear date"
+            title="Date of this note"
+            open={dateOpen}
+            onOpenChange={setDateOpen}
+          />
+          <button
+            type="button"
+            className={`${TOGGLE} ${value.isDiscovery ? 'text-discovery' : ''}`}
+            aria-pressed={value.isDiscovery}
+            aria-label="Discovery"
+            onClick={() => {
+              onChange({ ...value, isDiscovery: !value.isDiscovery });
+            }}
+          >
+            <SparkIcon />
+          </button>
+          <button
+            type="button"
+            className={`${TOGGLE} ${value.isQuestion ? 'text-question' : ''}`}
+            aria-pressed={value.isQuestion}
+            aria-label="Question"
+            onClick={() => {
+              onChange({ ...value, isQuestion: !value.isQuestion });
+            }}
+          >
+            ?
+          </button>
+          {value.title === null ? (
+            <button
+              type="button"
+              className={TEXT_BUTTON}
+              onClick={() => {
+                onChange({ ...value, title: '' });
+                requestAnimationFrame(() => titleRef.current?.focus());
+              }}
+            >
+              <TitleIcon aria-hidden="true" className="size-4" />
+              <span className="sr-only phone:not-sr-only">Title</span>
+            </button>
+          ) : null}
           <button
             type="button"
             className={TEXT_BUTTON}
             onClick={() => {
-              onChange({ ...value, title: '' });
-              requestAnimationFrame(() => titleRef.current?.focus());
+              openByButton('tag', area.current?.selectionStart ?? 0);
             }}
           >
-            Title
+            <HashIcon aria-hidden="true" className="size-4" />
+            <span className="sr-only phone:not-sr-only">Tag</span>
           </button>
-        ) : null}
-        <button
-          type="button"
-          className={TEXT_BUTTON}
-          onClick={() => {
-            openByButton('tag', area.current?.selectionStart ?? 0);
-          }}
-        >
-          Tag
-        </button>
-        <button
-          type="button"
-          className={TEXT_BUTTON}
-          onClick={() => {
-            openByButton('any', area.current?.selectionStart ?? 0);
-          }}
-        >
-          Link
-        </button>
-        <span className="ml-auto flex items-center gap-2">{actions}</span>
+          <button
+            type="button"
+            className={TEXT_BUTTON}
+            onClick={() => {
+              openByButton('any', area.current?.selectionStart ?? 0);
+            }}
+          >
+            <ArrowUpRightIcon aria-hidden="true" className="size-4" />
+            <span className="sr-only phone:not-sr-only">Link</span>
+          </button>
+        </div>
+        <span className="flex shrink-0 items-center gap-2">{actions}</span>
       </div>
     </div>
   );

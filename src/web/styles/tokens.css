@@ -83,7 +83,9 @@
   /* Layout: the inset sidebar, the reading column and the tablet rail. */
   --sidebar-w: 14.5rem;
   --rail-w: 4rem;
-  --column: 44rem;
+  --column: 54rem;
+  /* The right margin of an entry (date, tags, links) when its list is wide enough to have one. */
+  --gutter-w: 11rem;
 
   --dur-fast: 120ms;
   --dur-base: 200ms;
@@ -146,6 +148,39 @@
     'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
     sans-serif;
   --font-serif: 'Literata Variable', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+}
+
+/*
+ * Journal tints. A game template names one (see GameTemplate.tint) and the app sets it on <html> as
+ * data-tint; a template card sets it on itself to preview, so moss is restated here for a card
+ * that sits inside another tint. A tint replaces the accent family and nothing else: ink, surfaces and the
+ * meaning colours (discovery, question, danger, success) never change, so a red button is always
+ * a warning whatever the journal. Each tint is held to the same contrast bars as moss.
+ */
+[data-tint='moss'] {
+  --accent: #1f5f56;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebe6;
+  --ring: rgb(31 95 86 / 0.3);
+}
+:root[data-theme='dark'] [data-tint='moss'],
+:root[data-theme='dark'][data-tint='moss'] {
+  --accent: #6cc1ae;
+  --accent-ink: #0e1512;
+  --accent-soft: #1f3a34;
+  --ring: rgb(108 193 174 / 0.35);
+}
+[data-tint='plum'] {
+  --accent: #6f4590;
+  --accent-soft: #ebe2f2;
+  --ring: rgb(111 69 144 / 0.3);
+}
+:root[data-theme='dark'] [data-tint='plum'],
+:root[data-theme='dark'][data-tint='plum'] {
+  --accent: #c9a8e4;
+  --accent-ink: #150f1a;
+  --accent-soft: #33283d;
+  --ring: rgb(201 168 228 / 0.35);
 }
 
 /* Map drawing colours: named in data, resolved per theme so a map reads in light and dark. */

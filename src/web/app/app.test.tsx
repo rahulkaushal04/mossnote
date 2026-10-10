@@ -401,7 +401,7 @@ describe('a phone or tablet that is no longer welcome', () => {
     renderApp('/');
 
     expect(
-      await screen.findByRole('heading', { name: "This device isn't paired any more." }),
+      await screen.findByRole('heading', { name: "This device isn't paired anymore." }),
     ).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Pair this device' }).getAttribute('href')).toBe(
       '/pair',

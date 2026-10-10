@@ -8,6 +8,7 @@ import type { GameTemplate } from './types';
 export const stardewTemplate: GameTemplate = {
   id: 'stardew',
   name: 'Stardew Valley',
+  tint: 'plum',
   about:
     'A Farm section, a calendar of seasons, NPCs, and a few one-tap actions for notes you take while playing.',
   terms: {

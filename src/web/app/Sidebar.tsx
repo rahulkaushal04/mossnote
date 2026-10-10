@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router';
 import { Button } from '../components/ui/Button';
 import { Kbd } from '../components/ui/Kbd';
-import { PlusIcon, SearchIcon } from '../components/ui/icons';
+import { LockIcon, PlusIcon, SearchIcon } from '../components/ui/icons';
 import { JournalSwitcher } from '../features/journals/JournalSwitcher';
 import { useActiveJournal } from '../features/journals/hooks';
 import { usePalette } from '../features/search/PaletteProvider';
 import { useTags } from '../features/tags/hooks';
 import { modLabel } from '../lib/hotkeys';
+import { WHERE_IT_LIVES } from '../lib/mode';
 import { countFor, SETTINGS_ITEM, type NavItem } from './nav';
 
 function SideLink({ item, count }: { item: NavItem; count?: number | null }) {
@@ -59,7 +60,7 @@ export function Sidebar({ items, onNewNote }: { items: NavItem[]; onNewNote: () 
   return (
     <nav aria-label="Primary" className="side-panel hidden w-[var(--sidebar-w)] shrink-0 wide:flex">
       <p className="px-2.5 pt-1 pb-3 font-serif text-lg font-medium tracking-tight">Mossnote</p>
-      <JournalSwitcher className="btn-ghost mb-3 w-full" />
+      <JournalSwitcher className="mb-3 w-full" />
       <button
         type="button"
         className="side-search mb-3"
@@ -90,7 +91,12 @@ export function Sidebar({ items, onNewNote }: { items: NavItem[]; onNewNote: () 
         ))}
       </ul>
       <Pinned />
-      <div className="mt-auto pt-6">
+      <div className="mt-auto flex flex-col gap-1 pt-6">
+        {/* The promise the whole app rests on, kept in view and in plain words. */}
+        <p className="side-note">
+          <LockIcon aria-hidden="true" className="size-3.5 shrink-0" />
+          Stays {WHERE_IT_LIVES.place}
+        </p>
         <SideLink item={SETTINGS_ITEM} />
       </div>
     </nav>

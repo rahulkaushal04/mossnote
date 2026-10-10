@@ -116,7 +116,8 @@ test.describe('game templates and sections', () => {
     await seed.reset('stardew');
     await page.goto('/settings#game');
     // The template was chosen when the journal was made; it is shown, not offered.
-    await expect(page.getByText('Stardew Valley', { exact: true })).toBeVisible();
+    // The journal switcher also names the game, so look in the page itself.
+    await expect(page.getByRole('main').getByText('Stardew Valley', { exact: true })).toBeVisible();
     await expect(page.getByRole('radio', { name: 'Stardew Valley' })).toHaveCount(0);
     const nav = page.getByRole('navigation', { name: 'Primary' }).first();
     await expect(nav.getByRole('link', { name: 'NPCs' })).toBeVisible();

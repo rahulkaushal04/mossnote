@@ -42,12 +42,15 @@ function SearchButton() {
  * App shell, one navigation per device: from 900px an inset sidebar (journal switcher, search
  * field, New note, sections with counts, pinned tags); from 640px a slim icon rail; below that
  * a floating bottom bar whose last tab, More, holds the journals, pinned tags and Settings.
- * The content is one reading column (44rem) centred in the space that is left.
+ * The content is one reading column (--column) centred in the space that is left.
  */
 export function Shell() {
   const { pathname } = useLocation();
   // The map editor is a drawing surface and uses the whole width; every other page is a reading column.
   const editorRoute = /^\/maps\/[^/]+$/.test(pathname);
+  // Notes are listed with a gutter for their date and tags, so these pages are a little wider than
+  // the reading column; their headers and composers stay at the column's measure.
+  const gutterRoute = /^\/(journal|day\/[^/]+|notes\/[^/]+)?$/.test(pathname);
   const navItems: NavItem[] = useSections()
     .filter((s) => !s.hidden)
     .map((s) => ({ ...SECTION_ROUTES[s.id], id: s.id, label: s.label }));
@@ -103,10 +106,14 @@ export function Shell() {
             className={`min-w-0 flex-1 phone:pb-0 ${immersive ? 'pb-[env(safe-area-inset-bottom)]' : 'pb-[calc(5rem+env(safe-area-inset-bottom))]'}`}
           >
             <div
-              className={`mx-auto w-full px-4 phone:px-8 ${editorRoute ? 'max-w-none' : 'max-w-[calc(var(--column)+4rem)]'}`}
+              className={`mx-auto w-full px-4 phone:px-8 ${editorRoute ? 'max-w-none' : 'max-w-[calc(var(--column)+var(--gutter-w)+4rem)]'}`}
             >
               {IS_STANDALONE ? <BackupReminder /> : null}
-              <main id="main" tabIndex={-1} className="pb-10 outline-none">
+              <main
+                id="main"
+                tabIndex={-1}
+                className={`pb-10 outline-none ${gutterRoute ? 'gutter-page' : ''}`}
+              >
                 <Outlet />
               </main>
             </div>

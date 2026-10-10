@@ -15,10 +15,10 @@ const SMALL = 'btn';
 
 function statusLine(journal: JournalInfo): string {
   if (journal.status === 'needs_newer_app') {
-    return 'Made by a newer Mossnote. Update Mossnote to open it. It has not been changed.';
+    return 'Made with a newer Mossnote. Update the app to open it. Nothing was changed.';
   }
   if (journal.status === 'unreadable') {
-    return "Mossnote can't read this file. It has not been changed.";
+    return "Mossnote can't read this file. Nothing was changed.";
   }
   const c = journal.counts;
   const parts = c

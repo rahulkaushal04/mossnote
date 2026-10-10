@@ -66,6 +66,7 @@ test.describe('the journal in the browser', () => {
       .first()
       .click();
     await page.getByRole('button', { name: 'Restore', exact: true }).click();
+    await expect(page.getByText(/Before a restore/)).toBeVisible();
 
     await page.goto('/journal');
     await expect(page.getByRole('article', { name: 'Before the snapshot' })).toBeVisible();
@@ -165,7 +166,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     await page.goto('/settings');
     await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
-    await expect(page.getByText('Protection from clean-ups')).toBeVisible();
+    await expect(page.getByText('Keep your journal safe')).toBeVisible();
     await check('settings', page);
 
     const second = await context.newPage();

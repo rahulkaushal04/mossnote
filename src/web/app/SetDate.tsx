@@ -28,7 +28,7 @@ export function SetDateProvider({ children }: { children: ReactNode }) {
         {open ? (
           <DatePickerBody
             value={calendar.currentGameDate}
-            clearLabel="Stop stamping new notes"
+            clearLabel="Stop dating new notes"
             onChange={(key) => {
               setDate.mutate(key);
             }}

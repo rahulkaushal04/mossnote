@@ -188,7 +188,7 @@ describe('the journal switcher', () => {
     const dialog = await screen.findByRole('dialog', { name: 'New journal' });
     expect(within(dialog).getByRole('group', { name: 'Which template?' })).toBeTruthy();
     await user.type(within(dialog).getByLabelText('Journal name'), 'Third game');
-    await user.click(within(dialog).getByRole('button', { name: 'Make journal' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Create journal' }));
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith({ name: 'Third game', template: 'default' });
     });
@@ -290,12 +290,12 @@ describe('Settings → Journals', () => {
     await screen.findByRole('heading', { level: 2, name: 'Template and sections' });
     expect(screen.queryByRole('radio', { name: /Stardew/ })).toBeNull();
     expect(screen.getAllByRole('link', { name: 'Request a template' }).length).toBeGreaterThan(0);
-    expect(screen.getByText(/keeps the template it was made with/)).toBeTruthy();
+    expect(screen.getByText(/keeps the template it started with/)).toBeTruthy();
   });
 
   it('shows a day-counter journal with no season editor', async () => {
     renderApp('/settings');
-    expect(await screen.findByText(/This journal counts days/)).toBeTruthy();
+    expect(await screen.findByText(/This journal just counts days/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Add season' })).toBeNull();
   });
 });
@@ -322,7 +322,7 @@ describe('snapshots in Settings', () => {
     const list = await screen.findByRole('list', { name: 'Snapshots' });
     const rows = within(list).getAllByRole('listitem');
     expect(rows[0]?.textContent).toContain('Automatic');
-    expect(rows[1]?.textContent).toContain('Before an upgrade');
+    expect(rows[1]?.textContent).toContain('Before an update');
     await user.click(within(rows[0]!).getByRole('button', { name: /^Restore the snapshot/ }));
     const dialog = await screen.findByRole('dialog', { name: 'Restore this snapshot?' });
     expect(dialog.textContent).toContain('saved as a snapshot first');

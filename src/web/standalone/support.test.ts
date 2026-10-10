@@ -16,16 +16,18 @@ describe('missingFeature', () => {
   });
 
   it('asks for a secure connection', () => {
-    expect(missingFeature(scope({ isSecureContext: false }))).toMatch(/secure connection/);
+    expect(missingFeature(scope({ isSecureContext: false }))).toMatch(
+      /secure \(HTTPS\) connection/,
+    );
   });
 
   it('notices a browser with no workers or no WebAssembly', () => {
-    expect(missingFeature(scope({ Worker: undefined }))).toMatch(/background workers/);
+    expect(missingFeature(scope({ Worker: undefined }))).toMatch(/web workers/);
     expect(missingFeature(scope({ WebAssembly: undefined }))).toMatch(/WebAssembly/);
   });
 
   it('notices a browser with no file storage, such as a private window', () => {
-    expect(missingFeature(scope({ navigator: {} }))).toMatch(/cannot keep files/);
-    expect(missingFeature(scope({ navigator: { storage: {} } }))).toMatch(/cannot keep files/);
+    expect(missingFeature(scope({ navigator: {} }))).toMatch(/can.t store files/);
+    expect(missingFeature(scope({ navigator: { storage: {} } }))).toMatch(/can.t store files/);
   });
 });

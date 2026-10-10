@@ -17,8 +17,23 @@ Two new ways to use Mossnote while you play. Your existing journals are untouche
 
 ### Changed
 
+- **A third pass on the look and feel.** No data, setting or shortcut changed.
+- **Each game's journal wears its own colour.** A game template names a tint: Default stays moss, Stardew Valley is plum. It replaces the accent (buttons, the current item, the italic word in titles) in light and dark, and never touches the colours that mean something: red is still a warning. The journal switcher shows the dot and the game's name, and each template card previews its colour. Every tint is checked for contrast.
+- Notes in the Journal and on a day: on a wide screen the date, tags and links sit in a right-hand margin, and a note no longer repeats the day that its heading or page already names. On a narrow screen they stay under the text.
+- Today puts the in-game date under the title, above the note box. The note box keeps its options in one row that scrolls sideways on a phone, with Save beside it instead of dropping onto a second row, and keyboard hints such as ⌘↵ are not shown on a touch screen.
+- The current page in the sidebar, rail and settings is a tinted fill with a short marker. The sidebar says "Stays on this computer" (or "in this browser"). Section names in the phone's tab bar are no longer squeezed.
+- People, Farm and Maps start with one "add" row instead of a label, a field and a button. Farm groups show a count; each entry has its dates and counts on a second line. Empty pages use a larger serif sentence and a line drawing in the journal's colour.
+- Secondary buttons have a hairline edge on a raised fill instead of a heavy outline. Text fields keep their strong outline.
+- The map editor has its tools in a vertical strip on the left, one row of controls above, and a much taller canvas. A phone keeps the two scrolling rows.
+- Settings has a side navigation that follows the section in view, from 900px up. Narrower screens keep the row of pills.
+- The first screen puts a short statement and two facts (no spoilers, nothing leaves the device) beside the template cards.
 - The server's code is split so the same app, services and migrations run in Node and in the browser, behind small `Sqlite` and `Storage` interfaces. The server's behaviour is unchanged; `npm run test:wasm` runs its whole test suite on the browser's SQLite.
 - Settings → Data & backup shows the data location as a folder or as browser storage (`GET /api/data/info` now returns a `location` object instead of three path fields).
+
+### Fixed
+
+- **A map reopened as it was first created.** After renaming a map or drawing on it and going back to Maps, opening it again within a few minutes showed "Untitled map" and an empty canvas, because the editor reused a copy fetched before your changes (your work was saved, and the next edit could have overwritten it). The map now keeps what you drew and its new name, and the Maps list and Places refresh as soon as the last change is saved.
+- The dotted canvas in the map editor was drawn behind the canvas and never showed. It is now a quiet dot lattice that moves and scales with the drawing, shown while the grid is off.
 
 ## 2026-10-08
 
