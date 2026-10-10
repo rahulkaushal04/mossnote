@@ -49,14 +49,12 @@ const escapeHtml = (text: string): string =>
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 
+const entities: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', nbsp: ' ' };
+
 const stripTags = (html: string): string =>
   html
     .replace(/<[^>]*>/g, ' ')
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&nbsp;', ' ')
+    .replace(/&(amp|lt|gt|quot|nbsp);/g, (_match, name: string) => entities[name] ?? _match)
     .replace(/\s+/g, ' ')
     .trim();
 
