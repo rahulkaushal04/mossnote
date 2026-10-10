@@ -7,12 +7,10 @@ docs/
   nav.json          Order of pages and the navigation sections
   content/          One HTML fragment per page (front matter + body)
   assets/css, js    The stylesheet and the optional search/contents script
-  assets/img        Screenshots (made by scripts/docs/capture.ts)
-  assets/video      Recordings (made by scripts/docs/capture.ts)
+  assets/img        Screenshots
+  assets/video      Recordings
 scripts/docs/
   build.ts          Wraps the fragments in the layout; writes dist/standalone/docs
-  capture.ts        Drives the real app and takes every screenshot and recording
-  lib.ts            Browser, annotation and cursor helpers for capture.ts
 ```
 
 ## Build and preview
@@ -48,17 +46,4 @@ For the GitHub project-site path, build with `MOSS_BASE=/mossnote/ npm run build
 
 ## Pictures and recordings
 
-Start the web version (`npm run preview:standalone`), then:
-
-```bash
-npm run docs:capture                    # everything
-npm run docs:capture -- maps notes      # some scenes (names are in capture.ts)
-```
-
-Computer-version scenes (`server-data`, `server-phone`) need `npm run build && npm start` and `DOCS_APP_URL=http://127.0.0.1:4317`. Orange numbered boxes are drawn on the live page for the picture and removed again; the caption says what each number is. Never add a number without saying what it means.
-
-Notes: Playwright sends Cmd+K before the app is listening on a freshly loaded page, and the app ignores it inside text boxes, so the scenes press Esc first. Videos are WebM (VP8) from Playwright; there is no `ffmpeg` requirement.
-
-## Deployment compatibility
-
-The app's service worker (`scripts/vite/sw.template.js`) lets page loads under `docs/` go to the network. Without that, a visitor who had already opened the app would get the app instead of the docs. The docs are not precached for offline use.
+The scripts that take the screenshots and recordings are not in the repository. They are kept locally in `local_reference/docs-capture/` (ignored by git). The pictures in `docs/assets` are plain files: replace them and run `npm run docs:build`.

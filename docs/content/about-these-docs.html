@@ -51,13 +51,7 @@ description: How this documentation was produced and checked, what was tested, w
 </ul>
 
 <h2 id="regenerate">Regenerating the pictures</h2>
-<p>If the interface changes, the pictures can be remade. From the repository folder:</p>
-<pre><code>npm run build:standalone
-npm run preview:standalone            # leave running (http://127.0.0.1:4318)
-npm run docs:capture                  # every screenshot and recording
-npm run docs:capture -- maps notes    # only some scenes
-npm run docs:build                    # rebuild the site into dist/standalone/docs</code></pre>
-<p>The computer-version pictures need <code>npm run build</code> and <code>npm start</code>, then <code>DOCS_APP_URL=http://127.0.0.1:4317 npm run docs:capture -- server-data server-phone</code>. See <code>docs/README.md</code> in the repository for the full guide, including how to add a page.</p>
+<p>The pictures were captured from the running app with a script that is kept outside the repository. If the interface changes, they have to be retaken. After replacing the images in <code>docs/assets</code>, rebuild the site with <code>npm run docs:build</code>. See <code>docs/README.md</code> in the repository for how to add or edit a page.</p>
 
 <h2 id="report">Found a mistake?</h2>
 <p>Please <a href="https://github.com/rahulkaushal04/mossnote/issues">open an issue</a> and say which page it is on. If the app behaves differently from these pages, one of the two is wrong, and either is worth knowing about.</p>
