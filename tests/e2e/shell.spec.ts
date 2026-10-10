@@ -170,7 +170,7 @@ test.describe('responsive layout', () => {
     }
   });
 
-  test('a reading page is 44rem at most and centred in the space beside the sidebar', async ({
+  test('a page is 54rem plus the gutter at most and centred in the space beside the sidebar', async ({
     page,
   }) => {
     for (const viewport of [
@@ -181,7 +181,8 @@ test.describe('responsive layout', () => {
       await page.setViewportSize(viewport);
       await page.goto('/people');
       const main = await page.getByRole('main').boundingBox();
-      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(704);
+      // 54rem of reading column plus the 11rem gutter.
+      expect(main?.width, `${viewport.width}px`).toBeLessThanOrEqual(1040);
     }
     // At 1920 it is wider than it is allowed to be, so it must sit in the middle of what is left.
     const main = await page.getByRole('main').boundingBox();
@@ -191,7 +192,7 @@ test.describe('responsive layout', () => {
     expect(Math.abs(left - right)).toBeLessThanOrEqual(10);
   });
 
-  test('the pages that list notes add a gutter beside the column, and nothing else grows', async ({
+  test('every page adds a gutter beside the column, and the composer keeps the column', async ({
     page,
   }) => {
     for (const viewport of [
@@ -201,12 +202,12 @@ test.describe('responsive layout', () => {
     ]) {
       await page.setViewportSize(viewport);
       await page.goto('/');
-      // 44rem of reading column plus the 11rem gutter, and never more.
+      // 54rem of reading column plus the 11rem gutter, and never more.
       const main = await page.getByRole('main').boundingBox();
-      expect(main?.width, `${viewport.width}px main`).toBeLessThanOrEqual(880);
+      expect(main?.width, `${viewport.width}px main`).toBeLessThanOrEqual(1040);
       // The header and the composer keep the reading measure whatever the page allows.
       const composer = await page.getByRole('region', { name: 'New note' }).boundingBox();
-      expect(composer?.width, `${viewport.width}px composer`).toBeLessThanOrEqual(704);
+      expect(composer?.width, `${viewport.width}px composer`).toBeLessThanOrEqual(864);
     }
   });
 
