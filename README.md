@@ -17,9 +17,9 @@ You write down what you find out, in your own words, and Mossnote remembers it f
   <img src="docs/assets/readme/today-default.png" alt="Mossnote's Today screen: a note box with date, flag, tag and link options, and the day's notes below, with a sidebar listing Today, Journal, People and Maps." width="860">
 </p>
 
-[![A recording of writing a note: setting the in-game day, mentioning a person with @, adding a tag with #, flagging a question and saving.](docs/assets/img/video-quick-capture-poster.png)](docs/assets/video/video-quick-capture.webm)
+![A recording of writing a note: setting the in-game day, mentioning a person with @, adding a tag with #, flagging a question and saving.](docs/assets/readme/quick-capture.gif)
 
-_Click the picture for a 20-second recording of writing a note (opens the video file)._
+_Writing a note: set the in-game day, mention a person with `@`, add a tag with `#`, flag a question and save. A [full-quality recording](docs/assets/video/video-quick-capture.webm) is also in the repository._
 
 > **Status:** Mossnote has not had a public release yet. Until it does, [run it from source](#run-it-from-source). The `npx` and download options below will work once the first release is published.
 
