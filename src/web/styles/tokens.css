@@ -83,7 +83,7 @@
   /* Layout: the inset sidebar, the reading column and the tablet rail. */
   --sidebar-w: 14.5rem;
   --rail-w: 4rem;
-  --column: 44rem;
+  --column: 54rem;
   /* The right margin of an entry (date, tags, links) when its list is wide enough to have one. */
   --gutter-w: 11rem;
 
