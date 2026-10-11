@@ -67,10 +67,10 @@ description: A codebase overview for the curious and for contributors, covering 
 </ul>
 
 <h2 id="quality">Tests and checks</h2>
-<p><code>npm run check</code> runs lint, type checking and the unit, integration and component tests (Vitest). Further: <code>npm run test:wasm</code> runs the server's tests on SQLite WebAssembly; <code>npm run test:e2e</code> builds and runs Playwright end-to-end tests against the real server and the web version; <code>npm run check:network</code> looks for outbound URLs. CI runs these on Node 22 and 24, plus a WebKit smoke test on macOS.</p>
+<p><code>npm run check</code> runs lint, type checking and the unit, integration and component tests (Vitest). Further: <code>npm run test:wasm</code> runs the server's tests on SQLite WebAssembly; <code>npm run test:e2e</code> builds and runs Playwright end-to-end tests against the real server and the web version; <code>npm run check:network</code> looks for outbound URLs; <code>npm run verify:pages</code> builds the web version for a GitHub project site and tests it the way Pages serves it. CI runs these on Node 22 and 24, plus WebKit tests on macOS.</p>
 
 <h2 id="hosting">Deployment and these docs</h2>
-<p>The <em>Web version</em> workflow (<code>.github/workflows/pages.yml</code>) is started by hand from the Actions tab; nothing is published by a push or a tag. It runs the tests, builds the web version with <code>MOSS_BASE=/&lt;repository&gt;/</code>, runs the outbound-URL check, then <strong>builds the documentation into the same folder</strong> and uploads <code>dist/standalone</code> to GitHub Pages. So:</p>
+<p>The <em>Web version</em> workflow (<code>.github/workflows/pages.yml</code>) runs on every push to <code>main</code> and can be started by hand from the Actions tab. It runs the tests, builds the web version with <code>MOSS_BASE=/&lt;repository&gt;/</code>, runs the outbound-URL check, then <strong>builds the documentation into the same folder</strong> and checks the finished site: every address stays under the base path, <code>404.html</code> is the app, and the offline file list matches the build. A browser test then opens the site through a small server that answers like GitHub Pages and uploads <code>dist/standalone</code> only if all of that passed. So:</p>
 <ul>
   <li>the app is at <code>https://&lt;owner&gt;.github.io/&lt;repository&gt;/</code>, and</li>
   <li>these pages are at <code>https://&lt;owner&gt;.github.io/&lt;repository&gt;/docs/</code>.</li>

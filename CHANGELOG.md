@@ -13,6 +13,7 @@ Two new ways to use Mossnote while you play. Your existing journals are untouche
 
 - **Phone access.** Settings → Phone lets a phone or tablet on your home network open the journal that lives on your computer. Turn it on, scan the pairing code with the phone's camera, and write notes without leaving the game. Only devices you pair can use it; you can remove them from the same screen. `mossnote --lan` or `MOSS_LAN=1` turns it on at start.
 - **A web version** that keeps the journal in the browser, for people with no computer to run Mossnote on, such as a console player with a phone. It works offline, can be added to the Home Screen, reminds you to download a backup, and says plainly when a browser cannot keep files (private windows) or another tab already has the journal. Build it with `npm run build:standalone`.
+- **The web version is published to GitHub Pages** by the _Web version_ workflow, on every push to `main` and by hand, together with the documentation at `/docs/`. The workflow works out the base path for a project site, a `<owner>.github.io` site or a custom domain, and publishes only after the finished site passes `npm run verify:pages`: addresses stay under the base path, a refresh on any page opens the app, it opens with no network, and the documentation is served beside it. The web version's first screen now links to how to install the computer version.
 - Export and download buttons work the same in both versions, and the data screens say whether the journal is in a folder or in the browser.
 
 ### Changed

@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Logo } from '../../components/ui/Logo';
-import { JournalIcon, LockIcon } from '../../components/ui/icons';
+import { DownloadIcon, JournalIcon, LockIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
 import { showJournal } from '../../lib/journal';
-import { WHERE_IT_LIVES } from '../../lib/mode';
+import { BASE_PATH, IS_STANDALONE, WHERE_IT_LIVES } from '../../lib/mode';
 import { journalProblem } from './hooks';
 import { NewJournalForm } from './NewJournalForm';
 
@@ -63,6 +63,13 @@ export function FirstRun() {
           Your journal lives {WHERE_IT_LIVES.place}; nothing is sent over the internet. No account,
           no analytics, no update checks.
         </Fact>
+        {IS_STANDALONE ? (
+          <Fact icon={<DownloadIcon />} title="Want it on your computer?">
+            Trying it here is fine. To keep your journals in a folder on your computer instead,{' '}
+            <a href={`${BASE_PATH}docs/getting-started/#install-computer`}>see how to install it</a>
+            .
+          </Fact>
+        ) : null}
       </ul>
     </main>
   );
