@@ -54,7 +54,10 @@ jobs:
         run: npm run package:checksums
       - name: Run the finished download the way a person would
         run: |
-          file="$(ls release/mossnote-v*-${{ matrix.target }}.tar.gz release/mossnote-v*-${{ matrix.target }}.exe 2>/dev/null | head -n 1)"
+          shopt -s nullglob
+          files=(release/mossnote-v*-${{ matrix.target }}.tar.gz release/mossnote-v*-${{ matrix.target }}.exe)
+          [ "${#files[@]}" -eq 1 ] || { echo "Expected one program, found: ${files[*]}" >&2; exit 1; }
+          file="${files[0]}"
           echo "Testing $file"
           npm run package:smoke -- "$file"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
