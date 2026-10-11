@@ -32,10 +32,10 @@ export function builtBase(dist: string): string | null {
   return typeof manifest.scope === 'string' ? manifest.scope : null;
 }
 
-/** Root-relative addresses (`/x`, not `//x` and not `/mossnote/x`) written in `attribute="…"` form. */
+/** Root-relative addresses (`/x`, not `//x` and not `/mossnote/x`) in `href`, `src` and `poster` (not `content`: a random nonce can start with `/`). */
 function strayAddresses(text: string, base: string): string[] {
   const found: string[] = [];
-  for (const match of text.matchAll(/\b(?:href|src|poster|content)=["'](\/[^"']*)["']/g)) {
+  for (const match of text.matchAll(/\b(?:href|src|poster)=["'](\/[^"']*)["']/g)) {
     const address = match[1] ?? '';
     if (address.startsWith('//')) continue;
     if (!address.startsWith(base)) found.push(address);

@@ -86,6 +86,12 @@ describe('checkSite', () => {
     expect(messages.join('\n')).not.toContain('cdn.example');
   });
 
+  it('does not mistake a random security nonce that starts with a slash for an address', () => {
+    const page = `<meta name="csp-nonce" content="/YZtg7rW8QJSORweeOs8BA==" /><script src="/mossnote/assets/app.js"></script>`;
+    site('/mossnote/', { 'index.html': page, '404.html': page });
+    expect(checkSite(dist)).toEqual([]);
+  });
+
   it('wants 404.html to be the app, so a refresh on a deep link opens it', () => {
     site('/mossnote/', { '404.html': '<h1>Not found</h1>' });
     expect(checkSite(dist).map((p) => p.file)).toContain('404.html');
