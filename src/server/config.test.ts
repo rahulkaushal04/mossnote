@@ -71,7 +71,7 @@ describe('loadConfig', () => {
   });
 
   it('validates MOSS_JOURNAL against the path-safe pattern', () => {
-    for (const bad of ['../x', 'a/b', 'a b', '', 'a.b', 'x'.repeat(41)]) {
+    for (const bad of ['../x', 'a/b', 'a b', 'a.b', 'x'.repeat(41)]) {
       expect(() => loadConfig({ ...base, MOSS_JOURNAL: bad })).toThrow(ConfigError);
     }
     expect(loadConfig({ ...base, MOSS_JOURNAL: 'My_journal-2' }).journal).toBe('My_journal-2');
@@ -95,5 +95,39 @@ describe('loadConfig', () => {
 
   it('keeps listening on loopback however phone access is set', () => {
     expect(loadConfig({ ...base, MOSS_LAN: '1' }).host).toBe('127.0.0.1');
+  });
+});
+
+describe('loadConfig with empty and unset values', () => {
+  it('treats a variable that is set but empty as not set', () => {
+    const config = loadConfig({
+      MOSS_DATA_DIR: '',
+      MOSS_PORT: '  ',
+      MOSS_JOURNAL: '',
+      MOSS_HOST: '',
+      MOSS_OPEN_BROWSER: '',
+      MOSS_LOG_LEVEL: '',
+      MOSS_BACKUP_KEEP: '',
+    });
+    expect(config.dataDir).toBe(loadConfig({}).dataDir);
+    expect(path.resolve(config.dataDir)).not.toBe(process.cwd());
+    expect(config).toMatchObject({
+      host: '127.0.0.1',
+      port: 4317,
+      journal: 'journal',
+      journalExplicit: false,
+      openBrowser: true,
+      logLevel: 'info',
+      backupKeep: 14,
+      lan: 'saved',
+    });
+  });
+
+  it('takes the version it is given, and never from the environment', () => {
+    expect(loadConfig(base, '0.1.0-beta.1').version).toBe('0.1.0-beta.1');
+    expect(loadConfig({ ...base, npm_package_version: '9.9.9' }, '0.1.0-beta.1').version).toBe(
+      '0.1.0-beta.1',
+    );
+    expect(loadConfig({ ...base, npm_package_version: '9.9.9' }).version).toBe('unknown');
   });
 });

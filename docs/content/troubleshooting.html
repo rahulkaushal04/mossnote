@@ -18,9 +18,9 @@ description: Messages you may see, what they mean, and how to fix common problem
   <dt>The computer version refuses to start and names a snapshot</dt>
   <dd>The start-up integrity check failed. Restore that snapshot by hand: stop Mossnote, copy it from <code>backups/</code> over the journal's <code>.db</code> file, delete that journal's <code>.db-wal</code> and <code>.db-shm</code>, and start again. See <a href="~/data-and-backup/#integrity">Starting safely</a>.</dd>
   <dt>A second copy will not start</dt>
-  <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start. Close the first one (look for a program window or a terminal that is still running it).</dd>
+  <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start and says "already running". Close the first one (look for a program window or a terminal that is still running it).</dd>
   <dt>Port 4317 is busy</dt>
-  <dd>Start on another port: <code>mossnote --port 4400</code>. <status kind="unverified"></status> We did not provoke this.</dd>
+  <dd>Another program is using the port. Mossnote says so and exits, and the message names the option: start on another port with <code>mossnote --port 4400</code>. <status kind="implemented"></status></dd>
   <dt>“Something went wrong on this page.”</dt>
   <dd>Your journal is safe. Reload the page. The page offers the technical details to copy if you want to report it.</dd>
 </dl>

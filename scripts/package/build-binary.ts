@@ -12,7 +12,7 @@ import { pack, readFolder } from './archive';
  *
  * The result is Node itself with the app inside it (Node's single executable support). The
  * native SQLite module cannot be cross-compiled, so each platform is built on its own system;
- * `.github/workflows/release.yml` does that for Windows and Linux. See decision 0006.
+ * `.github/workflows/release.yml` does that for Windows and Linux.
  */
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const work = path.join(root, 'build', 'package');
@@ -49,7 +49,7 @@ function stageApp(): string {
   const stage = path.join(work, 'app');
   fs.rmSync(work, { recursive: true, force: true });
   fs.mkdirSync(stage, { recursive: true });
-  for (const folder of ['dist', 'drizzle']) {
+  for (const folder of ['dist/server', 'dist/web', 'drizzle']) {
     fs.cpSync(path.join(root, folder), path.join(stage, folder), { recursive: true });
   }
   for (const file of ['package.json', 'package-lock.json']) {
@@ -61,9 +61,9 @@ function stageApp(): string {
 
 async function main(): Promise<void> {
   const [major = 0, minor = 0] = process.versions.node.split('.').map(Number);
-  if (major < 22 || (major === 22 && minor < 12)) {
+  if (major < 22 || (major === 22 && minor < 14)) {
     throw new Error(
-      `Build with Node 22.12 or newer (this is ${process.versions.node}): the program loads the app with require().`,
+      `Build with Node 22.14 or newer (this is ${process.versions.node}): the program embeds the Node that builds it, and the SQLite module needs Node-API 10.`,
     );
   }
   for (const needed of ['dist/server/index.js', 'dist/web/index.html', 'drizzle']) {

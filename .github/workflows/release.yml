@@ -1,9 +1,14 @@
 name: Release
 
-# Pushing a tag such as v0.2.0 checks the code, builds the standalone Windows and Linux programs
-# (each on its own system: the SQLite module is native and cannot be cross-compiled), tests each
-# program by starting it, attaches them to a draft release and, once all of that has passed,
-# publishes the release and the npm package. See decision 0006.
+# Pushing a tag such as v0.2.0 (or v0.2.0-beta.1) checks the code, builds the standalone Windows and
+# Linux programs (each on its own system: the SQLite module is native and cannot be cross-compiled),
+# tests each program by starting it, attaches them to a draft release and, once all of that has
+# passed, publishes the release and the npm package. A tag with a "-" in it is a prerelease: the
+# GitHub release is marked as one and the npm package goes under the dist-tag named by the part
+# after the "-" (beta for 0.1.0-beta.1), never under "latest".
+#
+# Before the first publish, see "Releasing to npm" in CONTRIBUTING.md: the npm account and package
+# name, the NPM_TOKEN secret and the PUBLISH_TO_NPM variable.
 
 on:
   push:
@@ -42,6 +47,8 @@ jobs:
       - run: npm run build
       - run: npm run build:standalone
       - run: npm run check:network
+      - name: The npm package builds, installs and runs
+        run: npm run package:npm-smoke
 
   draft:
     name: Draft the release
@@ -55,7 +62,10 @@ jobs:
       GH_REPO: ${{ github.repository }}
     steps:
       - name: Create a draft release
-        run: gh release create "$TAG" --draft --verify-tag --title "Mossnote $TAG" --generate-notes
+        run: |
+          prerelease=""
+          case "$TAG" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$TAG" --draft --verify-tag $prerelease --title "Mossnote $TAG" --generate-notes
 
   binaries:
     name: Program for ${{ matrix.target }}
@@ -119,8 +129,24 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      # `prepack` builds dist before the package is made.
-      - run: npm publish --provenance --access public
+      - name: Make the tarball
+        run: |
+          mkdir -p "$RUNNER_TEMP/pack"
+          npm pack --pack-destination "$RUNNER_TEMP/pack"
+      - name: Install it in an empty project and run it
+        run: npm run package:npm-smoke -- --tarball "$RUNNER_TEMP/pack"
+      - name: Publish it
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          # 0.1.0-beta.1 goes under "beta"; only a version with no "-" may be "latest".
+          case "$version" in
+            *-*) pre="${version#*-}"; dist_tag="${pre%%.*}" ;;
+            *) dist_tag="latest" ;;
+          esac
+          # A tag cannot look like a version number.
+          case "$dist_tag" in ''|[0-9]*) dist_tag="next" ;; esac
+          echo "Publishing $version under the dist-tag $dist_tag"
+          npm publish "$RUNNER_TEMP"/pack/*.tgz --provenance --access public --tag "$dist_tag"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -74,6 +74,12 @@ export async function smoke(program: string): Promise<void> {
     // The first start unpacks the app, which takes a few seconds.
     await waitFor(`${url}/api/health`, 120_000);
 
+    const health = (await (await fetch(`${url}/api/health`)).json()) as { version?: string };
+    assert(
+      health.version === version.stdout.trim(),
+      `the API reports the version the program prints (${String(health.version)} and ${version.stdout.trim()})`,
+    );
+
     const page = await fetch(url);
     assert(page.ok && (await page.text()).includes('id="root"'), 'the app page is served');
 

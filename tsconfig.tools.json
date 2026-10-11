@@ -4,9 +4,11 @@
     "lib": ["ES2023", "DOM"],
     "types": ["node"],
     "allowImportingTsExtensions": true,
-    "outDir": "./.tsbuild/tools"
+    "outDir": "./.tsbuild/tools",
+    "allowJs": true
   },
   "include": [
+    "bin/options.js",
     "scripts",
     "tests",
     "vite.config.ts",
@@ -16,5 +18,12 @@
     "drizzle.config.ts",
     "tsup.config.ts"
   ],
-  "references": [{ "path": "./tsconfig.shared.json" }, { "path": "./tsconfig.server.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.shared.json"
+    },
+    {
+      "path": "./tsconfig.server.json"
+    }
+  ]
 }

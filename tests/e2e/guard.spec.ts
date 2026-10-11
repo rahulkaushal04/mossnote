@@ -161,9 +161,8 @@ test.describe('startup failures', () => {
       MOSS_PORT: String(server.port + 1),
     });
     expect(result.code).toBe(1);
-    expect(result.stderr).toMatch(
-      /Mossnote is already running \(PID \d+\) at http:\/\/127\.0\.0\.1:\d+\./,
-    );
+    expect(result.stderr).toMatch(/Mossnote is already running \(PID \d+\) with this journal\./);
+    expect(result.stderr).not.toMatch(/ at http:/);
   });
 
   test('a port that is in use names the port and MOSS_PORT', async ({ server }) => {

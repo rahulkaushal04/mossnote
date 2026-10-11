@@ -65,9 +65,17 @@ function defaultDataDir(env: NodeJS.ProcessEnv): string {
 
 /**
  * Read once at startup. The only place in the server that reads the environment
- * (the `env` argument defaults to `process.env`).
+ * (the `env` argument defaults to `process.env`). `version` is the app's own version, which the
+ * entry point reads from `package.json`; the environment never decides it.
+ *
+ * A variable that is set but empty counts as not set. Otherwise `MOSS_DATA_DIR=` would resolve to
+ * the current folder and journals would be written wherever the command happened to run.
  */
-export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+export function loadConfig(rawEnv: NodeJS.ProcessEnv = process.env, version = 'unknown'): Config {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(rawEnv)) {
+    if (value !== undefined && value.trim() !== '') env[name] = value;
+  }
   const allowRemote = env.MOSS_ALLOW_REMOTE === '1';
   const host = env.MOSS_HOST ?? '127.0.0.1';
   if (!isLoopbackHost(host) && !allowRemote) {
@@ -120,6 +128,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     allowRemote,
     lan,
     dev: env.NODE_ENV === 'development',
-    version: env.npm_package_version ?? '0.1.0',
+    version,
   };
 }

@@ -155,17 +155,38 @@ describe('openJournal', () => {
 });
 
 describe('describeStartupError', () => {
-  it('prints the lock message with the PID and URL', () => {
-    expect(describeStartupError(new AlreadyRunningError(4321), config)).toEqual([
-      'Mossnote is already running (PID 4321) at http://127.0.0.1:4317.',
-    ]);
+  it('prints the lock message with the PID, and does not claim an address it cannot know', () => {
+    const lines = describeStartupError(new AlreadyRunningError(4321), config);
+    expect(lines[0]).toBe('Mossnote is already running (PID 4321) with this journal.');
+    expect(lines.join('\n')).not.toContain('at http://');
   });
 
-  it('prints the port and the variable to change when the port is in use', () => {
+  it('prints the port and both ways to change it when the port is in use', () => {
     const error = Object.assign(new Error('listen EADDRINUSE'), { code: 'EADDRINUSE' });
-    const [line] = describeStartupError(error, config);
-    expect(line).toContain('4317');
-    expect(line).toContain('MOSS_PORT');
+    const text = describeStartupError(error, config).join('\n');
+    expect(text).toContain('Port 4317 is already in use.');
+    expect(text).toContain('--port');
+    expect(text).toContain('MOSS_PORT');
+  });
+
+  it.each([
+    ['EACCES', 'permission denied'],
+    ['ENOTDIR', 'a file is in the way'],
+    ['EROFS', 'read-only'],
+    ['ENOSPC', 'disk is full'],
+  ])('names the data folder and how to choose another when it fails with %s', (code, reason) => {
+    const error = Object.assign(new Error(`${code}: raw system message`), { code });
+    const text = describeStartupError(error, config).join('\n');
+    expect(text).toContain(config.dataDir);
+    expect(text).toContain(reason);
+    expect(text).toContain('--data-dir');
+    expect(text).not.toContain('raw system message');
+  });
+
+  it('passes any other failure through with its own message', () => {
+    expect(describeStartupError(new Error('something odd'), config)).toEqual([
+      'Mossnote could not start: something odd',
+    ]);
   });
 
   it('prints the newer-version message', () => {

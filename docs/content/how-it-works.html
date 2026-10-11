@@ -6,7 +6,7 @@ description: A codebase overview for the curious and for contributors, covering 
 <p>This page is an overview of how Mossnote is built, based on the source in the repository. It is not needed to use the app. For contributing, the repository's <code>CONTRIBUTING.md</code> is the authority.</p>
 
 <h2 id="shape">The shape of it</h2>
-<p>Mossnote is a single npm package (<code>mossnote</code>, version 0.1.0, Node 22.12 to 24) written in TypeScript. The same app and the same services run in two places:</p>
+<p>Mossnote is a single npm package (<code>mossnote</code>, Node 22.14 or newer) written in TypeScript. The same app and the same services run in two places:</p>
 <ul>
   <li><strong>The computer version:</strong> a small <strong>Hono</strong> web server bound to the loopback address, a <strong>SQLite</strong> database per journal, and the React app served from the same process.</li>
   <li><strong>The web version:</strong> the same server code compiled into a <strong>web worker</strong> in the browser, using SQLite compiled to WebAssembly, with the React app talking to it as if it were a server.</li>
@@ -67,7 +67,7 @@ description: A codebase overview for the curious and for contributors, covering 
 </ul>
 
 <h2 id="quality">Tests and checks</h2>
-<p><code>npm run check</code> runs lint, type checking and the unit, integration and component tests (Vitest). Further: <code>npm run test:wasm</code> runs the server's tests on SQLite WebAssembly; <code>npm run test:e2e</code> builds and runs Playwright end-to-end tests against the real server and the web version; <code>npm run check:network</code> looks for outbound URLs; <code>npm run verify:pages</code> builds the web version for a GitHub project site and tests it the way Pages serves it. CI runs these on Node 22 and 24, plus WebKit tests on macOS.</p>
+<p><code>npm run check</code> runs lint, type checking and the unit, integration and component tests (Vitest). Further: <code>npm run test:wasm</code> runs the server's tests on SQLite WebAssembly; <code>npm run test:e2e</code> builds and runs Playwright end-to-end tests against the real server and the web version; <code>npm run check:network</code> looks for outbound URLs; <code>npm run verify:pages</code> builds the web version for a GitHub project site and tests it the way Pages serves it. CI runs these on Node 22, 24 and 26, installs and runs the finished npm package on Windows, macOS and Linux (<code>npm run package:npm-smoke</code>), and runs WebKit tests on macOS.</p>
 
 <h2 id="hosting">Deployment and these docs</h2>
 <p>The <em>Web version</em> workflow (<code>.github/workflows/pages.yml</code>) runs on every push to <code>main</code> and can be started by hand from the Actions tab. It runs the tests, builds the web version with <code>MOSS_BASE=/&lt;repository&gt;/</code>, runs the outbound-URL check, then <strong>builds the documentation into the same folder</strong> and checks the finished site: every address stays under the base path, <code>404.html</code> is the app, and the offline file list matches the build. A browser test then opens the site through a small server that answers like GitHub Pages and uploads <code>dist/standalone</code> only if all of that passed. So:</p>

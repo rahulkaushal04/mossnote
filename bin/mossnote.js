@@ -4,53 +4,33 @@
 // anything has been compiled, and must say something useful on an unsupported Node.
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { MIN_NODE, helpText, nodeIsSupported, parseArgs, UsageError } from './options.js';
 
 const root = new URL('../', import.meta.url);
 const pkg = JSON.parse(fs.readFileSync(new URL('package.json', root), 'utf8'));
 
-const HELP = `Mossnote ${pkg.version}
-A private journal for the games you play. It runs on this computer only.
+let options;
+try {
+  options = parseArgs(process.argv.slice(2));
+} catch (error) {
+  if (!(error instanceof UsageError)) throw error;
+  process.stderr.write(`${error.message}\n`);
+  process.exit(1);
+}
 
-Usage: mossnote [options]
-
-Options:
-  --port <number>      Port to listen on (default 4317; MOSS_PORT)
-  --data-dir <folder>  Where journals are kept (MOSS_DATA_DIR)
-  --journal <name>     Open this journal's file name at start (MOSS_JOURNAL)
-  --no-open            Do not open the browser (MOSS_OPEN_BROWSER=0)
-  --lan                Let paired phones and tablets on your network use it (MOSS_LAN=1)
-  --version, -v        Print the version
-  --help, -h           Print this help
-
-Your journals live in your user folder, never beside the program, so installing,
-upgrading or reinstalling Mossnote never touches them. See the README for the paths.`;
-
-const args = process.argv.slice(2);
-const take = (flag) => {
-  const at = args.indexOf(flag);
-  if (at === -1) return undefined;
-  const value = args[at + 1];
-  if (value === undefined || value.startsWith('--')) {
-    process.stderr.write(`${flag} needs a value. Run mossnote --help.\n`);
-    process.exit(1);
-  }
-  return value;
-};
-
-if (args.includes('--version') || args.includes('-v')) {
+if (options.help) {
+  process.stdout.write(`${helpText(pkg.version)}\n`);
+  process.exit(0);
+}
+if (options.version) {
   process.stdout.write(`${pkg.version}\n`);
   process.exit(0);
 }
-if (args.includes('--help') || args.includes('-h')) {
-  process.stdout.write(`${HELP}\n`);
-  process.exit(0);
-}
 
-const [major = 0, minor = 0] = process.versions.node.split('.').map(Number);
-if (major < 22 || (major === 22 && minor < 12)) {
+if (!nodeIsSupported(process.versions.node)) {
   process.stderr.write(
-    `Mossnote needs Node 22.12 or newer. This is Node ${process.versions.node}.\n` +
-      'Get a newer Node from nodejs.org, or use the Mossnote download that includes its own.\n',
+    `Mossnote needs Node ${MIN_NODE.major}.${MIN_NODE.minor} or newer. This is Node ${process.versions.node}.\n` +
+      'Get a newer Node from https://nodejs.org.\n',
   );
   process.exit(1);
 }
@@ -63,15 +43,9 @@ if (!fs.existsSync(server)) {
   process.exit(1);
 }
 
-process.env.NODE_ENV ??= 'production';
-process.env.npm_package_version = pkg.version;
-const port = take('--port');
-if (port !== undefined) process.env.MOSS_PORT = port;
-const dataDir = take('--data-dir');
-if (dataDir !== undefined) process.env.MOSS_DATA_DIR = dataDir;
-const journal = take('--journal');
-if (journal !== undefined) process.env.MOSS_JOURNAL = journal;
-if (args.includes('--no-open')) process.env.MOSS_OPEN_BROWSER = '0';
-if (args.includes('--lan')) process.env.MOSS_LAN = '1';
+// An installed copy is never a development build. A NODE_ENV=development left in the shell would
+// otherwise stop the server from serving the app at all.
+process.env.NODE_ENV = 'production';
+Object.assign(process.env, options.env);
 
 await import('../dist/server/index.js');
