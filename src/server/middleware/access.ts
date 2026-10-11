@@ -11,8 +11,11 @@ export const SESSION_COOKIE = 'moss_session';
 /** Where a phone is sent to pair, and the only path it may open without being paired. */
 export const PAIR_PATH = '/pair';
 
+/** The network can reach the app: phone access is on, or the socket has not left the network yet. */
+const onNetwork = (phone: PhoneAccess): boolean => phone.isEnabled() || phone.isOpenToNetwork();
+
 /**
- * Who may use the app while phone access is on.
+ * Who may use the app while the network can reach it.
  *  - This computer is trusted, exactly as when the server only listens on loopback.
  *  - Any other device needs the session cookie that pairing sets. Without it, the API answers
  *    401 and a page request is sent to the pairing page.
@@ -20,7 +23,7 @@ export const PAIR_PATH = '/pair';
  */
 export function access(phone: PhoneAccess): MiddlewareHandler<Env> {
   return async (c, next) => {
-    if (!phone.isEnabled() || phone.isLocalPeer(peerAddress(c))) return next();
+    if (!onNetwork(phone) || phone.isLocalPeer(peerAddress(c))) return next();
 
     const path = new URL(c.req.url).pathname;
     if (path === PAIR_PATH || path.startsWith(`${PAIR_PATH}/`)) return next();
@@ -42,7 +45,7 @@ export function access(phone: PhoneAccess): MiddlewareHandler<Env> {
 export function localOnly(phone: () => PhoneAccess): MiddlewareHandler<Env> {
   return async (c, next) => {
     const access = phone();
-    if (access.isLocalPeer(peerAddress(c)) || !access.isEnabled()) return next();
+    if (access.isLocalPeer(peerAddress(c)) || !onNetwork(access)) return next();
     throw new AppError('forbidden', 'Phone access can only be managed on the computer itself.');
   };
 }

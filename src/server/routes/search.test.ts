@@ -81,6 +81,36 @@ describe('matching', () => {
     expect(await noteBodies('lantern -"quiet corner"')).toEqual([one.id]);
   });
 
+  it('hides notes that contain any one of several excluded words', async () => {
+    await api.note({ body: 'lantern cave' });
+    await api.note({ body: 'lantern river' });
+    await api.note({ body: 'lantern cave river' });
+    const plain = await api.note({ body: 'lantern plain' });
+    expect(await noteBodies('lantern -cave -river')).toEqual([plain.id]);
+  });
+
+  it('hides notes that contain an excluded phrase or an excluded word', async () => {
+    await api.note({ body: 'lantern quiet corner' });
+    await api.note({ body: 'lantern river' });
+    const plain = await api.note({ body: 'lantern plain' });
+    expect(await noteBodies('lantern -"quiet corner" -river')).toEqual([plain.id]);
+  });
+
+  it('finds a tag by its accented name or by the same name without accents', async () => {
+    await api.note({ body: 'a', tags: ['café'] });
+    const titles = async (q: string) => (await run(q)).groups.tags.map((h) => h.title);
+    expect(await titles('café')).toEqual(['café']);
+    expect(await titles('cafe')).toEqual(['café']);
+    expect(await titles('CAFÉ')).toEqual(['café']);
+  });
+
+  it('filters by @person whatever the case or accents typed', async () => {
+    const person = await api.person({ name: 'Élise Example' });
+    const note = await api.note({ body: 'met', links: [{ type: 'person', id: person.id }] });
+    for (const q of ['@Élise', '@élise', '@elise', '@ÉLISE'])
+      expect(await noteBodies(q), q).toEqual([note.id]);
+  });
+
   it('searches titles, resolutions, person names, farm entry names and date words', async () => {
     const person = await api.person({ name: 'Zorbin Example' });
     const entry = await api.planting({ label: 'Quillfruit row' });
@@ -143,6 +173,8 @@ describe('matching', () => {
       '\\',
       '{title}:one',
       'one OR two',
+      '\u0000',
+      'lantern\u0000',
     ]) {
       const res = await t.call('GET', `/api/search?q=${encodeURIComponent(q)}`);
       expect(res.status, q).toBe(200);

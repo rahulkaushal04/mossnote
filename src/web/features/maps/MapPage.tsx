@@ -34,7 +34,7 @@ function NameField({ map }: { map: MapDetail }) {
         (saved) => {
           // The page reads the map from this cache (its title, the next visit), so keep it current.
           client.setQueryData<MapDetail>(queryKeys.map(map.id), (old) =>
-            old ? { ...old, name: saved.name } : old,
+            old ? { ...old, name: saved.name, updatedAt: saved.updatedAt } : old,
           );
           void refreshMaps(client);
         },

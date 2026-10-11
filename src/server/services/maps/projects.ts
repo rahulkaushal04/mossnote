@@ -8,6 +8,7 @@ import { LIMITS } from '@shared/constants';
 import { mapSceneSchema, readScene, type MapScene, type PinProps } from '@shared/schemas/map';
 import type { LinkType, MapDetail } from '@shared/types';
 import { inTx, iso, type Ctx } from '../ctx';
+import { refuseDeleted } from '../records';
 import { insertPinRow } from './pins';
 import { getMap, loadMap, toDetail, type MapRow } from './rows';
 import { snapshotOf } from './versions';
@@ -57,7 +58,10 @@ export function duplicateMap(
     if (input.id) {
       const existing = ctx.sqlite.prepare('SELECT * FROM maps WHERE id = ?').get(input.id) as
         MapRow | undefined;
-      if (existing) return toDetail(ctx, existing);
+      if (existing) {
+        refuseDeleted(existing, 'map');
+        return toDetail(ctx, existing);
+      }
     }
     const snapshot = snapshotOf(ctx, source);
     const id = input.id ?? ctx.newId();

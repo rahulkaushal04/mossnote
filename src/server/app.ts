@@ -68,6 +68,7 @@ export interface AppDeps {
 }
 
 const IMPORT_PATH = '/api/data/import';
+const MAP_BODY_PATH = /^\/api\/maps\/(?:import|[^/]+\/changes)$/;
 
 /** Build the Hono app. It never listens: `index.ts` does that, and tests call `app.request()`. */
 export function createApp(deps: AppDeps) {
@@ -83,6 +84,7 @@ export function createApp(deps: AppDeps) {
     });
   const smallLimit = limit(LIMITS.requestBodyBytes) as MiddlewareHandler<Env>;
   const importLimit = limit(LIMITS.importBodyBytes) as MiddlewareHandler<Env>;
+  const mapLimit = limit(LIMITS.mapBodyBytes) as MiddlewareHandler<Env>;
   const ctx = createCtx(deps);
   deps.journals?.bind(ctx);
   const api = new Hono<Env>()
@@ -117,9 +119,15 @@ export function createApp(deps: AppDeps) {
           }),
     )
     .use('*', phone ? access(phone) : passThrough)
-    // Request bodies are limited to 1 MB, except the import upload (50 MB).
+    // Request bodies are limited to 1 MB, except the import upload (50 MB) and a map's drawing (12 MB).
     .use('/api/*', (c, next) => {
-      const handler = new URL(c.req.url).pathname === IMPORT_PATH ? importLimit : smallLimit;
+      const { pathname } = new URL(c.req.url);
+      const handler =
+        pathname === IMPORT_PATH
+          ? importLimit
+          : MAP_BODY_PATH.test(pathname)
+            ? mapLimit
+            : smallLimit;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- Hono types the path-scoped context's input as any
       return handler(c, next);
     })

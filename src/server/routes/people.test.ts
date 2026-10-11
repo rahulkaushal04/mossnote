@@ -35,6 +35,16 @@ describe('create', () => {
     expect((await list()).items.map((p) => p.id)).toEqual([person.id]);
   });
 
+  it('refuses a create whose id belongs to a deleted person', async () => {
+    const id = newId();
+    await api.person({ id, name: 'Gone' });
+    await t.call('DELETE', `/api/people/${id}`);
+
+    const res = await t.call('POST', '/api/people', { id, name: 'Again' });
+
+    expect((await api.error(res, 409)).code).toBe('conflict');
+  });
+
   it('is idempotent by id', async () => {
     const id = newId();
     await api.person({ id, name: 'Once' });
@@ -233,6 +243,14 @@ describe('list', () => {
     api.tick();
     await patch(b.id, { notes: 'touched' });
     expect((await list('?sort=updated')).items.map((p) => p.id)).toEqual([b.id, c.id, a.id]);
+  });
+
+  it('sorts names that start with an accent among the letters they look like', async () => {
+    await api.person({ name: 'Zed' });
+    await api.person({ name: 'Élise' });
+    await api.person({ name: 'Bob' });
+    await api.person({ name: 'Ánna' });
+    expect((await list()).items.map((p) => p.name)).toEqual(['Ánna', 'Bob', 'Élise', 'Zed']);
   });
 
   it('filters by tag and pages with a cursor', async () => {

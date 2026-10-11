@@ -38,6 +38,16 @@ describe('create', () => {
     });
   });
 
+  it('refuses a create whose id belongs to a deleted entry', async () => {
+    const id = newId();
+    await api.planting({ id, label: 'Gone' });
+    await t.call('DELETE', `/api/plantings/${id}`);
+
+    const res = await t.call('POST', '/api/plantings', { id, label: 'Again' });
+
+    expect((await api.error(res, 409)).code).toBe('conflict');
+  });
+
   it('is idempotent by id and allows duplicate names', async () => {
     const id = newId();
     await api.planting({ id, label: 'Once' });

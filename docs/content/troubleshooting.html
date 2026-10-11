@@ -24,7 +24,7 @@ description: Messages you may see, what they mean, and how to fix common problem
   <dt>Windows says “Windows protected your PC” when I start the program</dt>
   <dd>The program is not code-signed yet, and SmartScreen warns about programs it has not seen much. That is not a verdict that the file is harmful. Check the file against its <code>.sha256</code> file (<code>(Get-FileHash .\mossnote-v&lt;version&gt;-win-x64.exe).Hash</code> in PowerShell), then choose <strong>More info</strong> and <strong>Run anyway</strong>. If an antivirus program removed the file, restore it, or use the Node or Python route.</dd>
   <dt>A second copy will not start</dt>
-  <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start and says "already running". Close the first one (look for a program window or a terminal that is still running it).</dd>
+  <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start and says "already running". Close the first one (look for a program window or a terminal that is still running it). If nothing is running, a crash left a lock file behind: the message names it (for example <code>journal.lock</code> in your data folder). Delete that file and start again. A lock left from before the computer was last started is ignored on its own.</dd>
   <dt>Port 4317 is busy</dt>
   <dd>Another program is using the port. Mossnote says so and exits, and the message names the option: start on another port with <code>mossnote --port 4400</code>. <status kind="implemented"></status></dd>
   <dt>“Something went wrong on this page.”</dt>
@@ -40,7 +40,7 @@ description: Messages you may see, what they mean, and how to fix common problem
   <dt>“You switched journals in another window. Reload to keep working here.”</dt>
   <dd>You (or another device) switched journals elsewhere. Choose <strong>Reload</strong> so this window does not write into the wrong one.</dd>
   <dt>I made a journal with the wrong template</dt>
-  <dd>A journal keeps its template. Make a new journal with the right one, then export the old one and import the file into it: notes, people and maps come across. A template's calendar comes from the journal, so check <a href="~/settings/#calendar">Settings → Calendar</a> afterwards. <status kind="unverified"></status> We did not test importing across templates.</dd>
+  <dd>A journal keeps its template. An import takes the template and the calendar from the file, so importing into a new journal turns it into a copy of the old one, wrong template included. To move your notes into a different template, make a new journal and copy what you need by hand, or export it as Markdown to keep a readable copy. <status kind="implemented"></status></dd>
 </dl>
 
 <h2 id="writing">Writing and saving</h2>
@@ -74,7 +74,6 @@ description: Messages you may see, what they mean, and how to fix common problem
 <h2 id="keys">Keyboard shortcuts do not work</h2>
 <ul>
   <li>Single-key shortcuts need the cursor <strong>outside</strong> a text box. Today focuses the note box when it opens, so press <kbd>Esc</kbd> first.</li>
-  <li><kbd>⌘</kbd><kbd>K</kbd> is ignored while the cursor is in a text box; press <kbd>Esc</kbd> or use the Search field.</li>
   <li>They are off while a dialog or menu is open, with <kbd>⌘</kbd>, <kbd>Ctrl</kbd> or <kbd>Alt</kbd> held, and when <em>Single-key shortcuts</em> is unticked in Settings.</li>
   <li><kbd>g</kbd> and <kbd>d</kbd> are two-key sequences: press the second key within a second.</li>
 </ul>

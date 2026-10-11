@@ -18,6 +18,8 @@ export const LIMITS = {
   linksPerNote: 50,
   mapName: 80,
   mapShapes: 3_000,
+  /** Serialised scene size, in characters; the database refuses more. */
+  mapSceneChars: 900_000,
   mapLayers: 30,
   mapGuides: 50,
   shapeNote: 500,
@@ -43,6 +45,8 @@ export const LIMITS = {
   yearMax: 99_999,
   searchQuery: 200,
   requestBodyBytes: 1_048_576,
+  /** A map's drawing may be 3 bytes a character, and a map holds up to 500 markers with long notes. */
+  mapBodyBytes: 12_582_912,
   importBodyBytes: 52_428_800,
 } as const;
 

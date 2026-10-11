@@ -39,7 +39,7 @@ export function EditableNote({
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const container = useRef<HTMLDivElement>(null);
   const area = useRef<HTMLTextAreaElement | null>(null);
-  const saving = useRef(false);
+  const queue = useRef<Promise<boolean>>(Promise.resolve(true));
 
   const showSaved = () => {
     setSaved(true);
@@ -49,24 +49,20 @@ export function EditableNote({
     }, 2000);
   };
 
-  /** Save what changed. `overwrite` re-sends after a conflict, trusting the newer updatedAt. */
-  const save = async (overwrite?: Note) => {
-    clearTimeout(timer.current);
-    timer.current = undefined;
-    if (conflict && !overwrite) return;
+  /** Sends what changed. Resolves true when the stored note matches the draft. Never rejects. */
+  const persist = async (overwrite?: Note): Promise<boolean> => {
     const current = overwrite ?? base.current;
     const d = latest.current;
     if (!hasContent(d)) {
-      // Emptying a note reverts it: the stored note is unchanged.
+      // emptying a note reverts it: the stored note is unchanged
       setDraft(noteToDraft(base.current));
       latest.current = noteToDraft(base.current);
       setEmpty(true);
-      return;
+      return true;
     }
     setEmpty(false);
     const patch = diffDraft(current, d);
-    if (!patch || saving.current) return;
-    saving.current = true;
+    if (!patch) return true;
     try {
       const result = await update.mutateAsync({
         id: note.id,
@@ -76,6 +72,7 @@ export function EditableNote({
       setConflict(null);
       setError(null);
       showSaved();
+      return true;
     } catch (e) {
       if (e instanceof ApiError && e.code === 'conflict') {
         const currentNote = e.details?.current as Note | undefined;
@@ -85,9 +82,21 @@ export function EditableNote({
       } else {
         setError("Couldn't save that change. Your edit is still here.");
       }
-    } finally {
-      saving.current = false;
+      return false;
     }
+  };
+
+  /**
+   * Saves one request at a time, each reading the latest draft when its turn comes, so text typed
+   * during a running save goes out right after it. `overwrite` re-sends after a conflict.
+   */
+  const save = (overwrite?: Note): Promise<boolean> => {
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    if (conflict && !overwrite) return Promise.resolve(false);
+    const run = queue.current.then(() => persist(overwrite));
+    queue.current = run;
+    return run;
   };
 
   const change = (next: NoteDraft) => {
@@ -106,8 +115,7 @@ export function EditableNote({
   };
 
   const finish = async () => {
-    await save();
-    onDone();
+    if (await save()) onDone();
   };
 
   // Save when focus leaves the editor, and on the way out.
@@ -192,7 +200,10 @@ export function EditableNote({
 
       {error ? (
         <p role="alert" className="text-sm text-danger">
-          {error}
+          {error}{' '}
+          <button type="button" className="tap underline" onClick={onDone}>
+            Discard changes
+          </button>
         </p>
       ) : null}
 

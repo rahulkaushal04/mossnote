@@ -10,6 +10,7 @@ import {
   type RefObject,
 } from 'react';
 import { ulid } from 'ulid';
+import { useToast } from '../../components/ui/Toast';
 import { ArrowUpRightIcon, HashIcon, SparkIcon, TitleIcon } from '../../components/ui/icons';
 import { api } from '../../lib/api';
 import { caretPosition } from '../../lib/caret';
@@ -68,6 +69,11 @@ export function CaptureEditor({
   const searchRef = useRef<HTMLInputElement>(null);
   const listId = useId();
   const picker = usePicker(value);
+  const toast = useToast();
+  const latest = useRef(value);
+  useEffect(() => {
+    latest.current = value;
+  });
   const [dateOpen, setDateOpen] = useState(false);
   const [anchor, setAnchor] = useState({ top: 0, left: 0 });
   const [busy, setBusy] = useState(false);
@@ -135,9 +141,23 @@ export function CaptureEditor({
     const open = picker.open;
     if (!open || busy) return;
     const trigger = toTrigger(open);
-    const el = area.current;
-    let next = value;
-    let caret = el?.selectionStart ?? value.body.length;
+    const action = row.action;
+    let created: { id: string; name: string } | null = null;
+    if (action.type === 'createPerson') {
+      setBusy(true);
+      try {
+        const person = await api.createPerson({ id: ulid(), name: action.name });
+        created = { id: person.id, name: person.name };
+      } catch {
+        toast.show({ message: "Couldn't add that person.", tone: 'alert' });
+        return;
+      } finally {
+        setBusy(false);
+      }
+    }
+    // read after the request: whatever was typed while it ran must survive
+    let next = latest.current;
+    let caret = area.current?.selectionStart ?? next.body.length;
 
     const replace = (replacement: string) => {
       if (trigger) {
@@ -150,23 +170,12 @@ export function CaptureEditor({
       }
     };
 
-    const action = row.action;
     if (action.type === 'tag') {
       replace('');
       next = withTag(next, action.name);
     } else if (action.type === 'person' || action.type === 'createPerson') {
-      let person = action.type === 'person' ? { id: action.id, name: action.name } : null;
-      if (action.type === 'createPerson') {
-        setBusy(true);
-        try {
-          const created = await api.createPerson({ id: ulid(), name: action.name });
-          person = { id: created.id, name: created.name };
-        } catch {
-          setBusy(false);
-          return;
-        }
-        setBusy(false);
-      }
+      const person =
+        created ?? (action.type === 'person' ? { id: action.id, name: action.name } : null);
       if (person) {
         replace(person.name);
         next = withLink(next, { type: 'person', id: person.id, label: person.name });

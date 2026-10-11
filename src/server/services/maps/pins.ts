@@ -6,7 +6,7 @@
  * so exactly one (or none) is set; `resolveTargetColumns` keeps that true.
  */
 import { LIMITS } from '@shared/constants';
-import type { PinCreate, PinPatch } from '@shared/schemas/map';
+import { MAX_PINS_MESSAGE, type PinCreate, type PinPatch } from '@shared/schemas/map';
 import type { LinkType, MapPin } from '@shared/types';
 import { validationFailed } from '../../errors';
 import { inTx, type Ctx } from '../ctx';
@@ -26,8 +26,6 @@ export interface TargetColumns {
 }
 
 const NO_TARGET: TargetColumns = { noteId: null, personId: null, plantingId: null };
-
-const MAX_PINS_MESSAGE = 'A map can hold up to 500 pins.';
 
 /**
  * Work out the link columns for a write.

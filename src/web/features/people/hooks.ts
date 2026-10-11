@@ -58,6 +58,22 @@ export function useUpdatePerson() {
   });
 }
 
+/** Saves one change to a person that nothing else waits on, and says so when it could not be saved. */
+export function useSavePerson(id: string) {
+  const update = useUpdatePerson();
+  const toast = useToast();
+  return (patch: PersonPatch): void => {
+    update.mutate(
+      { id, patch },
+      {
+        onError: () => {
+          toast.show({ message: "Couldn't save that change.", tone: 'alert' });
+        },
+      },
+    );
+  };
+}
+
 export function useDeletePerson() {
   const client = useQueryClient();
   const toast = useToast();

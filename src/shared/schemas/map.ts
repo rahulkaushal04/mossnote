@@ -136,11 +136,14 @@ export const mapLayerSchema = z
   })
   .strict();
 
+export const SCENE_TOO_LARGE = 'This map has too many drawings.';
+export const MAX_PINS_MESSAGE = `A map can hold up to ${LIMITS.pinsPerMap} pins.`;
+
 export const mapSceneSchema = z
   .object({
     v: z.literal(2),
     layers: z.array(mapLayerSchema).min(1).max(LIMITS.mapLayers),
-    shapes: z.array(mapShapeSchema).max(LIMITS.mapShapes, 'This map has too many drawings.'),
+    shapes: z.array(mapShapeSchema).max(LIMITS.mapShapes, SCENE_TOO_LARGE),
     guides: z
       .array(z.object({ axis: z.enum(['x', 'y']), pos: coord }).strict())
       .max(LIMITS.mapGuides)
@@ -152,6 +155,10 @@ export const mapSceneSchema = z
       .optional(),
   })
   .strict();
+
+/** True when the scene is small enough to be stored (see `LIMITS.mapSceneChars`). */
+export const sceneFits = (scene: MapScene): boolean =>
+  JSON.stringify(scene).length <= LIMITS.mapSceneChars;
 
 export type MapShape = z.infer<typeof mapShapeSchema>;
 export type MapScene = z.infer<typeof mapSceneSchema>;
@@ -318,12 +325,13 @@ export const pinPatchSchema = z
 /** One request that saves the sketch and any pin changes together, so an undo is one write. */
 export const mapChangesSchema = z
   .object({
+    expectedUpdatedAt: isoTimestamp.optional(),
     scene: mapSceneSchema.optional(),
     upsert: z
       .array(pinCreateSchema.extend({ id: ulidSchema }))
-      .max(LIMITS.pinsPerMap)
+      .max(LIMITS.pinsPerMap, MAX_PINS_MESSAGE)
       .optional(),
-    remove: z.array(ulidSchema).max(LIMITS.pinsPerMap).optional(),
+    remove: z.array(ulidSchema).max(LIMITS.pinsPerMap, MAX_PINS_MESSAGE).optional(),
   })
   .strict();
 
@@ -354,7 +362,10 @@ export const mapProjectSchema = z
     formatVersion: z.number().int().min(1).max(1),
     exportedAt: isoTimestamp.optional(),
     name: nameSchema(LIMITS.mapName),
-    scene: z.unknown().transform((raw) => readScene(raw)),
+    scene: z
+      .unknown()
+      .transform((raw) => readScene(raw))
+      .refine(sceneFits, SCENE_TOO_LARGE),
     pins: z
       .array(
         z

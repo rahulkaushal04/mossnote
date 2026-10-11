@@ -243,7 +243,7 @@ function ReplaceButton({ onConfirm }: { onConfirm: () => void }) {
         open={open}
         onOpenChange={setOpen}
         title="Replace your journal?"
-        message="Mossnote saves this journal as a snapshot first, then replaces it with this file. Your other journals stay as they are."
+        message="Mossnote saves this journal as a snapshot first, then replaces it with this file, including its template and calendar. The older versions kept for each map are not in the file and are cleared. Your other journals stay as they are."
         confirmLabel="Replace"
         danger
         onConfirm={onConfirm}

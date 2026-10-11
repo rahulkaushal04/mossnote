@@ -16,7 +16,13 @@ import { ApiError } from '../../lib/api';
 import { useAutosave } from '../../lib/useAutosave';
 import { OnMaps } from '../maps/OnMaps';
 import { NoteEntry } from '../notes/NoteEntry';
-import { useDeletePerson, usePerson, usePersonNotes, useUpdatePerson } from './hooks';
+import {
+  useDeletePerson,
+  usePerson,
+  usePersonNotes,
+  useSavePerson,
+  useUpdatePerson,
+} from './hooks';
 import { ProgressPips } from './ProgressPips';
 import { useTerms } from '../settings/useLayout';
 
@@ -33,7 +39,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 /** Name, edited inline: commits on Enter or when focus leaves. */
 function NameField({ person }: { person: Person }) {
-  const update = useUpdatePerson();
+  const savePerson = useSavePerson(person.id);
   const [name, setName] = useState(person.name);
   const [error, setError] = useState<string | null>(null);
   const commit = () => {
@@ -44,7 +50,7 @@ function NameField({ person }: { person: Person }) {
       return;
     }
     setError(null);
-    if (trimmed !== person.name) update.mutate({ id: person.id, patch: { name: trimmed } });
+    if (trimmed !== person.name) savePerson({ name: trimmed });
   };
   return (
     <div>
@@ -75,7 +81,7 @@ function NameField({ person }: { person: Person }) {
 
 /** "Track progress" asks for a maximum (1 to 99); that is the only configuration. */
 function Progress({ person }: { person: Person }) {
-  const update = useUpdatePerson();
+  const savePerson = useSavePerson(person.id);
   const [max, setMax] = useState('');
   const [asking, setAsking] = useState(false);
   const [clamp, setClamp] = useState<number | null>(null);
@@ -92,7 +98,7 @@ function Progress({ person }: { person: Person }) {
             setError('The maximum can be 1 to 99.');
             return;
           }
-          update.mutate({ id: person.id, patch: { progressMax: n, progress: 0 } });
+          savePerson({ progressMax: n, progress: 0 });
           setAsking(false);
         }}
       >
@@ -142,7 +148,7 @@ function Progress({ person }: { person: Person }) {
         value={value}
         max={newMax}
         onChange={(n) => {
-          update.mutate({ id: person.id, patch: { progress: n } });
+          savePerson({ progress: n });
         }}
       />
       <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -161,7 +167,7 @@ function Progress({ person }: { person: Person }) {
               }
               if (n === newMax) return;
               if (n < value) setClamp(n);
-              else update.mutate({ id: person.id, patch: { progressMax: n } });
+              else savePerson({ progressMax: n });
             }}
             className="field-input w-20"
           />
@@ -170,7 +176,7 @@ function Progress({ person }: { person: Person }) {
           type="button"
           className="tap underline"
           onClick={() => {
-            update.mutate({ id: person.id, patch: { progress: null, progressMax: null } });
+            savePerson({ progress: null, progressMax: null });
           }}
         >
           Stop tracking
@@ -185,8 +191,7 @@ function Progress({ person }: { person: Person }) {
         message={`Progress is ${value}, which is higher than ${clamp ?? 0}. It will be set to ${clamp ?? 0}.`}
         confirmLabel="Lower it"
         onConfirm={() => {
-          if (clamp !== null)
-            update.mutate({ id: person.id, patch: { progressMax: clamp, progress: clamp } });
+          if (clamp !== null) savePerson({ progressMax: clamp, progress: clamp });
         }}
       />
     </div>
@@ -251,6 +256,11 @@ function Fields({ person }: { person: Person }) {
         }}
       />
       <SavedIndicator show={autosave.saved} />
+      {autosave.error ? (
+        <p role="alert" className="text-sm text-danger">
+          {autosave.error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -298,7 +308,7 @@ export function PersonPage() {
   const gone =
     query.error instanceof ApiError && (query.error.status === 404 || query.error.status === 400);
 
-  const update = useUpdatePerson();
+  const savePerson = useSavePerson(id);
 
   return (
     <>
@@ -354,7 +364,7 @@ export function PersonPage() {
               tags={person.tags}
               linkBase="/people"
               onChange={(tags) => {
-                update.mutate({ id: person.id, patch: { tags } });
+                savePerson({ tags });
               }}
             />
           </Section>

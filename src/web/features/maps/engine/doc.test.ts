@@ -15,6 +15,7 @@ import {
   moveToLayer,
   objectsOf,
   pasteClip,
+  roomFor,
   removeLayer,
   removeObjects,
   reorder,
@@ -329,5 +330,25 @@ describe('layers', () => {
   });
   it('addShapes appends', () => {
     expect(addShapes(doc(), [rect('z', 0, 0)]).scene.shapes).toHaveLength(1);
+  });
+});
+
+describe('room for more objects', () => {
+  const full = (shapes: number, pins = 0) =>
+    doc(
+      Array.from({ length: shapes }, (_, i) => rect(`s${i}`, 0, 0)),
+      Array.from({ length: pins }, (_, i) => makePin('M', `p${i}`, 0, 0, 'layer-1')),
+    );
+
+  it('allows adding up to the limits', () => {
+    expect(roomFor(full(2999, 499), { shapes: 1, pins: 1 })).toBeNull();
+  });
+
+  it('says the map has too many drawings when shapes would pass the limit', () => {
+    expect(roomFor(full(2999), { shapes: 2, pins: 0 })).toBe('This map has too many drawings.');
+  });
+
+  it('says a map holds up to 500 pins when markers would pass the limit', () => {
+    expect(roomFor(full(0, 499), { shapes: 0, pins: 2 })).toBe('A map can hold up to 500 pins.');
   });
 });

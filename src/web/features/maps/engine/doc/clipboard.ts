@@ -1,5 +1,11 @@
 /** Copy, paste and duplicate, and creating pins. */
-import type { MapShape, PinProps } from '@shared/schemas/map';
+import { LIMITS } from '@shared/constants';
+import {
+  MAX_PINS_MESSAGE,
+  SCENE_TOO_LARGE,
+  type MapShape,
+  type PinProps,
+} from '@shared/schemas/map';
 import type { MapPin } from '@shared/types';
 import { applyXform, clean, translateXform } from '../shapes';
 import { round1, type Pt } from '../vec';
@@ -8,6 +14,13 @@ import { groupId, shapeId, type Doc } from './model';
 export interface Clip {
   shapes: MapShape[];
   pins: MapPin[];
+}
+
+/** Why `adding` would not fit in the map, or null when it does. The server refuses a map over these limits. */
+export function roomFor(doc: Doc, adding: { shapes: number; pins: number }): string | null {
+  if (doc.scene.shapes.length + adding.shapes > LIMITS.mapShapes) return SCENE_TOO_LARGE;
+  if (doc.pins.length + adding.pins > LIMITS.pinsPerMap) return MAX_PINS_MESSAGE;
+  return null;
 }
 
 export function copyObjects(doc: Doc, ids: ReadonlySet<string>): Clip {

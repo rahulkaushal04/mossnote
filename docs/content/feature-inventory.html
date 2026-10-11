@@ -105,7 +105,7 @@ description: Every user-facing feature of Mossnote in both templates, with its s
   <tbody>
     <tr><td>First-run template picker; many journals; switch, rename, new</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
     <tr><td>Delete a journal with name confirmation and optional last copy</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran (dialog)</td><td>No undo besides the last copy.</td></tr>
-    <tr><td>Changing a journal's template afterwards</td><td>○</td><td>○</td><td><status kind="limitation"></status></td><td>Code</td><td>Make a new journal and import if needed. <status kind="idea"></status></td></tr>
+    <tr><td>Changing a journal's template afterwards</td><td>○</td><td>○</td><td><status kind="limitation"></status></td><td>Code</td><td>Importing a file also replaces the journal's template and calendar, so it cannot be used to change one. <status kind="idea"></status></td></tr>
     <tr><td>Rename, hide, reorder sections; reset to defaults</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td>Today and Journal cannot be hidden.</td></tr>
     <tr><td>Theme (system/light/dark), reading size, template tint</td><td>moss</td><td>plum</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
     <tr><td>Single-key shortcuts switch; shortcuts list; command palette commands</td><td>●</td><td>●</td><td><status kind="implemented"></status></td><td>Ran</td><td></td></tr>
@@ -133,7 +133,6 @@ description: Every user-facing feature of Mossnote in both templates, with its s
 <p>The project's README lists things it will not do: image attachments, imported map images, tag colours, checklists, completion tracking, cloud sync, accounts, rich text, statistics, AI features and plugins. They are decisions, not a backlog. Beyond that list, we noticed these gaps:</p>
 <ul>
   <li><status kind="idea"></status> A way to change a journal's template after it is made.</li>
-  <li><status kind="idea"></status> <kbd>⌘</kbd><kbd>K</kbd> working while typing in a note, as the shortcut list already promises.</li>
   <li><status kind="idea"></status> The <em>ignored</em> question state that the changelog mentions.</li>
   <li><status kind="idea"></status> A link from inside the app to these documentation pages.</li>
   <li><status kind="idea"></status> A way to create your own template without editing the source.</li>

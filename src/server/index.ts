@@ -9,6 +9,7 @@ import { ALL_INTERFACES, startListener, type Listener } from './listener';
 import { createLogger } from './logger';
 import { serveWeb } from './middleware/static';
 import { createPhoneAccess, readPhonePreference } from './phone';
+import { followPhoneAccess } from './phone/followAccess';
 import { readAppVersion } from './version';
 
 const systemClock = { now: () => Date.now() };
@@ -93,22 +94,7 @@ async function main(): Promise<void> {
     });
   }
 
-  // Switching phone access moves the socket between this computer only and every interface. The
-  // short delay lets the response to the request that asked for it reach the browser first.
-  phone.onChange((phoneAccess) => {
-    setTimeout(() => {
-      listener
-        .rebind(hostFor(phoneAccess))
-        .then(() => {
-          logger.info(phoneAccess ? 'Phone access is on.' : 'Phone access is off.');
-        })
-        .catch((error: unknown) => {
-          logger.error('could not change the address Mossnote listens on', {
-            reason: error instanceof Error ? error.message : String(error),
-          });
-        });
-    }, REBIND_DELAY_MS);
-  });
+  followPhoneAccess({ phone, listener, hostFor, delayMs: REBIND_DELAY_MS, logger });
 
   const shutdown = () => {
     void listener.close();

@@ -18,6 +18,7 @@ import {
   moveObjects,
   objectsOf,
   pasteClip,
+  roomFor,
   removeObjects,
   renameObject,
   reorder,
@@ -83,6 +84,11 @@ export function useEditorActions(deps: ActionDeps): EditorActions {
   const clipOfSelection = () => copyObjects(docRef.current, expandGroups(objs, editableIds));
 
   const pasteAt = (clip: Clip, at: readonly [number, number] | null) => {
+    const full = roomFor(docRef.current, { shapes: clip.shapes.length, pins: clip.pins.length });
+    if (full) {
+      deps.say(full);
+      return;
+    }
     const bounds = selectionBox(
       objectsOf({ scene: { ...docRef.current.scene, shapes: clip.shapes }, pins: clip.pins }),
       [...clip.shapes.map((s) => s.id), ...clip.pins.map((p) => p.id)],
@@ -131,6 +137,11 @@ export function useEditorActions(deps: ActionDeps): EditorActions {
   const addNote = (id: string) => {
     const info = objs.get(id);
     if (!info) return;
+    const full = roomFor(docRef.current, { shapes: 1, pins: 0 });
+    if (full) {
+      deps.say(full);
+      return;
+    }
     const card = makeText(
       [0, 0],
       'Note',

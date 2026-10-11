@@ -6,16 +6,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { MapChanges } from '@shared/schemas/map';
 import type { MapDetail, MapPin } from '@shared/types';
-import { api } from '../../../lib/api';
+import { useToast } from '../../../components/ui/Toast';
+import { api, ApiError } from '../../../lib/api';
 import { queryKeys } from '../../../lib/queryKeys';
 import { refreshMaps } from '../hooks';
 import type { Doc } from './doc';
+import { clearUnsaved, fitsExitRequest, readUnsaved, stashUnsaved } from './unsavedDrawing';
 
 const HISTORY_LIMIT = 100;
 const SAVE_DELAY = 600;
 const COALESCE_MS = 900;
 
-export type SaveState = 'saved' | 'saving' | 'dirty' | 'error';
+export type SaveState = 'saved' | 'saving' | 'dirty' | 'error' | 'conflict';
 
 const pinPayload = (p: MapPin) => ({
   id: p.id,
@@ -40,6 +42,21 @@ export function diffDoc(saved: Doc, now: Doc): MapChanges | null {
   return Object.keys(changes).length > 0 ? changes : null;
 }
 
+const sameDoc = (a: Doc, b: Doc): boolean =>
+  JSON.stringify(a.scene) === JSON.stringify(b.scene) &&
+  JSON.stringify(a.pins.map(pinPayload)) === JSON.stringify(b.pins.map(pinPayload));
+
+/** What a drawing kept from an earlier visit means now: save it again, or ask which copy to keep. */
+function recoverUnsaved(map: MapDetail, server: Doc): { doc: Doc; conflict: boolean } | null {
+  const kept = readUnsaved(map.id);
+  if (!kept) return null;
+  if (sameDoc(kept.doc, server)) {
+    clearUnsaved(map.id);
+    return null;
+  }
+  return { doc: kept.doc, conflict: kept.updatedAt !== map.updatedAt };
+}
+
 /**
  * The map being edited: the document, undo and redo, and saving. Edits are made with `commit` (one
  * undo step), or `live` while dragging with `begin` and `end` around it, so a drag is one step.
@@ -48,8 +65,10 @@ export function diffDoc(saved: Doc, now: Doc): MapChanges | null {
  */
 export function useMapDoc(map: MapDetail) {
   const client = useQueryClient();
+  const toast = useToast();
   const initial = useMemo<Doc>(() => ({ scene: map.scene, pins: map.pins }), [map]);
-  const [doc, setDoc] = useState<Doc>(initial);
+  const [kept] = useState(() => recoverUnsaved(map, initial));
+  const [doc, setDoc] = useState<Doc>(kept?.doc ?? initial);
   const docRef = useRef(doc);
   const saved = useRef<Doc>(initial);
   const past = useRef<Doc[]>([]);
@@ -57,12 +76,33 @@ export function useMapDoc(map: MapDetail) {
   const base = useRef<Doc | null>(null);
   const lastKey = useRef<{ key: string; at: number } | null>(null);
   const [depth, setDepth] = useState({ past: 0, future: 0 });
-  const [state, setState] = useState<SaveState>('saved');
+  const [state, setState] = useState<SaveState>(
+    kept ? (kept.conflict ? 'conflict' : 'dirty') : 'saved',
+  );
   const [error, setError] = useState<string | null>(null);
+  /** The map as another window saved it, while this window waits to be told which copy to keep. */
+  const newer = useRef<MapDetail | null>(kept?.conflict ? map : null);
+  const loadedAt = useRef(map.updatedAt);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const chain = useRef<Promise<void>>(Promise.resolve());
   /** True once this visit has written anything, so leaving refreshes the lists that show it. */
   const wrote = useRef(false);
+
+  /** The cache is shared with the page's other writers (a rename), so it wins over `loadedAt`. */
+  const expectedUpdatedAt = useCallback(
+    () => client.getQueryData<MapDetail>(queryKeys.map(map.id))?.updatedAt ?? loadedAt.current,
+    [client, map.id],
+  );
+
+  const rememberUpdatedAt = useCallback(
+    (updatedAt: string) => {
+      loadedAt.current = updatedAt;
+      client.setQueryData<MapDetail>(queryKeys.map(map.id), (old) =>
+        old ? { ...old, updatedAt } : old,
+      );
+    },
+    [client, map.id],
+  );
 
   const syncDepth = () => {
     setDepth({ past: past.current.length, future: future.current.length });
@@ -72,6 +112,7 @@ export function useMapDoc(map: MapDetail) {
     clearTimeout(timer.current);
     timer.current = undefined;
     chain.current = chain.current.then(async () => {
+      if (newer.current) return;
       const target = docRef.current;
       const changes = diffDoc(saved.current, target);
       if (!changes) {
@@ -80,20 +121,32 @@ export function useMapDoc(map: MapDetail) {
       }
       setState('saving');
       try {
-        await api.saveMapChanges(map.id, changes);
+        const result = await api.saveMapChanges(map.id, {
+          ...changes,
+          expectedUpdatedAt: expectedUpdatedAt(),
+        });
+        rememberUpdatedAt(result.updatedAt);
         saved.current = target;
+        clearUnsaved(map.id);
         wrote.current = true;
         setError(null);
         setState(docRef.current === target ? 'saved' : 'dirty');
       } catch (e) {
+        const theirs = e instanceof ApiError && e.code === 'conflict' ? e.details?.current : null;
+        if (theirs) {
+          newer.current = theirs as MapDetail;
+          setState('conflict');
+          return;
+        }
         setError(e instanceof Error ? e.message : "Couldn't save that change.");
         setState('error');
       }
     });
     return chain.current;
-  }, [map.id]);
+  }, [map.id, expectedUpdatedAt, rememberUpdatedAt]);
 
   const schedule = useCallback(() => {
+    if (newer.current) return;
     setState((s) => (s === 'saving' ? s : 'dirty'));
     clearTimeout(timer.current);
     timer.current = setTimeout(() => void flush(), SAVE_DELAY);
@@ -177,55 +230,109 @@ export function useMapDoc(map: MapDetail) {
   }, [apply]);
 
   /** Load a map from the server (a restored version): history starts again. */
-  const replace = useCallback((detail: MapDetail) => {
-    const next = { scene: detail.scene, pins: detail.pins };
-    clearTimeout(timer.current);
-    saved.current = next;
-    docRef.current = next;
-    past.current = [];
-    future.current = [];
-    setDoc(next);
-    setDepth({ past: 0, future: 0 });
-    setState('saved');
-    setError(null);
+  const replace = useCallback(
+    (detail: MapDetail) => {
+      const next = { scene: detail.scene, pins: detail.pins };
+      clearTimeout(timer.current);
+      newer.current = null;
+      clearUnsaved(map.id);
+      rememberUpdatedAt(detail.updatedAt);
+      saved.current = next;
+      docRef.current = next;
+      past.current = [];
+      future.current = [];
+      setDoc(next);
+      setDepth({ past: 0, future: 0 });
+      setState('saved');
+      setError(null);
+    },
+    [map.id, rememberUpdatedAt],
+  );
+
+  /** Take the other window's copy and drop what this window drew since. */
+  const reloadFromServer = useCallback(() => {
+    if (newer.current) replace(newer.current);
+  }, [replace]);
+
+  /** Save this window's drawing over the other window's copy. */
+  const keepMine = useCallback(async () => {
+    if (!newer.current) return;
+    rememberUpdatedAt(newer.current.updatedAt);
+    newer.current = null;
+    setState('dirty');
+    await flush();
+  }, [flush, rememberUpdatedAt]);
+
+  useEffect(() => {
+    if (!kept || kept.conflict) return;
+    toast.show({ message: 'Brought back the changes you made before leaving this map.' });
+    timer.current = setTimeout(() => void flush(), SAVE_DELAY);
+    // once per visit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Closing or reloading inside the save delay must not lose the last change.
+  // Leaving inside the save delay must not lose the last change.
   useEffect(() => {
-    const onExit = () => {
+    const onUnload = () => {
       const changes = diffDoc(saved.current, docRef.current);
-      if (changes) {
+      if (!changes || newer.current) return;
+      const request = { ...changes, expectedUpdatedAt: expectedUpdatedAt() };
+      if (fitsExitRequest(request)) {
         saved.current = docRef.current;
-        void api.saveMapChangesOnExit(map.id, changes);
+        void api.saveMapChangesOnExit(map.id, request);
+      } else {
+        stashUnsaved(map.id, request.expectedUpdatedAt, docRef.current);
       }
     };
     const onHide = () => {
-      if (document.visibilityState === 'hidden') onExit();
+      if (document.visibilityState === 'hidden') void flush();
     };
-    window.addEventListener('pagehide', onExit);
+    window.addEventListener('pagehide', onUnload);
     document.addEventListener('visibilitychange', onHide);
     return () => {
-      window.removeEventListener('pagehide', onExit);
+      window.removeEventListener('pagehide', onUnload);
       document.removeEventListener('visibilitychange', onHide);
       // Leaving the editor (navigating inside the app) saves at once.
       const changes = diffDoc(saved.current, docRef.current);
       clearTimeout(timer.current);
+      if (newer.current) {
+        // the unsaved drawing was never accepted, so the next visit loads the server's copy
+        void client.invalidateQueries({ queryKey: queryKeys.map(map.id) });
+        return;
+      }
       // The map is cached for the editor's own use and never refetched, so what was drawn here must
       // be written into the cache, or reopening the map would show the copy fetched before the edits
       // and the next save would overwrite the real drawing with it.
-      const { scene, pins } = docRef.current;
+      const target = docRef.current;
       client.setQueryData<MapDetail>(queryKeys.map(map.id), (old) =>
-        old ? { ...old, scene, pins, pinCount: pins.length } : old,
+        old
+          ? { ...old, scene: target.scene, pins: target.pins, pinCount: target.pins.length }
+          : old,
       );
       if (changes) {
-        saved.current = docRef.current;
-        // The lists (Maps, Places, search) are refreshed once the server has the last change.
-        void api.saveMapChangesOnExit(map.id, changes).then(() => refreshMaps(client));
+        saved.current = target;
+        const expected = expectedUpdatedAt();
+        api.saveMapChanges(map.id, { ...changes, expectedUpdatedAt: expected }).then(
+          (result) => {
+            rememberUpdatedAt(result.updatedAt);
+            clearUnsaved(map.id);
+            return refreshMaps(client);
+          },
+          () => {
+            stashUnsaved(map.id, expected, target);
+            void client.invalidateQueries({ queryKey: queryKeys.map(map.id) });
+            toast.show({
+              message:
+                "Couldn't save your last changes to the map. They come back when you reopen it.",
+              tone: 'alert',
+            });
+          },
+        );
       } else if (wrote.current) {
         void refreshMaps(client);
       }
     };
-  }, [map.id, client]);
+  }, [map.id, client, toast, flush, expectedUpdatedAt, rememberUpdatedAt]);
 
   return {
     doc,
@@ -240,6 +347,8 @@ export function useMapDoc(map: MapDetail) {
     canUndo: depth.past > 0,
     canRedo: depth.future > 0,
     replace,
+    reloadFromServer,
+    keepMine,
     saveNow: flush,
     saveState: state,
     saveError: error,

@@ -1,17 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { acquireLock, AlreadyRunningError } from './lock';
 import { makeTempDir, removeDir } from './testing/helpers';
 
 let dir: string;
 let lockPath: string;
+let other: ChildProcess;
+let otherPid: number;
 beforeEach(() => {
   dir = makeTempDir();
   lockPath = path.join(dir, 'journal.lock');
+  other = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { stdio: 'ignore' });
+  otherPid = other.pid!;
 });
 afterEach(() => {
+  other.kill();
   removeDir(dir);
 });
 
@@ -41,6 +46,31 @@ describe('acquireLock', () => {
     const lock = acquireLock(lockPath);
     expect(fs.readFileSync(lockPath, 'utf8')).toBe(String(process.pid));
     lock.release();
+  });
+
+  it('replaces a lock written before this computer started, even if its pid is in use again', () => {
+    const justBeforeBoot = Date.now() - 3 * 3_600_000;
+    fs.writeFileSync(lockPath, String(otherPid));
+    fs.utimesSync(lockPath, justBeforeBoot / 1000, justBeforeBoot / 1000);
+
+    const lock = acquireLock(lockPath, process.pid, Date.now() - 3_600_000);
+
+    expect(fs.readFileSync(lockPath, 'utf8')).toBe(String(process.pid));
+    lock.release();
+  });
+
+  it('keeps refusing a lock written after this computer started', () => {
+    fs.writeFileSync(lockPath, String(otherPid));
+
+    expect(() => acquireLock(lockPath, process.pid, Date.now() - 3_600_000)).toThrow(
+      AlreadyRunningError,
+    );
+  });
+
+  it('names the lock file in the error', () => {
+    fs.writeFileSync(lockPath, String(otherPid));
+
+    expect(() => acquireLock(lockPath)).toThrow(expect.objectContaining({ lockPath }));
   });
 
   it('replaces an unreadable lock file', () => {

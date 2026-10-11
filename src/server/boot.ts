@@ -166,6 +166,9 @@ export function describeStartupError(error: unknown, config: Config): string[] {
     return [
       `Mossnote is already running (PID ${error.pid}) with this journal.`,
       'Open the address it printed when it started (the default is http://127.0.0.1:4317), or stop it first.',
+      ...(error.lockPath
+        ? [`If no other Mossnote is running, a crash left this behind: delete ${error.lockPath}.`]
+        : []),
     ];
   }
   if (error instanceof NewerJournalError) return [error.message];

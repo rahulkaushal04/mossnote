@@ -61,6 +61,7 @@ export function createPhoneAccess(options: PhoneAccessOptions): PhoneAccess {
   const codes = createPairingCodes({ clock, randomBytes });
   const listeners = new Set<(enabled: boolean) => void>();
   let enabled = options.enabled;
+  let open = options.enabled;
 
   return {
     isEnabled: () => enabled,
@@ -69,6 +70,10 @@ export function createPhoneAccess(options: PhoneAccessOptions): PhoneAccess {
       enabled = next;
       if (dataDir) writePhonePreference(dataDir, next);
       for (const listener of listeners) listener(next);
+    },
+    isOpenToNetwork: () => open,
+    setOpenToNetwork(next) {
+      open = next;
     },
     onChange(listener) {
       listeners.add(listener);

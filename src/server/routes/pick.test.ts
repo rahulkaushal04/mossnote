@@ -54,6 +54,29 @@ describe('tags', () => {
   });
 });
 
+describe('a NUL character in the query', () => {
+  it('is dropped, so the rest of the query still matches', async () => {
+    await api.note({ body: 'lantern' });
+
+    expect(labels(await pick('note', 'lan\u0000tern'))).toEqual(['lantern']);
+  });
+});
+
+describe('names with accents', () => {
+  it('lists a tag whether the accent is typed or not', async () => {
+    await api.note({ body: 'a', tags: ['café'] });
+    expect(labels(await pick('tag', 'café'))).toEqual(['café']);
+    expect(labels(await pick('tag', 'cafe'))).toEqual(['café']);
+    expect(labels(await pick('tag', 'CAF'))).toEqual(['café']);
+  });
+
+  it('lists a person whatever the case or accent typed', async () => {
+    await api.person({ name: 'Élise Example' });
+    for (const q of ['Élise', 'élise', 'ÉLISE', 'elise', 'eli'])
+      expect(labels(await pick('person', q)), q).toEqual(['Élise Example']);
+  });
+});
+
 describe('people', () => {
   it('matches the start of the name first, then anywhere, recently linked first', async () => {
     const sam = await api.person({ name: 'Sam Example' });

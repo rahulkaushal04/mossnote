@@ -20,6 +20,19 @@ test.describe('Today', () => {
 });
 
 test.describe('search palette', () => {
+  test('⌘/Ctrl+K opens it even while typing in the note box', async ({ page, seed }) => {
+    await seed.reset('default');
+    await page.goto('/');
+    await page.getByRole('combobox', { name: 'Note' }).click();
+    await page.keyboard.type('half a thought');
+
+    await page.keyboard.press('ControlOrMeta+k');
+
+    await expect(page.getByRole('dialog', { name: 'Search and commands' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('combobox', { name: 'Note' })).toHaveValue('half a thought');
+  });
+
   test('opens from the sidebar field, narrows by scope and shows key hints', async ({
     page,
     seed,

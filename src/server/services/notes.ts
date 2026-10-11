@@ -22,6 +22,7 @@ import {
 } from './ctx';
 import { linkedFromRefs, linksFor, setLinks } from './links';
 import { readCalendar, reindex, unindex } from './search-index';
+import { refuseDeleted } from './records';
 import { resolveTagIds, setTagIds, tagNames } from './tags';
 
 export interface NoteRow {
@@ -285,7 +286,10 @@ export function createNote(ctx: Ctx, input: NoteCreate): CreateResult {
     if (input.id) {
       const existing = ctx.sqlite.prepare('SELECT * FROM notes WHERE id = ?').get(input.id) as
         NoteRow | undefined;
-      if (existing) return { note: first(toNotes(ctx, [existing])), created: false };
+      if (existing) {
+        refuseDeleted(existing, 'note');
+        return { note: first(toNotes(ctx, [existing])), created: false };
+      }
     }
     const title = input.title ?? null;
     const body = input.body ?? '';

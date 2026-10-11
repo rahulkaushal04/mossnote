@@ -493,7 +493,25 @@ export function MapEditor({ map, focusPin = null }: { map: MapDetail; focusPin?:
             onChange={setSettings}
             onZoomReset={viewport.resetZoom}
             saved={
-              store.saveState === 'error' ? (
+              store.saveState === 'conflict' ? (
+                <span role="alert" className="text-danger">
+                  This map changed in another window.{' '}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => {
+                      store.reloadFromServer();
+                      setSelection([]);
+                      viewport.clearOverride();
+                    }}
+                  >
+                    Reload
+                  </button>{' '}
+                  <button type="button" className="underline" onClick={() => void store.keepMine()}>
+                    Keep mine
+                  </button>
+                </span>
+              ) : store.saveState === 'error' ? (
                 <span role="alert" className="text-danger">
                   {store.saveError ?? "Couldn't save."}{' '}
                   <button type="button" className="underline" onClick={() => void store.saveNow()}>

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { LIMITS } from '../constants';
+import { cleanText } from '../text';
 import { limitSchema, ulidSchema } from './common';
 
 export const tagCreateSchema = z.object({ name: z.string().max(200) }).strict();
@@ -19,14 +20,14 @@ export const fieldLabelsQuerySchema = z.object({
 });
 
 export const searchQuerySchema = z.object({
-  q: z.string().max(1000).default(''),
+  q: z.string().max(1000).transform(cleanText).default(''),
   kinds: z.string().max(100).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 export const pickQuerySchema = z.object({
   kind: z.enum(['tag', 'person', 'note', 'planting', 'any']),
-  q: z.string().max(LIMITS.searchQuery).default(''),
+  q: z.string().max(LIMITS.searchQuery).transform(cleanText).default(''),
   limit: z.coerce.number().int().min(1).max(50).default(8),
   exclude: z.string().max(2000).optional(),
 });
