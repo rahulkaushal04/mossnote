@@ -17,7 +17,7 @@
 <p align="center">
   <a href="https://github.com/rahulkaushal04/mossnote/actions/workflows/ci.yml"><img src="https://github.com/rahulkaushal04/mossnote/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="Licence: MIT"></a>
-  <a href=".nvmrc"><img src="https://img.shields.io/badge/node-22%2B-brightgreen.svg" alt="Node 22+"></a>
+  <a href=".nvmrc"><img src="https://img.shields.io/badge/node-22.14%2B-brightgreen.svg" alt="Node 22.14+"></a>
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 </p>
 
 > [!NOTE]
-> Mossnote has no public release yet. For now, [run it from the source code](#get-started). The `npx` and download options work after the first release. The [web version](https://rahulkaushal04.github.io/mossnote/) and the [documentation](https://rahulkaushal04.github.io/mossnote/docs/) are published on GitHub Pages and need no install. If you host your own copy, see [Publish the web version](#publish-the-web-version).
+> Mossnote is in beta (`0.1.0-beta.1`). There is no stable release yet, so a beta is installed by name (`npx mossnote@beta`) and its GitHub release is marked as a prerelease. See [Get started](#get-started). The [web version](https://rahulkaushal04.github.io/mossnote/) and the [documentation](https://rahulkaushal04.github.io/mossnote/docs/) are published on GitHub Pages and need no install. If you host your own copy, see [Publish the web version](#publish-the-web-version).
 
 ## Why Mossnote
 
@@ -113,17 +113,17 @@ On a big screen you get a sidebar. On a tablet you get a slim icon bar. On a pho
 
 Pick the row that matches how you play.
 
-| You play on                                    | Use                                                                                                                        | Your journal is kept        |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| A PC or laptop, with notes on the same machine | [Run from source](#run-from-source) now. Use [Node](#use-node) or the [program](#use-the-program) after the first release. | In a folder on the computer |
-| A PC or laptop, with notes on a phone          | The same, with [phone access](#phone-access) turned on                                                                     | In a folder on the computer |
-| A console, with notes on a phone               | The [web version](https://rahulkaushal04.github.io/mossnote/) on the phone                                                 | In the phone's browser      |
+| You play on                                    | Use                                                                                                                      | Your journal is kept        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| A PC or laptop, with notes on the same machine | [Use Node](#use-node) (`npx mossnote@beta`), the [program](#use-the-program), or [run it from source](#run-from-source). | In a folder on the computer |
+| A PC or laptop, with notes on a phone          | The same, with [phone access](#phone-access) turned on                                                                   | In a folder on the computer |
+| A console, with notes on a phone               | The [web version](https://rahulkaushal04.github.io/mossnote/) on the phone                                               | In the phone's browser      |
 
 A journal on a computer and a journal in a browser are separate. To move one, export it and then import the file on the other side. You will find both in **Settings → Data & backup**.
 
 ### Run from source
 
-You need [Node.js](https://nodejs.org) 22.12 or newer.
+You need [Node.js](https://nodejs.org) 22.14 or newer.
 
 ```bash
 git clone https://github.com/rahulkaushal04/mossnote.git
@@ -136,23 +136,49 @@ npm start
 
 ### Use Node
 
-After the first release:
+Mossnote is a beta, and npm never picks a beta by default, so install it by name:
 
 ```bash
-npx mossnote              # try it
-npm install -g mossnote   # or install it, then run: mossnote
+npx mossnote@beta              # try it without installing
+npm install -g mossnote@beta   # or install it, then run: mossnote
 ```
 
-Options: `--port`, `--data-dir`, `--journal`, `--no-open` and `--lan`. Run `mossnote --help` to see what each one does.
+Open the address it prints, or let it open your browser. Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop it.
+
+**Requirements**
+
+- **Node.js 22.14 or newer.** Older versions are refused with a message. They cannot load the SQLite module: Node 22.13 and earlier hang or crash when it is used. CI installs and runs the package on Windows, macOS and Linux with Node 22.14, 22, 24 and 26. Node 25 also passed a manual check but is not in CI.
+- **No compiler.** The SQLite module comes prebuilt for Windows, macOS and Linux on x64 and arm64, plus Linux with musl (Alpine). On Linux with glibc it needs glibc 2.34 or newer (Ubuntu 22.04, Debian 12 and RHEL 9 or newer). Older systems such as Ubuntu 20.04 and Debian 11 are not supported. That limit comes from the module's own build, and Mossnote has not been run on those systems.
+- **Disk space.** About 60 MB for the package and its dependencies.
+
+**Options**
+
+| Option                | What it does                                                                   |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `--port <number>`     | Port to listen on, 1 to 65535. Default 4317                                    |
+| `--data-dir <folder>` | Where journals are kept. A relative path starts from where you ran the command |
+| `--journal <name>`    | Open this journal at start                                                     |
+| `--no-open`           | Do not open the browser                                                        |
+| `--lan`               | Let paired phones and tablets on your network use it                           |
+| `--version`, `-v`     | Print the version                                                              |
+| `--help`, `-h`        | Print the options                                                              |
+
+`--port 4000` and `--port=4000` both work. An option wins over its `MOSS_*` environment variable, and a variable that is set but empty counts as not set. An option or a word that Mossnote does not know is reported and nothing starts, so a typo such as `--prot` does not quietly use the default port.
+
+**Updating, removing, and your journals.** Your journals are not inside the installed package. They are in your [data folder](#your-data), so updating or removing Mossnote never touches them. Update with `npm install -g mossnote@beta` again. Remove with `npm uninstall -g mossnote`. Removing it leaves the journals in place, and you delete that folder yourself if you want them gone.
+
+**If it stops suddenly.** After a crash, a power cut or a forced quit, the next start recovers on its own. A second copy for the same journal refuses to start and says so.
+
+**Limits.** Mossnote listens only on this computer unless you turn on [phone access](#phone-access). It does not check for updates, so update it yourself.
 
 ### Use the program
 
-After the first release, download the program for your system from the [releases page](https://github.com/rahulkaushal04/mossnote/releases). Check the file against its `.sha256` file.
+Download the program for your system from the [releases page](https://github.com/rahulkaushal04/mossnote/releases). Check the file against its `.sha256` file.
 
-| System  | File                               | How to run it                                    |
-| ------- | ---------------------------------- | ------------------------------------------------ |
-| Windows | `mossnote-vX.Y.Z-win-x64.exe`      | Double-click it                                  |
-| Linux   | `mossnote-vX.Y.Z-linux-x64.tar.gz` | Unpack it with `tar -xzf`, then run `./mossnote` |
+| System  | File                                   | How to run it                                    |
+| ------- | -------------------------------------- | ------------------------------------------------ |
+| Windows | `mossnote-v<version>-win-x64.exe`      | Double-click it                                  |
+| Linux   | `mossnote-v<version>-linux-x64.tar.gz` | Unpack it with `tar -xzf`, then run `./mossnote` |
 
 The programs are not code-signed, so Windows may ask you to confirm the first run. On macOS, use Node.
 
@@ -234,7 +260,7 @@ The guides, tutorials and reference are at [`/docs/`](https://rahulkaushal04.git
 
 ## Development
 
-You need Node 22.12 or newer. The `.nvmrc` file has the version that the project uses.
+You need Node 22.14 or newer. The `.nvmrc` file has the version that the project uses.
 
 ```bash
 npm install
@@ -256,7 +282,7 @@ src/web         The React app
 
 The same code runs in Node and in the browser. Only the code that touches files is different. It sits behind two small interfaces, `Sqlite` and `Storage`. The other scripts are described in [CONTRIBUTING](CONTRIBUTING.md) and on the [how it works](https://rahulkaushal04.github.io/mossnote/docs/how-it-works/) page.
 
-When someone pushes a tag such as `v0.2.0`, [`release.yml`](.github/workflows/release.yml) checks the code, builds and tests the Windows and Linux programs, and adds them to a draft release.
+When someone pushes a tag such as `v0.1.0-beta.1`, [`release.yml`](.github/workflows/release.yml) checks the code, builds and tests the Windows and Linux programs, and adds them to a draft release. A tag with a `-` in it is a prerelease: the GitHub release is marked that way, and the npm package goes under the `beta` tag, never `latest`. Publishing to npm stays off until the maintainer sets it up (see _Releasing to npm_ in [CONTRIBUTING](CONTRIBUTING.md)). `npm run package:npm-smoke` builds the npm package, installs it into an empty project and runs it, the same check CI runs on Windows, macOS and Linux.
 
 ## What Mossnote will not do
 

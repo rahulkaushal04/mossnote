@@ -9,6 +9,7 @@ import { ALL_INTERFACES, startListener, type Listener } from './listener';
 import { createLogger } from './logger';
 import { serveWeb } from './middleware/static';
 import { createPhoneAccess, readPhonePreference } from './phone';
+import { readAppVersion } from './version';
 
 const systemClock = { now: () => Date.now() };
 
@@ -21,7 +22,7 @@ const writeError = (lines: string[]) => {
 async function main(): Promise<void> {
   let config: Config;
   try {
-    config = loadConfig();
+    config = loadConfig(undefined, readAppVersion(new URL('../../package.json', import.meta.url)));
   } catch (error) {
     writeError(describeStartupError(error, { host: '127.0.0.1', port: 4317 } as Config));
     process.exit(1);
@@ -32,7 +33,6 @@ async function main(): Promise<void> {
     config,
     clock: systemClock,
     logger,
-    // dist/server/index.js and src/server/index.ts both sit two levels below the package root.
     migrationsFolder: fileURLToPath(new URL('../../drizzle', import.meta.url)),
   });
   try {

@@ -34,8 +34,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Commit
-      description: The output of `git rev-parse --short HEAD`.
+      label: Mossnote version
+      description: The output of `mossnote --version` (or Settings → Shortcuts and about). If you run it from the source code, the output of `git rev-parse --short HEAD`.
     validations:
       required: true
   - type: input

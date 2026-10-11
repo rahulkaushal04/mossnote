@@ -66,8 +66,8 @@ function main(): void {
   const appDir = ensureUnpacked({ archive, root, id });
   pruneOthers(root, id);
 
-  process.env.NODE_ENV ??= 'production';
-  process.env.npm_package_version = version;
+  // The program is never a development build, whatever NODE_ENV the shell has left set.
+  process.env.NODE_ENV = 'production';
   // A single executable can only `require` built-in modules itself; this reaches the unpacked app.
   const appRequire = createRequire(path.join(appDir, 'package.json'));
   appRequire(path.join(appDir, 'dist', 'server', 'index.js'));

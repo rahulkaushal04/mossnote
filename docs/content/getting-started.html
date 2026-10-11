@@ -25,18 +25,18 @@ description: Open Mossnote on a computer or in a browser, choose a template, and
 <p>The web version is a website with the journal built into the page. Open the address where it is published (the <strong>Open Mossnote</strong> button at the top of these pages goes there). Use an up-to-date Safari, Chrome, Edge or Firefox in a normal, not private, window. Nothing is installed and nothing is uploaded. <a href="~/web-version/">Read more about the web version.</a></p>
 
 <h3 id="install-computer">Install the computer version</h3>
-<callout type="note" title="No public release yet">
-<p>Mossnote has not had a public release. Until it does, run it from the source code. The <code>npx</code> and download routes below will work once the first release is published.</p>
+<callout type="note" title="Mossnote is in beta">
+<p>There is no stable release yet. The npm package is a beta, so it is installed by name (<code>mossnote@beta</code>), and the downloads on the releases page are marked as prereleases. The beta is tested, but expect rough edges, and please report them.</p>
 </callout>
 <ol>
-  <li><strong>From source (works today).</strong> You need <a href="https://nodejs.org">Node.js</a> 22.12 or newer. In a terminal:
+  <li><strong>From source.</strong> You need <a href="https://nodejs.org">Node.js</a> 22.14 or newer. In a terminal:
 <pre><code>git clone https://github.com/rahulkaushal04/mossnote.git
 cd mossnote
 npm install
 npm start</code></pre>
   <code>npm start</code> builds the app if needed, starts it and opens your browser at <code>http://127.0.0.1:4317</code>.</li>
-  <li><strong>With Node, once released.</strong> <code>npx mossnote</code> to try it, or <code>npm install -g mossnote</code> and then <code>mossnote</code>.</li>
-  <li><strong>As a program, once released.</strong> Download the Windows <code>.exe</code> or the Linux <code>.tar.gz</code> from the releases page and run it. macOS users use the Node route.</li>
+  <li><strong>With Node.</strong> You need Node 22.14 or newer. A beta is installed by name: <code>npx mossnote@beta</code> to try it, or <code>npm install -g mossnote@beta</code> and then <code>mossnote</code>. Press Ctrl+C to stop it. Updating or removing it never touches your journals, which live in your <a href="~/data-and-backup/">data folder</a>.</li>
+  <li><strong>As a program.</strong> Download the Windows <code>.exe</code> or the Linux <code>.tar.gz</code> from the releases page and run it. macOS users use the Node route.</li>
 </ol>
 <p>Run <code>mossnote --help</code> for the options <code>--port</code>, <code>--data-dir</code>, <code>--journal</code>, <code>--no-open</code> and <code>--lan</code>. See <a href="~/reference/#options">Options</a>.</p>
 

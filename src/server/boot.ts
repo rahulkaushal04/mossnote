@@ -150,11 +150,23 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
 }
 
 /** Terminal text for a startup failure. Lines are printed in order. */
+/** Why a folder could not be used, for the error codes a person can fix by choosing another folder. */
+const FOLDER_PROBLEMS: Record<string, string> = {
+  EACCES: 'permission denied',
+  EPERM: 'permission denied',
+  ENOTDIR: 'a file is in the way, not a folder',
+  EISDIR: 'it is a folder where a file was expected',
+  EROFS: 'it is read-only',
+  ENOSPC: 'the disk is full',
+};
+
 export function describeStartupError(error: unknown, config: Config): string[] {
-  const url = `http://${config.host.includes(':') ? `[${config.host}]` : config.host}:${config.port}`;
   if (error instanceof ConfigError) return [error.message];
   if (error instanceof AlreadyRunningError) {
-    return [`Mossnote is already running (PID ${error.pid}) at ${url}.`];
+    return [
+      `Mossnote is already running (PID ${error.pid}) with this journal.`,
+      'Open the address it printed when it started (the default is http://127.0.0.1:4317), or stop it first.',
+    ];
   }
   if (error instanceof NewerJournalError) return [error.message];
   if (error instanceof MigrationFailedError) {
@@ -179,8 +191,19 @@ export function describeStartupError(error: unknown, config: Config): string[] {
     }
     return lines;
   }
-  if ((error as NodeJS.ErrnoException | null)?.code === 'EADDRINUSE') {
-    return [`Port ${config.port} is already in use. Set MOSS_PORT to use a different port.`];
+  const code = (error as NodeJS.ErrnoException | null)?.code;
+  if (code === 'EADDRINUSE') {
+    return [
+      `Port ${config.port} is already in use.`,
+      'Use --port <number> (or set MOSS_PORT) to choose a different port.',
+    ];
+  }
+  const problem = code === undefined ? undefined : FOLDER_PROBLEMS[code];
+  if (problem !== undefined) {
+    return [
+      `Mossnote cannot use its data folder ${config.dataDir}: ${problem}.`,
+      'Use --data-dir <folder> (or set MOSS_DATA_DIR) to choose another.',
+    ];
   }
   return [`Mossnote could not start: ${error instanceof Error ? error.message : String(error)}`];
 }

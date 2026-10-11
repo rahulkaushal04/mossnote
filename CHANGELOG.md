@@ -1,11 +1,28 @@
 # Changelog
 
 All notable changes to this project are written down here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Mossnote has not had a public
-release yet, so entries are grouped by date, with the latest changes under "Unreleased".
-Once releases begin they will use [Semantic Versioning](https://semver.org/).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow
+[Semantic Versioning](https://semver.org/). Mossnote is in beta: until a stable `1.0.0`, a beta
+such as `0.1.0-beta.1` is published to npm under the `beta` tag, and a GitHub release for it is
+marked as a prerelease. Changes made since the last tag go under "Unreleased".
 
 ## Unreleased
+
+## 0.1.0-beta.1 - 2026-10-11
+
+The first beta, and the first version published to npm (`npx mossnote@beta`). It collects
+everything built so far. Your journals are untouched by any of it.
+
+### Packaging
+
+- **The npm package is checked as a stranger would get it.** `npm run package:npm-smoke` builds the tarball, checks what is in it, installs it into an empty project and into a global prefix, runs `mossnote` five ways, and checks the API, the data folder, a second copy, a busy port, a clean stop, a hard kill and a restart. CI runs it on Windows, macOS and Linux with Node 22.14, 22, 24 and 26, using one tarball built on Linux.
+- **The supported Node is now 22.14 or newer, with no upper limit.** Node 22.13 and older hang or crash when a journal is made, because the SQLite module needs Node-API 10. The earlier limit of 22.12 let those through, and `<25` warned on current Node versions. Node 26 now runs in CI.
+- **The command line is stricter.** An unknown option or word is reported (a typo such as `--prot` no longer starts on the default port), `--port=4000` works, and mistakes name the option instead of an environment variable.
+- **Fixed: an empty `MOSS_DATA_DIR=` kept journals in the current folder.** An empty variable now counts as not set.
+- **Fixed: `NODE_ENV=development` in the shell made an installed copy answer 404.** An installed copy is always a production run.
+- **Fixed: the version came from a number written in the code.** It is now read from the package's own `package.json`, so `--version`, the API, exports and the web version agree.
+- Startup problems say what to do: a data folder that cannot be used names the folder and `--data-dir`, a busy port names `--port`, and a second copy no longer prints an address it cannot know.
+- The release workflow marks a version with a `-` as a prerelease, publishes the tested tarball under the dist-tag named after the `-` (never `latest`), and `CONTRIBUTING.md` lists what the maintainer needs before the first publish.
 
 Two new ways to use Mossnote while you play. Your existing journals are untouched.
 

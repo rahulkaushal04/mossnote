@@ -1,0 +1,3 @@
+# The command that npm installs starts with a shebang line. A carriage return at the end of it
+# ("#!/usr/bin/env node\r") makes it fail on Linux and macOS, so it is always checked out with LF.
+bin/* text eol=lf

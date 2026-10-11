@@ -17,7 +17,7 @@ This is a volunteer project. I will aim to reply within a week and to fix seriou
 
 ## Supported versions
 
-Mossnote has no public release yet. Fixes go to `main`, and once releases exist, to the latest release. Run the newest version to get them.
+Mossnote is in beta. Fixes go to `main` and to the latest release, which is a beta until there is a stable one. Run the newest version to get them.
 
 ## What Mossnote is, and what it is not
 
