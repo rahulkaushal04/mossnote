@@ -1,0 +1,116 @@
+name: Programs
+
+# Builds and tests the standalone programs. Publishes nothing and needs no tag; release.yml calls it.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/package/**'
+      - 'bin/**'
+      - 'src/server/**'
+      - 'drizzle/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/binaries.yml'
+      - '.github/workflows/release.yml'
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: programs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build and test ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: linux-x64, os: ubuntu-latest }
+          - { target: linux-arm64, os: ubuntu-24.04-arm }
+          - { target: win-x64, os: windows-latest }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: node --version
+      # Scripts skipped: Windows with Node 22's npm tries to compile better-sqlite3 and fails.
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - name: Build the program (on Linux this also checks the glibc and libstdc++ it needs)
+        run: npm run package:binary
+      - name: The checksums match the files
+        run: npm run package:checksums
+      - name: Run the finished download the way a person would
+        run: |
+          shopt -s nullglob
+          files=(release/mossnote-v*-${{ matrix.target }}.tar.gz release/mossnote-v*-${{ matrix.target }}.exe)
+          [ "${#files[@]}" -eq 1 ] || { echo "Expected one program, found: ${files[*]}" >&2; exit 1; }
+          file="${files[0]}"
+          echo "Testing $file"
+          npm run package:smoke -- "$file"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mossnote-${{ matrix.target }}
+          path: release/*
+          retention-days: 14
+          if-no-files-found: error
+
+  # The Linux downloads in clean containers (scripts/package/container-smoke.sh).
+  linux:
+    name: ${{ matrix.image }} on ${{ matrix.target }}${{ matrix.unsupported && ' (expected not to work)' || '' }}
+    needs: build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    continue-on-error: ${{ matrix.unsupported || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: linux-x64, os: ubuntu-latest, image: 'ubuntu:22.04' }
+          - { target: linux-x64, os: ubuntu-latest, image: 'ubuntu:24.04' }
+          - { target: linux-x64, os: ubuntu-latest, image: 'debian:12' }
+          - { target: linux-x64, os: ubuntu-latest, image: 'fedora:latest' }
+          - { target: linux-arm64, os: ubuntu-24.04-arm, image: 'ubuntu:22.04' }
+          - { target: linux-arm64, os: ubuntu-24.04-arm, image: 'ubuntu:24.04' }
+          - { target: linux-arm64, os: ubuntu-24.04-arm, image: 'debian:12' }
+          - { target: linux-arm64, os: ubuntu-24.04-arm, image: 'fedora:latest' }
+          # Expected not to work: below the minimum, or not glibc.
+          - { target: linux-x64, os: ubuntu-latest, image: 'debian:11', unsupported: true }
+          - { target: linux-x64, os: ubuntu-latest, image: 'ubuntu:20.04', unsupported: true }
+          - { target: linux-x64, os: ubuntu-latest, image: 'alpine:3.20', unsupported: true }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: mossnote-${{ matrix.target }}
+          path: programs
+      - name: Run it in a clean ${{ matrix.image }}
+        env:
+          IMAGE: ${{ matrix.image }}
+          MODE: ${{ matrix.unsupported && '--expect-unsupported' || '' }}
+        run: |
+          version="$(sed -n 's/^  "version": "\(.*\)",$/\1/p' package.json)"
+          tarball="$(cd programs && ls mossnote-v*-${{ matrix.target }}.tar.gz)"
+          docker run --rm \
+            -v "$PWD/programs:/programs:ro" \
+            -v "$PWD/scripts/package/container-smoke.sh:/container-smoke.sh:ro" \
+            "$IMAGE" sh -c '
+              if ! command -v bash >/dev/null || ! command -v tar >/dev/null || ! command -v gzip >/dev/null; then
+                if command -v dnf >/dev/null; then dnf install -y -q bash tar gzip
+                elif command -v apk >/dev/null; then apk add --no-cache bash tar gzip
+                else apt-get update -qq && apt-get install -y -qq bash tar gzip; fi
+              fi
+              exec bash /container-smoke.sh "/programs/$0" "$1" $2
+            ' "$tarball" "$version" "$MODE"

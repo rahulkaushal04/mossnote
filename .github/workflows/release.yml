@@ -1,11 +1,8 @@
 name: Release
 
-# Pushing a tag such as v0.2.0 (or v0.2.0-beta.1) checks the code, builds the standalone Windows and
-# Linux programs (each on its own system: the SQLite module is native and cannot be cross-compiled),
-# tests each program by starting it, attaches them to a draft release and, once all of that has
-# passed, publishes the release and the npm package. A tag with a "-" in it is a prerelease: the
-# GitHub release is marked as one and the npm package goes under the dist-tag named by the part
-# after the "-" (beta for 0.1.0-beta.1), never under "latest".
+# A v* tag checks the code, builds and tests the programs (binaries.yml), drafts a release with them,
+# then publishes the release and the npm package. A tag with a "-" is a prerelease: the npm dist-tag
+# is the part after the "-" (beta), never "latest".
 #
 # Before the first publish, see "Releasing to npm" in CONTRIBUTING.md: the npm account and package
 # name, the NPM_TOKEN secret and the PUBLISH_TO_NPM variable.
@@ -50,70 +47,42 @@ jobs:
       - name: The npm package builds, installs and runs
         run: npm run package:npm-smoke
 
+  # What is attached to the release is exactly what binaries.yml tested.
+  binaries:
+    name: Programs
+    needs: verify
+    uses: ./.github/workflows/binaries.yml
+
   draft:
     name: Draft the release
-    needs: verify
+    needs: [verify, binaries]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
-      - name: Create a draft release
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: mossnote-*
+          merge-multiple: true
+          path: release-files
+      - name: The files are the ones that were tested
+        run: |
+          cd release-files
+          ls -l
+          for sum in *.sha256; do sha256sum -c "$sum"; done
+      - name: Create a draft release with them
         run: |
           prerelease=""
           case "$TAG" in *-*) prerelease="--prerelease" ;; esac
-          gh release create "$TAG" --draft --verify-tag $prerelease --title "Mossnote $TAG" --generate-notes
-
-  binaries:
-    name: Program for ${{ matrix.target }}
-    needs: draft
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    permissions:
-      contents: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      GH_REPO: ${{ github.repository }}
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - os: windows-latest
-            target: win-x64
-            program: build/package/mossnote.exe
-          - os: ubuntu-latest
-            target: linux-x64
-            program: build/package/mossnote
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22
-          cache: npm
-      - run: node --version
-      - run: npm ci
-      - run: npm run build
-      - name: Build the program
-        run: npm run package:binary
-      - name: Start it the way a person would, and check it works
-        run: npm run package:smoke -- ${{ matrix.program }}
-      - name: Attach it to the draft release
-        run: gh release upload "$TAG" release/* --clobber
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: mossnote-${{ matrix.target }}
-          path: release/*
-          if-no-files-found: error
+          gh release create "$TAG" --draft --verify-tag $prerelease --title "Mossnote $TAG" --generate-notes release-files/*
 
   npm:
     name: Publish the npm package
-    needs: binaries
+    needs: draft
     # Set the repository variable PUBLISH_TO_NPM to "true" and add an NPM_TOKEN secret to turn this on.
     if: ${{ vars.PUBLISH_TO_NPM == 'true' }}
     runs-on: ubuntu-latest
@@ -152,8 +121,8 @@ jobs:
 
   publish:
     name: Publish the release
-    needs: [binaries, npm]
-    if: ${{ !cancelled() && needs.binaries.result == 'success' && (needs.npm.result == 'success' || needs.npm.result == 'skipped') }}
+    needs: [draft, npm]
+    if: ${{ !cancelled() && needs.draft.result == 'success' && (needs.npm.result == 'success' || needs.npm.result == 'skipped') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

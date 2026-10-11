@@ -17,6 +17,12 @@ description: Messages you may see, what they mean, and how to fix common problem
   <dd>Mossnote may not be running. Start it again (open the program, or run <code>mossnote</code> / <code>npm start</code> in a terminal) and choose <strong>Retry</strong>. The page tries again by itself every five seconds. On a phone, check the computer is on and phone access is still on.</dd>
   <dt>The computer version refuses to start and names a snapshot</dt>
   <dd>The start-up integrity check failed. Restore that snapshot by hand: stop Mossnote, copy it from <code>backups/</code> over the journal's <code>.db</code> file, delete that journal's <code>.db-wal</code> and <code>.db-shm</code>, and start again. See <a href="~/data-and-backup/#integrity">Starting safely</a>.</dd>
+  <dt>The Linux program says <code>version `GLIBC_2.34' not found</code>, or does not start at all</dt>
+  <dd>The system is older than the program supports. It needs glibc 2.34 or newer (check with <code>ldd --version</code>): Ubuntu 22.04, Debian 12, Fedora 35 or RHEL 9 or newer. Ubuntu 20.04, Debian 11 and RHEL 8 are too old. On Alpine, the program cannot run at all, because it is built for glibc. On either, use the Node or Python route instead.</dd>
+  <dt>“Mossnote could not unpack itself”</dt>
+  <dd>The program unpacks a copy of the app (about 60 MB) into a cache folder on its first start: <code>~/.cache/Mossnote/app</code> on Linux, <code>%LOCALAPPDATA%\Mossnote\Cache\app</code> on Windows. Free some space there, fix its permissions, or point the cache somewhere you can write to with <code>XDG_CACHE_HOME</code> (Linux) or <code>LOCALAPPDATA</code> (Windows). Deleting the cache folder is always safe.</dd>
+  <dt>Windows says “Windows protected your PC” when I start the program</dt>
+  <dd>The program is not code-signed yet, and SmartScreen warns about programs it has not seen much. That is not a verdict that the file is harmful. Check the file against its <code>.sha256</code> file (<code>(Get-FileHash .\mossnote-v&lt;version&gt;-win-x64.exe).Hash</code> in PowerShell), then choose <strong>More info</strong> and <strong>Run anyway</strong>. If an antivirus program removed the file, restore it, or use the Node or Python route.</dd>
   <dt>A second copy will not start</dt>
   <dd>Only one copy of Mossnote can have a journal open at a time, so a second copy on the same journal refuses to start and says "already running". Close the first one (look for a program window or a terminal that is still running it).</dd>
   <dt>Port 4317 is busy</dt>

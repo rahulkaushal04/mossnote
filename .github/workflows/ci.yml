@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -116,6 +117,23 @@ jobs:
         run: npm run package:npm-smoke
         env:
           PACKAGE_TARBALL: package-under-test
+
+  # Informational until seen green; then remove continue-on-error.
+  windows-tests:
+    name: Unit tests on Windows (informational)
+    runs-on: windows-latest
+    timeout-minutes: 25
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      # Scripts skipped: Windows with Node 22's npm tries to compile better-sqlite3 and fails.
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run test:wasm
 
   # One wheel, built on Linux, is installed and run on every system and Python (no Node.js on the PATH).
   python-wheel:

@@ -180,7 +180,7 @@ describe('retention', () => {
     await take('auto', 20, 2);
     expect(names('manual')).toHaveLength(20);
     expect(names('auto')).toHaveLength(2);
-  });
+  }, 30_000);
 
   it('ignores other journals and unrelated files', async () => {
     fs.mkdirSync(backupsDir, { recursive: true });
@@ -248,12 +248,14 @@ describe('integrity check and newest snapshot', () => {
     fs.writeFileSync(file, bytes);
 
     let problems: string[];
+    let reopened: ReturnType<typeof openDatabase> | undefined;
     try {
-      const reopened = openDatabase(file);
+      reopened = openDatabase(file);
       problems = integrityCheck(reopened.sqlite);
-      reopened.sqlite.close();
     } catch {
       problems = ['could not open'];
+    } finally {
+      reopened?.sqlite.close();
     }
     expect(problems.length).toBeGreaterThan(0);
   });

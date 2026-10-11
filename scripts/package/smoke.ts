@@ -1,128 +1,203 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  check,
+  freePort,
+  isWindows,
+  isolatedEnvironment,
+  passedChecks,
+  run,
+  runtimeChecks,
+  sleep,
+  start,
+  step,
+  stop,
+  waitForHealth,
+  type Server,
+} from './runtime-checks';
 
-/**
- * `npm run package:smoke -- <program>`: start a built standalone program (or a folder holding
- * it) the way a person would, and check that it serves the app, makes a journal in the data
- * folder, and keeps the unpacked copy of itself out of that folder. Used by the release workflow
- * before anything is published.
- */
-function freePort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const probe = net.createServer();
-    probe.once('error', reject);
-    probe.listen(0, '127.0.0.1', () => {
-      const { port } = probe.address() as net.AddressInfo;
-      probe.close(() => {
-        resolve(port);
-      });
-    });
-  });
+/** `npm run package:smoke -- <program or .tar.gz>`: the standalone program as a person gets it. */
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const repoVersion = (
+  JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')) as { version: string }
+).version;
+
+function cacheRoot(home: string): string {
+  if (isWindows) return path.join(home, 'AppData', 'Local', 'Mossnote', 'Cache', 'app');
+  if (process.platform === 'darwin') return path.join(home, 'Library', 'Caches', 'Mossnote', 'app');
+  return path.join(home, '.cache', 'Mossnote', 'app');
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function waitFor(url: string, timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  for (;;) {
-    try {
-      if ((await fetch(url)).ok) return;
-    } catch {
-      // Not up yet.
-    }
-    if (Date.now() > deadline) throw new Error(`${url} did not answer in ${timeoutMs / 1000} s.`);
-    await sleep(250);
+function resolveProgram(input: string, into: string): string {
+  if (!input.endsWith('.tar.gz')) {
+    check(fs.existsSync(input), `${input} exists`);
+    return input;
   }
-}
-
-function assert(condition: boolean, message: string): void {
-  if (!condition) throw new Error(`Smoke test failed: ${message}`);
-}
-
-export async function smoke(program: string): Promise<void> {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'moss-smoke-'));
-  const dataDir = path.join(home, 'data');
-  const env = {
-    ...process.env,
-    // Keep the unpacked copy in a throwaway place whichever system this is.
-    HOME: home,
-    USERPROFILE: home,
-    XDG_CACHE_HOME: path.join(home, 'cache'),
-    LOCALAPPDATA: path.join(home, 'local'),
-    APPDATA: path.join(home, 'roaming'),
-    MOSS_DATA_DIR: dataDir,
-    MOSS_OPEN_BROWSER: '0',
-    MOSS_PORT: String(await freePort()),
-  };
-  const url = `http://127.0.0.1:${env.MOSS_PORT}`;
-
-  const version = spawnSync(program, ['--version'], { env, encoding: 'utf8' });
-  assert(
-    version.status === 0 && /^\d+\.\d+\.\d+/.test(version.stdout),
-    '--version prints a version',
+  const listing = spawnSync('tar', ['-tzf', input], { encoding: 'utf8' });
+  check(listing.status === 0, `the tarball can be listed:\n${listing.stderr}`);
+  check(
+    listing.stdout.trim() === 'mossnote',
+    `the tarball holds the one file "mossnote" (found ${JSON.stringify(listing.stdout.trim())})`,
   );
+  const unpacked = spawnSync('tar', ['-xzf', input, '-C', into], { encoding: 'utf8' });
+  check(unpacked.status === 0, `the tarball can be unpacked with tar:\n${unpacked.stderr}`);
+  const program = path.join(into, 'mossnote');
+  check(
+    (fs.statSync(program).mode & 0o111) === 0o111,
+    'the unpacked program is executable by everyone, as a download that is unpacked must be',
+  );
+  return program;
+}
 
-  const child = spawn(program, [], { env, stdio: ['ignore', 'pipe', 'pipe'] });
-  let output = '';
-  child.stdout.on('data', (chunk: Buffer) => (output += chunk.toString()));
-  child.stderr.on('data', (chunk: Buffer) => (output += chunk.toString()));
+export async function smoke(input: string): Promise<void> {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'moss-smoke-'));
+  const live: Server[] = [];
   try {
-    // The first start unpacks the app, which takes a few seconds.
-    await waitFor(`${url}/api/health`, 120_000);
-
-    const health = (await (await fetch(`${url}/api/health`)).json()) as { version?: string };
-    assert(
-      health.version === version.stdout.trim(),
-      `the API reports the version the program prints (${String(health.version)} and ${version.stdout.trim()})`,
+    step('The program');
+    const program = resolveProgram(path.resolve(input), base);
+    const folder = path.join(base, 'with space');
+    fs.mkdirSync(folder);
+    const exe = path.join(folder, path.basename(program));
+    fs.copyFileSync(program, exe);
+    fs.chmodSync(exe, 0o755);
+    process.stdout.write(
+      `   ${path.basename(program)}, ${(fs.statSync(exe).size / 1024 / 1024).toFixed(0)} MB, ${process.platform}-${process.arch}\n`,
     );
 
-    const page = await fetch(url);
-    assert(page.ok && (await page.text()).includes('id="root"'), 'the app page is served');
+    const { cwd, home, env, defaultDataDir } = isolatedEnvironment(path.join(base, 'user'));
+    env.PATH = isWindows
+      ? path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32')
+      : '/nonexistent';
+    const cache = cacheRoot(home);
 
-    const made = await fetch(`${url}/api/journals`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Moss-Client': 'web' },
-      body: JSON.stringify({ name: 'Smoke test', template: 'default' }),
+    step('Version and help');
+    const version = run(exe, ['--version'], { cwd, env });
+    check(
+      version.status === 0 && version.stdout.trim() === repoVersion,
+      `--version prints ${repoVersion} (got "${version.all.trim()}")`,
+    );
+    for (const flag of ['--help', '-h']) {
+      const help = run(exe, [flag], { cwd, env });
+      check(
+        help.status === 0 &&
+          help.stdout.includes('Usage: mossnote') &&
+          help.stdout.includes(`Mossnote ${repoVersion}`) &&
+          help.stdout.includes('includes its own Node.js'),
+        `${flag} describes the program`,
+      );
+    }
+    check(!fs.existsSync(cache), '--version and --help unpack nothing');
+
+    step('The first start unpacks the app into the cache, once');
+    const first = start(exe, [], { cwd, env, port: await freePort() });
+    live.push(first);
+    await waitForHealth(first);
+    check(
+      first.output().includes('unpacking for the first run'),
+      'the first start says it is unpacking',
+    );
+    const [id, ...others] = fs.readdirSync(cache);
+    check(
+      id && others.length === 0,
+      `the cache holds one copy (found ${fs.readdirSync(cache).join(', ')})`,
+    );
+    check(id.startsWith(`${repoVersion}-`), `the copy is named for the version (${id})`);
+    check(fs.existsSync(path.join(cache, id, '.ready')), 'the copy is marked finished');
+    check(
+      fs.existsSync(path.join(cache, id, 'dist', 'server', 'index.js')),
+      'the server is in the copy',
+    );
+    await stop(first);
+    live.splice(live.indexOf(first), 1);
+
+    const second = start(exe, [], { cwd, env, port: await freePort() });
+    live.push(second);
+    await waitForHealth(second);
+    check(!second.output().includes('unpacking'), 'the second start reuses the copy');
+    await stop(second);
+    live.splice(live.indexOf(second), 1);
+
+    step('The cache stays tidy and repairs itself');
+    fs.mkdirSync(path.join(cache, '0.0.1-old'));
+    fs.writeFileSync(path.join(cache, '0.0.1-old', 'x'), 'old');
+    fs.mkdirSync(path.join(cache, `${id}.unpacking-2147483646`));
+    fs.rmSync(path.join(cache, id, '.ready'));
+    const repaired = start(exe, [], { cwd, env, port: await freePort() });
+    live.push(repaired);
+    await waitForHealth(repaired);
+    check(
+      repaired.output().includes('unpacking for the first run'),
+      'a copy that is not marked finished is unpacked again',
+    );
+    check(
+      fs.readdirSync(cache).join() === id,
+      `an old version and a crashed unpack are removed (found ${fs.readdirSync(cache).join(', ')})`,
+    );
+    check(fs.existsSync(path.join(cache, id, '.ready')), 'the repaired copy is marked finished');
+    await stop(repaired);
+    live.splice(live.indexOf(repaired), 1);
+
+    step('A cache that cannot be written is reported in plain words');
+    const blockedHome = path.join(base, 'blocked');
+    const blocked = isolatedEnvironment(blockedHome);
+    blocked.env.PATH = env.PATH;
+    fs.mkdirSync(path.dirname(cacheRoot(blocked.home)), { recursive: true });
+    fs.writeFileSync(cacheRoot(blocked.home), 'a file where the folder should be');
+    const refused = run(exe, ['--port', String(await freePort())], {
+      cwd: blocked.cwd,
+      env: blocked.env,
     });
-    assert(made.status === 201, `a journal can be made (got ${made.status})`);
-    const settings = (await (await fetch(`${url}/api/settings`)).json()) as {
-      calendar: { counter?: boolean };
-    };
-    assert(settings.calendar.counter === true, 'the Default template counts days');
-
-    assert(fs.existsSync(path.join(dataDir, 'smoke-test.db')), 'the journal is in the data folder');
-    const cacheHolds = (folder: string): boolean => {
-      if (!fs.existsSync(folder)) return false;
-      return fs.readdirSync(folder, { recursive: true }).some((f) => String(f).endsWith('.db'));
-    };
-    assert(
-      !cacheHolds(path.join(home, 'cache')) && !cacheHolds(path.join(home, 'local')),
-      'no journal is kept with the unpacked program',
+    check(
+      refused.status === 1 && refused.stderr.includes('could not unpack itself into'),
+      `it says so and exits 1 (got ${refused.status}: ${refused.stderr.trim()})`,
     );
-    process.stdout.write(`Smoke test passed: ${program}\n`);
-  } catch (error) {
-    process.stderr.write(`${output}\n`);
-    throw error;
+    check(
+      refused.stderr.includes('XDG_CACHE_HOME') && refused.stderr.includes('LOCALAPPDATA'),
+      'it says how to choose another place',
+    );
+
+    await runtimeChecks({
+      program: exe,
+      baseArgs: [],
+      version: repoVersion,
+      base,
+      cwd,
+      env,
+      defaultDataDir,
+      live,
+    });
+
+    step('Running it left only the cache behind');
+    check(fs.readdirSync(cache).join() === id, 'the cache still holds just the one copy');
+    const databases = fs
+      .readdirSync(cache, { recursive: true })
+      .filter((f) => String(f).endsWith('.db'));
+    check(databases.length === 0, 'no journal is kept with the unpacked program');
+    check(
+      !fs.readdirSync(cache).some((name) => name.includes('.unpacking-')),
+      'no unpacking is left half done',
+    );
+    process.stdout.write(
+      `\nProgram check passed: ${passedChecks()} checks, ${process.platform}-${process.arch}.\n`,
+    );
   } finally {
-    child.kill('SIGTERM');
+    for (const server of live) server.child.kill('SIGKILL');
     await sleep(500);
-    child.kill('SIGKILL');
-    fs.rmSync(home, { recursive: true, force: true });
+    fs.rmSync(base, { recursive: true, force: true, maxRetries: 20, retryDelay: 250 });
   }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const program = process.argv[2];
   if (!program) {
-    process.stderr.write('Usage: npm run package:smoke -- <path to the program>\n');
+    process.stderr.write('Usage: npm run package:smoke -- <the program, or its .tar.gz>\n');
     process.exit(1);
   }
-  smoke(path.resolve(program)).catch((error: unknown) => {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  smoke(program).catch((error: unknown) => {
+    process.stderr.write(`\n${error instanceof Error ? error.message : String(error)}\n`);
     process.exit(1);
   });
 }

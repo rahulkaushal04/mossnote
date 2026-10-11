@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
 import type { Plugin, Rollup } from 'vite';
 
@@ -166,7 +167,7 @@ export function mossStandalonePwa(options: StandaloneOptions): Plugin {
           .slice(0, 12);
 
         const template = fs.readFileSync(
-          path.join(path.dirname(new URL(import.meta.url).pathname), 'sw.template.js'),
+          path.join(path.dirname(fileURLToPath(import.meta.url)), 'sw.template.js'),
           'utf8',
         );
         const source = template

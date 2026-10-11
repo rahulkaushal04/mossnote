@@ -117,6 +117,8 @@ async function main(): Promise<void> {
   };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
+  process.on('SIGHUP', shutdown);
+  process.on('SIGBREAK', shutdown);
 }
 
 void main();
