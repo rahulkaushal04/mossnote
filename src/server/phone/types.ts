@@ -24,6 +24,12 @@ export interface PhoneAccess {
   setEnabled(enabled: boolean): void;
   /** Called after every change made by {@link setEnabled}. Returns the way to stop listening. */
   onChange(listener: (enabled: boolean) => void): () => void;
+  /**
+   * True while the socket listens on the network, which outlasts {@link PhoneAccess.isEnabled}
+   * for a moment after it is turned off, or for good if the socket cannot be moved back.
+   */
+  isOpenToNetwork(): boolean;
+  setOpenToNetwork(open: boolean): void;
   /** `Host` header values a phone may use, such as `192.168.1.20:4317`. Empty while disabled. */
   allowedHosts(): ReadonlySet<string>;
   /** Base URLs a phone can open, such as `http://192.168.1.20:4317`. Empty while disabled. */

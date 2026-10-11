@@ -18,6 +18,27 @@ marked as a prerelease. Changes made since the last tag go under "Unreleased".
 - **First-run unpacking is sturdier.** On Windows it tries again when an antivirus scanner is still reading the new files, a failure to unpack says why and how to choose another cache, and half-finished unpacks left by a crash are removed.
 - `npm run package:smoke` now unpacks the real tarball, runs the program from a folder with a space in its name with no Node.js on the `PATH`, checks the cache, and runs the same checks as the npm package. `npm run package:checksums` verifies every `.sha256`. The Windows program is not code-signed; the README says what SmartScreen does and how to proceed.
 
+### Fixed
+
+- **Leaving a map right after an edit no longer loses it.** Going to another page now saves with an ordinary request, and if that fails you are told. A drawing too large to send while the page closes is kept in the browser and brought back the next time you open the map.
+- **Search: `-word` works with several words.** `lantern -cave -river` now hides notes that have either word.
+- **Search and pickers ignore case and accents in tags and people.** `#cafe` finds `café`, `@élise` finds Élise, and People sorts accented names with the letters they look like.
+- **A map file or journal file with a drawing that is too large is refused with a clear message** (and the import check says so) instead of failing with "Something went wrong".
+- **Switching phone access off can no longer leave the network open without a pairing.** Until the connection has really moved back to this computer, devices that are not paired are still refused.
+- **⌘/Ctrl+K opens search while you type in the note box,** as the shortcut list says.
+- **Map history is quick to open and to save into,** even for large maps (about 1.5 seconds before, a few milliseconds now).
+- **Creating something with the id of a deleted note, person, farm entry or map is refused** with a clear message instead of answering as if it were still there.
+- **A stray NUL character no longer makes search fail.**
+- **People, farm and field editors tell you when a change could not be saved.** A field typed without a label says why it is not saved.
+- **A lock left from before the computer started no longer stops Mossnote from starting,** and the message names the file to delete if one is left behind by a crash.
+- **Import says what it replaces** (template, calendar, and map version history), a file that names an unknown template is refused, and the troubleshooting guide no longer suggests that importing keeps the new journal's template.
+- **Creating a person from `@` keeps what you typed meanwhile,** and says so if it fails.
+- **Pasting, duplicating or adding a note on a full map says so** instead of failing to save later, and "too many markers" now reads in plain words.
+- **Maps with a lot of non-English text can be saved** (the size limit now allows for several bytes a character).
+- **`npm start` no longer reuses a build made for the browser tests.**
+- **A map no longer silently overwrites another window's drawing.** If the map was changed in another window or on another device, saving now stops and asks: Reload takes the other copy, Keep mine saves yours over it.
+- **Editing a note in place no longer loses your edit when it cannot be saved.** Done, Esc and clicking away now keep the editor open when the save fails or a newer version is waiting, and the message offers "Discard changes". Text typed while a save is running is saved right after it.
+
 ### Python package
 
 - **`pip install mossnote` and `pipx install mossnote`, with no Node.js needed.** One wheel (`py3-none-any`, about 12 MB) carries the app exactly as `npm run build` makes it, its production dependencies and the SQLite module for every system. It runs on the Node.js from the `nodejs-wheel-binaries` package. The `mossnote` command is the npm command: it takes the same options, gives the same errors and uses the same data folders. The beta is `0.1.0b1` to pip and `0.1.0-beta.1` everywhere else. It is built and tested but not published yet.

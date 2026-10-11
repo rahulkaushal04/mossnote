@@ -5,6 +5,7 @@ import type { PickItem } from '@shared/types';
 import type { Ctx } from './ctx';
 import { noteLabel } from './links';
 import { readCalendar } from './search-index';
+import { matchesName, compareNames, startsWithName } from './names';
 import { quote } from './search';
 import { journalUses } from './settings';
 
@@ -15,28 +16,17 @@ export interface PickParams {
   exclude: readonly string[];
 }
 
-function likeEscape(text: string): string {
-  return text.replace(/[\\%_]/g, (c) => `\\${c}`);
-}
-
 const TAGS = `
   SELECT t.id, t.name,
-    CASE WHEN t.name_key LIKE ? ESCAPE '\\' THEN 0 ELSE 1 END AS grp,
     max(t.created_at, coalesce((SELECT max(n.updated_at) FROM note_tags x JOIN notes n ON n.id = x.note_id
                                 WHERE x.tag_id = t.id AND n.deleted_at IS NULL), 0)) AS used
-  FROM tags t
-  WHERE (? = '' OR t.name_key LIKE ? ESCAPE '\\')
-    AND t.id NOT IN (SELECT value FROM json_each(?))
-  ORDER BY grp, used DESC, t.name_key LIMIT ?`;
+  FROM tags t`;
 
 const PEOPLE = `
   SELECT p.id, p.name,
-    CASE WHEN p.name LIKE ? ESCAPE '\\' THEN 0 ELSE 1 END AS grp,
     coalesce((SELECT max(l.created_at) FROM links l WHERE l.target_person_id = p.id), p.updated_at) AS used
   FROM people p
-  WHERE p.deleted_at IS NULL AND (? = '' OR p.name LIKE ? ESCAPE '\\')
-    AND p.id NOT IN (SELECT value FROM json_each(?))
-  ORDER BY grp, used DESC, p.name COLLATE NOCASE LIMIT ?`;
+  WHERE p.deleted_at IS NULL`;
 
 const RECENT_NOTES = `
   SELECT n.id, n.title, n.body, n.game_date FROM notes n
@@ -100,15 +90,24 @@ function pickPlantings(ctx: Ctx, p: PickParams): PickItem[] {
 }
 
 function pickNamed(ctx: Ctx, kind: 'tag' | 'person', p: PickParams): PickItem[] {
-  const query = kind === 'tag' ? fold(p.q.replace(/^#+/, '')).replace(/\s+/g, '-') : p.q.trim();
-  const escaped = likeEscape(query);
-  const rows = ctx.sqlite
-    .prepare(kind === 'tag' ? TAGS : PEOPLE)
-    .all(`${escaped}%`, query, `%${escaped}%`, JSON.stringify(p.exclude), p.limit) as {
+  const typed = kind === 'tag' ? p.q.replace(/^#+/, '').replace(/\s+/g, '-') : p.q.trim();
+  const skip = new Set(p.exclude);
+  const rows = ctx.sqlite.prepare(kind === 'tag' ? TAGS : PEOPLE).all() as {
     id: string;
     name: string;
+    used: number;
   }[];
-  return rows.map((r) => ({ kind, id: r.id, label: r.name, detail: null }));
+  // names are matched here, not in SQL, so case and accents are ignored for every script
+  return rows
+    .filter((r) => !skip.has(r.id) && matchesName(r.name, typed))
+    .sort(
+      (a, b) =>
+        Number(!startsWithName(a.name, typed)) - Number(!startsWithName(b.name, typed)) ||
+        b.used - a.used ||
+        compareNames(a.name, b.name),
+    )
+    .slice(0, p.limit)
+    .map((r) => ({ kind, id: r.id, label: r.name, detail: null }));
 }
 
 /**

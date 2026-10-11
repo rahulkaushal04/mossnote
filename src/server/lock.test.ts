@@ -43,6 +43,35 @@ describe('acquireLock', () => {
     lock.release();
   });
 
+  it('replaces a lock written before this computer started, even if its pid is in use again', () => {
+    const justBeforeBoot = Date.now() - 3 * 3_600_000;
+    fs.writeFileSync(lockPath, '1');
+    fs.utimesSync(lockPath, justBeforeBoot / 1000, justBeforeBoot / 1000);
+
+    const lock = acquireLock(lockPath, process.pid, Date.now() - 3_600_000);
+
+    expect(fs.readFileSync(lockPath, 'utf8')).toBe(String(process.pid));
+    lock.release();
+  });
+
+  it('keeps refusing a lock written after this computer started', () => {
+    fs.writeFileSync(lockPath, '1');
+
+    expect(() => acquireLock(lockPath, process.pid, Date.now() - 3_600_000)).toThrow(
+      AlreadyRunningError,
+    );
+  });
+
+  it('names the lock file in the error', () => {
+    fs.writeFileSync(lockPath, '1');
+
+    try {
+      acquireLock(lockPath);
+    } catch (error) {
+      expect((error as AlreadyRunningError).lockPath).toBe(lockPath);
+    }
+  });
+
   it('replaces an unreadable lock file', () => {
     fs.writeFileSync(lockPath, 'not a pid');
     const lock = acquireLock(lockPath);

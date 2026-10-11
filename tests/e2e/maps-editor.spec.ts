@@ -709,3 +709,151 @@ test.describe('more tools', () => {
     expect(dash).toBeTruthy();
   });
 });
+
+test.describe('two windows on one map', () => {
+  async function drawBoxThenCircle(seed: Seed, first: Page, second: Page) {
+    const id = await openNewMap(first, seed);
+    await second.goto(`/maps/${id}`);
+    await expect(canvas(second)).toBeVisible();
+    await first.keyboard.press('r');
+    await stroke(first, [
+      [100, 100],
+      [200, 180],
+    ]);
+    await expect(first.getByText('Saved')).toBeVisible();
+    await second.keyboard.press('o');
+    await stroke(second, [
+      [300, 200],
+      [380, 260],
+    ]);
+    return id;
+  }
+
+  test('a window that was out of date does not overwrite the other one, and asks', async ({
+    page,
+    seed,
+  }) => {
+    const second = await page.context().newPage();
+    const id = await drawBoxThenCircle(seed, page, second);
+
+    await expect(second.getByText('This map changed in another window.')).toBeVisible();
+    expect((await saved(seed, id)).scene.shapes.map((s) => s.t)).toEqual(['rect']);
+    await second.getByRole('button', { name: 'Reload' }).click();
+    await expect(kinds(second, 'rect')).toHaveCount(1);
+    await expect(kinds(second, 'ellipse')).toHaveCount(0);
+  });
+
+  test('Keep mine saves the out-of-date window over the other one on purpose', async ({
+    page,
+    seed,
+  }) => {
+    const second = await page.context().newPage();
+    const id = await drawBoxThenCircle(seed, page, second);
+    await expect(second.getByText('This map changed in another window.')).toBeVisible();
+
+    await second.getByRole('button', { name: 'Keep mine' }).click();
+
+    await expect(second.getByText('Saved')).toBeVisible();
+    expect((await saved(seed, id)).scene.shapes.map((s) => s.t)).toEqual(['ellipse']);
+  });
+
+  test('renaming the map does not make the next drawing a conflict', async ({ page, seed }) => {
+    const id = await openNewMap(page, seed);
+    await page.getByLabel('Map name').fill('Renamed');
+    await page.getByLabel('Map name').blur();
+    await page.keyboard.press('r');
+
+    await stroke(page, [
+      [100, 100],
+      [200, 180],
+    ]);
+
+    await expect(page.getByText('Saved')).toBeVisible();
+    expect((await saved(seed, id)).scene.shapes).toHaveLength(1);
+  });
+});
+
+test.describe('leaving a map right after an edit', () => {
+  const nudgeEverythingAndLeave = (page: Page) =>
+    // one script, so the page is left well inside the 600 ms the editor waits before saving
+    page.evaluate(async () => {
+      const press = (key: string, init: KeyboardEventInit) =>
+        window.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, ...init }));
+      const pause = () => new Promise((resolve) => setTimeout(resolve, 50));
+      press('a', { code: 'KeyA', ctrlKey: true });
+      await pause();
+      press('ArrowRight', { code: 'ArrowRight', shiftKey: true });
+      await pause();
+      document.querySelector<HTMLElement>('a[aria-label="Back to Maps"]')?.click();
+    });
+
+  test('tells you when the last changes could not be saved, and brings them back next time', async ({
+    page,
+    seed,
+  }) => {
+    const map = await seed.post<{ id: string; scene: { layers: { id: string }[] } }>('/api/maps', {
+      name: 'Big map',
+    });
+    const layer = map.scene.layers[0]?.id;
+    const shapes = Array.from({ length: 600 }, (_, i) => ({
+      id: `s${i}`,
+      layer,
+      t: 'rect',
+      x: (i % 30) * 40,
+      y: Math.floor(i / 30) * 40,
+      w: 30,
+      h: 30,
+      style: { stroke: 'ink', fill: null, width: 2, dash: 'solid' },
+    }));
+    await seed.post(`/api/maps/${map.id}/changes`, { scene: { ...map.scene, shapes } });
+    await page.goto(`/maps/${map.id}`);
+    await expect(kinds(page, 'rect')).toHaveCount(600);
+    await page.route('**/api/maps/*/changes', (route) => route.abort());
+
+    await nudgeEverythingAndLeave(page);
+
+    await expect(page.getByText("Couldn't save your last changes to the map.")).toBeVisible();
+    expect((await saved(seed, map.id)).scene.shapes[0]?.x).toBe(0);
+    await page.unroute('**/api/maps/*/changes');
+    await page.goto(`/maps/${map.id}`);
+    await expect(page.getByText('Brought back the changes you made before leaving')).toBeVisible();
+    await expect
+      .poll(async () => (await saved(seed, map.id)).scene.shapes[0]?.x, { timeout: 5000 })
+      .not.toBe(0);
+  });
+});
+
+test.describe('a map that is full', () => {
+  test('pasting more drawings than a map holds says so and adds nothing', async ({
+    page,
+    seed,
+  }) => {
+    const map = await seed.post<{ id: string; scene: { layers: { id: string }[] } }>('/api/maps', {
+      name: 'Full map',
+    });
+    const layer = map.scene.layers[0]?.id;
+    const shapes = Array.from({ length: 3000 }, (_, i) => ({
+      id: `s${i}`,
+      layer,
+      t: 'rect',
+      x: (i % 60) * 20,
+      y: Math.floor(i / 60) * 20,
+      w: 10,
+      h: 10,
+      style: { stroke: 'ink', fill: null, width: 2, dash: 'solid' },
+    }));
+    await seed.post(`/api/maps/${map.id}/changes`, { scene: { ...map.scene, shapes } });
+    await page.goto(`/maps/${map.id}`);
+    await expect(canvas(page)).toBeVisible();
+
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.keyboard.press('ControlOrMeta+c');
+    await page.keyboard.press('ControlOrMeta+v');
+
+    await expect(page.getByText('This map has too many drawings.')).toBeVisible();
+    await page.waitForTimeout(1000);
+    // nothing was added, so there is nothing for the server to refuse
+    await expect(page.getByRole('button', { name: 'Retry' })).toHaveCount(0);
+    expect((await saved(seed, map.id)).scene.shapes).toHaveLength(3000);
+  });
+});

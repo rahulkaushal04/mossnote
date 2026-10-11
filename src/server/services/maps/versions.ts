@@ -105,28 +105,32 @@ export function autoVersion(ctx: Ctx, row: MapRow): void {
 /** Versions of a map, newest first, with counts for display. */
 export function listVersions(ctx: Ctx, mapId: string): MapVersionInfo[] {
   loadMap(ctx, mapId);
+  // counted inside SQLite: opening every stored snapshot here would block the server for seconds
   const rows = ctx.sqlite
     .prepare(
-      'SELECT id, name, kind, snapshot, created_at FROM map_versions WHERE map_id = ? ORDER BY created_at DESC, id DESC',
+      `SELECT id, name, kind, created_at,
+         CASE WHEN json_type(snapshot, '$.scene') = 'array'
+           THEN json_array_length(snapshot, '$.scene')
+           ELSE coalesce(json_array_length(snapshot, '$.scene.shapes'), 0) END AS shapes,
+         coalesce(json_array_length(snapshot, '$.pins'), 0) AS pins
+       FROM map_versions WHERE map_id = ? ORDER BY created_at DESC, id DESC`,
     )
     .all(mapId) as {
     id: string;
     name: string | null;
     kind: VersionKind;
-    snapshot: string;
     created_at: number;
+    shapes: number;
+    pins: number;
   }[];
-  return rows.map((row) => {
-    const snapshot = JSON.parse(row.snapshot) as Snapshot;
-    return {
-      id: row.id,
-      name: row.name,
-      kind: row.kind,
-      shapes: parseScene(JSON.stringify(snapshot.scene)).shapes.length,
-      pins: snapshot.pins.length,
-      createdAt: iso(row.created_at),
-    };
-  });
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    kind: row.kind,
+    shapes: row.shapes,
+    pins: row.pins,
+    createdAt: iso(row.created_at),
+  }));
 }
 
 /** Save a named version on purpose and return the updated list. */

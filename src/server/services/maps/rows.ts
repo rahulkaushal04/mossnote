@@ -38,9 +38,6 @@ export interface PinRow {
   updated_at: number;
 }
 
-/** Upper bound on the serialised scene, so one map cannot grow without limit. */
-export const MAX_SCENE_CHARS = 900_000;
-
 /** Load a map row, or throw `not_found`. Soft-deleted maps count as missing unless asked for. */
 export function loadMap(ctx: Ctx, id: string, includeDeleted = false): MapRow {
   const row = ctx.sqlite.prepare('SELECT * FROM maps WHERE id = ?').get(id) as MapRow | undefined;

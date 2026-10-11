@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useNewNote } from '../../app/NewNote';
+import { useToast } from '../../components/ui/Toast';
 import { api } from '../../lib/api';
 import { broadcastJournalSwitched } from '../../lib/broadcast';
 import { downloadExport } from '../../lib/exports';
@@ -27,6 +28,10 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
   const usesFarm = useUsesSection('farm');
   const journals = useJournals().data;
   const newNote = useNewNote();
+  const toast = useToast();
+  const failed = (message: string) => {
+    toast.show({ message, tone: 'alert' });
+  };
   const day = useAdvanceDay();
   const go = (path: string) => () => {
     void navigate(path);
@@ -134,7 +139,9 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
               broadcastJournalSwitched(journal.id);
               showJournal();
             })
-            .catch(() => undefined);
+            .catch(() => {
+              failed(`Couldn't switch to ${journal.name}.`);
+            });
         },
       })),
     {
@@ -142,7 +149,9 @@ export function useCommands(options: { openDate: () => void }): PaletteCommand[]
       label: 'Export JSON',
       keywords: 'backup download data',
       run: () => {
-        void downloadExport('/api/data/export.json');
+        downloadExport('/api/data/export.json').catch(() => {
+          failed("Couldn't make that file.");
+        });
       },
     },
   ];

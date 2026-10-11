@@ -12,6 +12,7 @@ import { SavedIndicator } from '../../components/ui/SavedIndicator';
 import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { TagEditor } from '../../components/ui/TagEditor';
 import { ApiError } from '../../lib/api';
+import { useToast } from '../../components/ui/Toast';
 import { useAutosave } from '../../lib/useAutosave';
 import { GameDateChip } from '../calendar/GameDateChip';
 import { OnMaps } from '../maps/OnMaps';
@@ -84,6 +85,7 @@ function CountField({
 
 function Details({ entry }: { entry: Planting }) {
   const update = useUpdatePlanting();
+  const toast = useToast();
   const newNote = useNewNote();
   const notes = usePlantingNotes(entry.id);
   const [name, setName] = useState(entry.label);
@@ -95,6 +97,11 @@ function Details({ entry }: { entry: Planting }) {
 
   const save = (patch: Parameters<typeof update.mutateAsync>[0]['patch']) =>
     update.mutateAsync({ id: entry.id, patch });
+  const saveQuietly = (patch: Parameters<typeof save>[0]) => {
+    save(patch).catch(() => {
+      toast.show({ message: "Couldn't save that change.", tone: 'alert' });
+    });
+  };
   const saveDate = (field: 'plantedOn' | 'harvestedOn', key: number | null) => {
     setDateError(null);
     save({ [field]: key }).catch((e: unknown) => {
@@ -124,7 +131,7 @@ function Details({ entry }: { entry: Planting }) {
           onBlur={() => {
             const trimmed = name.trim();
             if (trimmed === '') setName(entry.label);
-            else if (trimmed !== entry.label) void save({ label: trimmed });
+            else if (trimmed !== entry.label) saveQuietly({ label: trimmed });
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') e.currentTarget.blur();
@@ -196,10 +203,21 @@ function Details({ entry }: { entry: Planting }) {
           />
         </label>
         <SavedIndicator show={notesSave.saved} />
+        {notesSave.error ? (
+          <p role="alert" className="text-sm text-danger">
+            {notesSave.error}
+          </p>
+        ) : null}
       </Section>
 
       <Section title="Tags">
-        <TagEditor tags={entry.tags} linkBase="/farm" onChange={(tags) => void save({ tags })} />
+        <TagEditor
+          tags={entry.tags}
+          linkBase="/farm"
+          onChange={(tags) => {
+            saveQuietly({ tags });
+          }}
+        />
       </Section>
 
       <Section title="Fields">
@@ -213,6 +231,11 @@ function Details({ entry }: { entry: Planting }) {
           }}
         />
         <SavedIndicator show={fieldsSave.saved} />
+        {fieldsSave.error ? (
+          <p role="alert" className="text-sm text-danger">
+            {fieldsSave.error}
+          </p>
+        ) : null}
       </Section>
 
       <Section title="Notes about this">

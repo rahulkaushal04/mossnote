@@ -4,7 +4,7 @@ import type { PlantingCreate, PlantingListQuery, PlantingPatch } from '@shared/s
 import { normalizeTag } from '@shared/tags';
 import { notFound, validationFailed } from '../errors';
 import { first, inTx, iso, offsetFromCursor, pageOf, type Ctx } from './ctx';
-import { assertFresh, nextUpdatedAt, parseFields, serializeFields } from './records';
+import { assertFresh, nextUpdatedAt, parseFields, refuseDeleted, serializeFields } from './records';
 import { readCalendar, reindex, reindexLinkedNotes, unindex } from './search-index';
 import { resolveTagIds, setTagIds, tagNames } from './tags';
 
@@ -102,7 +102,10 @@ export function createPlanting(
     if (input.id) {
       const existing = ctx.sqlite.prepare('SELECT * FROM plantings WHERE id = ?').get(input.id) as
         PlantingRow | undefined;
-      if (existing) return { planting: first(toPlantings(ctx, [existing])), created: false };
+      if (existing) {
+        refuseDeleted(existing, 'entry');
+        return { planting: first(toPlantings(ctx, [existing])), created: false };
+      }
     }
     const plantedOn = input.plantedOn ?? null;
     const harvestedOn = input.harvestedOn ?? null;

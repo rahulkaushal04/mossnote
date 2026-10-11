@@ -273,7 +273,7 @@ export const api = {
       await client.api.maps[':id'].changes.$post({ param: { id }, ...withBody(changes) }),
     ),
   /** A last-chance save while the page is going away; `keepalive` lets it finish after unload. */
-  saveMapChangesOnExit: (id: string, changes: MapChanges): Promise<void> =>
+  saveMapChangesOnExit: (id: string, changes: MapChanges): Promise<string | null> =>
     send(`/api/maps/${id}/changes`, {
       method: 'POST',
       keepalive: true,
@@ -284,8 +284,9 @@ export const api = {
       },
       body: JSON.stringify(changes),
     }).then(
-      () => undefined,
-      () => undefined,
+      async (response) =>
+        response.ok ? ((await response.json()) as { updatedAt: string }).updatedAt : null,
+      () => null,
     ),
   duplicateMap: async (id: string, input: { id?: string; name?: string } = {}) =>
     unwrap<MapDetail>(

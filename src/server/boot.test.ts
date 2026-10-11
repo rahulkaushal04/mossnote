@@ -161,6 +161,12 @@ describe('describeStartupError', () => {
     expect(lines.join('\n')).not.toContain('at http://');
   });
 
+  it('says which file to delete when no other copy is running', () => {
+    const lines = describeStartupError(new AlreadyRunningError(4321, '/data/journal.lock'), config);
+
+    expect(lines.join('\n')).toContain('delete /data/journal.lock');
+  });
+
   it('prints the port and both ways to change it when the port is in use', () => {
     const error = Object.assign(new Error('listen EADDRINUSE'), { code: 'EADDRINUSE' });
     const text = describeStartupError(error, config).join('\n');

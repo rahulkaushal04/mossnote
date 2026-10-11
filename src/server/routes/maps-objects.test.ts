@@ -42,6 +42,107 @@ const changes = async (id: string, body: Record<string, unknown>) => {
   return api.json<{ updatedAt: string }>(await t.call('POST', `/api/maps/${id}/changes`, body));
 };
 
+describe('saving the editor changes', () => {
+  it('refuses a save that was made from an older copy and returns the current map', async () => {
+    const map = await makeMap();
+    await changes(map.id, { scene: scene([rect('theirs')]), expectedUpdatedAt: map.updatedAt });
+
+    const res = await t.call('POST', `/api/maps/${map.id}/changes`, {
+      scene: scene([rect('mine')]),
+      expectedUpdatedAt: map.updatedAt,
+    });
+
+    const error = await api.error(res, 409);
+    expect(error.code).toBe('conflict');
+    expect((error.details?.current as MapDetail).scene.shapes.map((s) => s.id)).toEqual(['theirs']);
+    expect((await get(map.id)).scene.shapes.map((s) => s.id)).toEqual(['theirs']);
+  });
+
+  it('accepts a save that carries the updatedAt the previous save returned', async () => {
+    const map = await makeMap();
+    const first = await changes(map.id, {
+      scene: scene([rect('a')]),
+      expectedUpdatedAt: map.updatedAt,
+    });
+
+    await changes(map.id, {
+      scene: scene([rect('a'), rect('b')]),
+      expectedUpdatedAt: first.updatedAt,
+    });
+
+    expect((await get(map.id)).scene.shapes.map((s) => s.id)).toEqual(['a', 'b']);
+  });
+
+  it('still saves when the caller sends no updatedAt', async () => {
+    const map = await makeMap();
+    await changes(map.id, { scene: scene([rect('a')]) });
+
+    await changes(map.id, { scene: scene([rect('b')]) });
+
+    expect((await get(map.id)).scene.shapes.map((s) => s.id)).toEqual(['b']);
+  });
+
+  it('changes nothing when it refuses a stale save that also touches markers', async () => {
+    const map = await makeMap();
+    await changes(map.id, { scene: scene([rect('theirs')]) });
+    const pin = newId();
+
+    const res = await t.call('POST', `/api/maps/${map.id}/changes`, {
+      upsert: [{ id: pin, x: 1, y: 1 }],
+      expectedUpdatedAt: map.updatedAt,
+    });
+
+    await api.error(res, 409);
+    expect((await get(map.id)).pins).toEqual([]);
+  });
+});
+
+describe('map limits', () => {
+  it('says plainly that a map holds up to 500 markers', async () => {
+    const map = await makeMap();
+
+    const res = await t.call('POST', `/api/maps/${map.id}/changes`, {
+      upsert: Array.from({ length: 501 }, () => ({ id: newId(), x: 1, y: 1 })),
+    });
+
+    expect((await api.error(res, 400)).message).toBe('A map can hold up to 500 pins.');
+  });
+});
+
+describe('large drawings in other scripts', () => {
+  const cjkText = (i: number) => ({
+    t: 'text',
+    id: `t${i}`,
+    layer: 'layer-1',
+    x: i,
+    y: 0,
+    text: '日'.repeat(1500),
+    size: 16,
+    kind: 'plain',
+    style: STYLE,
+  });
+
+  it('saves a drawing under the size limit even though its text takes three bytes a character', async () => {
+    const map = await makeMap();
+    const big = scene(Array.from({ length: 250 }, (_, i) => cjkText(i)));
+    expect(JSON.stringify(big).length).toBeLessThan(900_000);
+    expect(Buffer.byteLength(JSON.stringify({ scene: big }))).toBeGreaterThan(1_048_576);
+
+    await changes(map.id, { scene: big });
+
+    expect((await get(map.id)).scene.shapes).toHaveLength(250);
+  });
+
+  it('still refuses a request far beyond any map', async () => {
+    const map = await makeMap();
+    const res = await t.call('POST', `/api/maps/${map.id}/changes`, {
+      scene: 'x'.repeat(20_000_000),
+    });
+
+    expect((await api.error(res, 413)).code).toBe('too_large');
+  });
+});
+
 describe('objects and layers', () => {
   it('stores every object kind with names, locks, groups, notes and styles', async () => {
     const map = await makeMap();
@@ -353,6 +454,43 @@ describe('versions', () => {
     );
   });
 
+  it('counts the objects and markers of every version without opening them', async () => {
+    const map = await makeMap();
+    const pin = newId();
+    await changes(map.id, {
+      scene: scene([rect('a'), rect('b'), rect('c')]),
+      upsert: [{ id: pin, x: 1, y: 1 }],
+    });
+    await api.json(await t.call('POST', `/api/maps/${map.id}/versions`, { name: 'three' }), 201);
+
+    const [version] = await versions(map.id);
+
+    expect(version).toMatchObject({ name: 'three', shapes: 3, pins: 1 });
+  });
+
+  it('counts the drawings of a version saved in the first scene format', async () => {
+    const map = await makeMap();
+    t.database.sqlite
+      .prepare(
+        "INSERT INTO map_versions (id, map_id, name, kind, snapshot, created_at) VALUES (?, ?, 'old', 'manual', ?, 1)",
+      )
+      .run(
+        newId(),
+        map.id,
+        JSON.stringify({
+          scene: [
+            { t: 'stroke', id: 'a', pts: [[0, 0]], color: 'ink', w: 2 },
+            { t: 'label', id: 'b', x: 0, y: 0, text: 'x', color: 'ink' },
+          ],
+          pins: [],
+        }),
+      );
+
+    const [version] = await versions(map.id);
+
+    expect(version?.shapes).toBe(2);
+  });
+
   it('deletes a version', async () => {
     const map = await makeMap();
     const saved = await api.json<{ items: MapVersionInfo[] }>(
@@ -367,6 +505,30 @@ describe('versions', () => {
 });
 
 describe('duplicate and project files', () => {
+  it('refuses to open a project file whose drawing is larger than a map may hold', async () => {
+    const huge = scene(
+      Array.from({ length: 40 }, (_, i) => ({
+        t: 'path',
+        id: `p${i}`,
+        layer: 'layer-1',
+        pts: Array.from({ length: 800 }, (_, k) => [k * 1.123456789, i * 2.987654321]),
+        style: STYLE,
+      })),
+    );
+
+    const res = await t.call('POST', '/api/maps/import', {
+      format: 'mossnote-map',
+      formatVersion: 1,
+      name: 'Too big',
+      scene: huge,
+      pins: [],
+    });
+
+    const error = await api.error(res, 400);
+    expect(error.code).toBe('validation_failed');
+    expect(error.message).toBe('This map has too many drawings.');
+  });
+
   it('duplicates a map with new pin ids and connectors that follow them', async () => {
     const map = await makeMap({ name: 'Town' });
     const pin = newId();

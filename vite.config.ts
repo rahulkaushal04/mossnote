@@ -14,6 +14,16 @@ const root = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
 const pkg = JSON.parse(fs.readFileSync(root('./package.json'), 'utf8')) as { version: string };
 
+/** Records which kind of build `dist` holds, so `npm start` does not reuse a test build. */
+const buildMode = (mode: string): Plugin => ({
+  name: 'moss-build-mode',
+  writeBundle() {
+    const file = root('./dist/.build-mode');
+    fs.mkdirSync(root('./dist'), { recursive: true });
+    fs.writeFileSync(file, mode === 'e2e' ? 'e2e' : 'production');
+  },
+});
+
 /** Keeps the hidden /dev/kit route out of real production builds. */
 const devKit = (include: boolean): Plugin => ({
   name: 'moss-dev-kit',
@@ -45,6 +55,7 @@ export default defineConfig(({ mode, command }) => {
       react(),
       tailwindcss(),
       devKit(command === 'serve' || mode === 'e2e'),
+      ...(standalone || command === 'serve' ? [] : [buildMode(mode)]),
       ...(standalone
         ? [
             mossMigrations(root('./drizzle')),

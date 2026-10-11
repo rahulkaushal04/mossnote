@@ -111,6 +111,19 @@ async function seedRichJournal(a: Api = api) {
   return { person, entry, first };
 }
 
+const oversizedScene = () =>
+  ({
+    v: 2,
+    layers: [{ id: 'layer-1', name: 'Layer 1' }],
+    shapes: Array.from({ length: 60 }, (_, i) => ({
+      t: 'path',
+      id: `p${i}`,
+      layer: 'layer-1',
+      pts: Array.from({ length: 1000 }, (_, k) => [k * 1.123456789, i * 2.987654321]),
+      style: { stroke: 'ink', fill: null, width: 2, dash: 'solid' },
+    })),
+  }) as unknown as ExportFile['maps'][number]['scene'];
+
 const exportJson = async (a: Api = api): Promise<ExportFile> =>
   JSON.parse(await (await a.t.call('GET', '/api/data/export.json')).text()) as ExportFile;
 const withoutTime = (file: ExportFile) => ({ ...file, exportedAt: 'x' });
@@ -269,6 +282,33 @@ describe('import validation', () => {
     expect(snapshotOf()).toBe(before);
     return summary.errors;
   };
+
+  it('refuses a map whose drawing is larger than a map may hold, naming the map', async () => {
+    const file = await valid();
+    const [map] = file.maps;
+    file.maps = [{ ...map!, scene: oversizedScene() }];
+
+    const found = await errors(file);
+
+    expect(found.map((e) => e.path)).toEqual(['maps[0].scene']);
+    expect(found[0]?.message).toBe('This map has too many drawings.');
+  });
+
+  it('refuses a file that names a template this app does not have', async () => {
+    const file = await valid();
+    file.settings.layout = {
+      template: 'not-a-template',
+      order: [],
+      hidden: [],
+      labels: {},
+      quickActions: true,
+    };
+
+    const found = await errors(file);
+
+    expect(found.map((e) => e.path)).toEqual(['settings.layout']);
+    expect(found[0]?.message).toBe('Choose one of the listed templates.');
+  });
 
   it('a valid file passes the dry run and writes nothing', async () => {
     const file = await valid();
@@ -439,6 +479,21 @@ describe('import validation', () => {
 });
 
 describe('import is all or nothing', () => {
+  it('takes no snapshot for a file it refuses', async () => {
+    const file = await (async () => {
+      await seedRichJournal();
+      return exportJson();
+    })();
+    file.maps = [{ ...file.maps[0]!, scene: oversizedScene() }];
+
+    await importFile(file);
+
+    const backups = await api.json<{ items: BackupInfo[] }>(
+      await t.call('GET', '/api/data/backups'),
+    );
+    expect(backups.items.map((b) => b.reason)).not.toContain('pre-import');
+  });
+
   it('takes a pre-import snapshot first', async () => {
     const file = await (async () => {
       await seedRichJournal();

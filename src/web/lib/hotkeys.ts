@@ -36,9 +36,13 @@ export function singleKey(handler: KeyHandler, options: { allowShift?: boolean }
 /**
  * Bind a map of tinykeys bindings to the window for as long as the component is mounted. The
  * latest handlers are always used, so callers can pass inline closures. Sequences such as
- * `g t` use a 1-second timeout.
+ * `g t` use a 1-second timeout. With `inTextFields` the bindings also work while typing.
  */
-export function useHotkeys(bindings: Record<string, KeyHandler>): void {
+export function useHotkeys(
+  bindings: Record<string, KeyHandler>,
+  options: { inTextFields?: boolean } = {},
+): void {
+  const { inTextFields = false } = options;
   const latest = useRef(bindings);
   useEffect(() => {
     latest.current = bindings;
@@ -50,8 +54,12 @@ export function useHotkeys(bindings: Record<string, KeyHandler>): void {
     for (const key of keys.split('|')) {
       if (key) map[key] = (event) => latest.current[key]?.(event);
     }
-    return tinykeys(window, map, { timeout: 1000 });
-  }, [keys]);
+    // by default tinykeys skips keys pressed in a text field; a repeat or composing key never counts
+    const ignore = inTextFields
+      ? (event: KeyboardEvent) => event.repeat || event.isComposing
+      : undefined;
+    return tinykeys(window, map, { timeout: 1000, ...(ignore ? { ignore } : {}) });
+  }, [keys, inTextFields]);
 }
 
 /** `⌘` on macOS, `Ctrl` elsewhere, for hints. */

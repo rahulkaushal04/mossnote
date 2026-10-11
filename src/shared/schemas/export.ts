@@ -5,8 +5,16 @@ import { normalizeTag } from '../tags';
 import { cleanText, formatCount } from '../text';
 import { calendarSchema } from './calendar';
 import { customFieldsSchema, ulidSchema } from './common';
+import { isTemplateId } from '../templates';
 import { layoutSchema } from './layout';
-import { mapColorSchema, markerTypesSchema, pinPropsSchema, readScene } from './map';
+import {
+  mapColorSchema,
+  markerTypesSchema,
+  pinPropsSchema,
+  readScene,
+  SCENE_TOO_LARGE,
+  sceneFits,
+} from './map';
 
 /** The newest export format this build can read. */
 export const CURRENT_FORMAT_VERSION = 1;
@@ -115,7 +123,10 @@ const mapSchema = z
     id: ulidSchema,
     name: name(LIMITS.mapName),
     /** Older files hold the first, flat scene format; it is converted on the way in. */
-    scene: z.unknown().transform((raw) => readScene(raw)),
+    scene: z
+      .unknown()
+      .transform((raw) => readScene(raw))
+      .refine(sceneFits, SCENE_TOO_LARGE),
     pins: z.array(pinSchema).max(LIMITS.pinsPerMap),
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -141,7 +152,9 @@ const baseExportSchema = z
           .object({ readingSize: z.enum(['comfortable', 'large']).default('comfortable') })
           .strip(),
         /** Added with templates; older files keep the default layout. */
-        layout: layoutSchema.optional(),
+        layout: layoutSchema
+          .refine((layout) => isTemplateId(layout.template), 'Choose one of the listed templates.')
+          .optional(),
         markerTypes: markerTypesSchema.optional(),
       })
       .strip(),

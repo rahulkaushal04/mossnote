@@ -8,6 +8,7 @@ import type { SearchHit, SearchResponse } from '@shared/types';
 import { BM25_WEIGHTS } from '../db/fts';
 import type { Ctx } from './ctx';
 import { searchMaps } from './maps';
+import { compareNames, matchesName, startsWithName } from './names';
 import { readCalendar } from './search-index';
 import { journalUses } from './settings';
 
@@ -76,10 +77,6 @@ export function buildMatch(
   return parts.join(mode === 'all' ? ' AND ' : ' OR ');
 }
 
-function likeEscape(text: string): string {
-  return text.replace(/[\\%_]/g, (c) => `\\${c}`);
-}
-
 interface Filters {
   /** Conditions on the record table aliased as `r`. */
   conditions: SQL[];
@@ -104,7 +101,16 @@ function dateCondition(column: SQL, date: GameDateQuery): SQL {
   return sql`(${column} IS NOT NULL AND ${sql.join(parts, sql` AND `)})`;
 }
 
-function noteFilters(p: ParsedSearch): Filters {
+/** Live people whose name starts with what was typed. */
+function personIds(ctx: Ctx, typed: string): string[] {
+  const rows = ctx.sqlite.prepare('SELECT id, name FROM people WHERE deleted_at IS NULL').all() as {
+    id: string;
+    name: string;
+  }[];
+  return rows.filter((r) => startsWithName(r.name, typed)).map((r) => r.id);
+}
+
+function noteFilters(ctx: Ctx, p: ParsedSearch): Filters {
   const conditions: SQL[] = [sql`r.deleted_at IS NULL`, ...tagCondition('note', p.tags)];
   if (p.flags.discovery) conditions.push(sql`r.is_discovery = 1`);
   if (p.flags.question) conditions.push(sql`r.question_state IS NOT NULL`);
@@ -112,9 +118,8 @@ function noteFilters(p: ParsedSearch): Filters {
   if (p.flags.solved) conditions.push(sql`r.question_state = 'solved'`);
   for (const name of p.people) {
     conditions.push(
-      sql`EXISTS (SELECT 1 FROM links l JOIN people pe ON pe.id = l.target_person_id
-                   WHERE l.source_note_id = r.id AND pe.deleted_at IS NULL
-                     AND pe.name LIKE ${`${likeEscape(name)}%`} ESCAPE '\\')`,
+      sql`EXISTS (SELECT 1 FROM links l WHERE l.source_note_id = r.id
+                   AND l.target_person_id IN (SELECT value FROM json_each(${JSON.stringify(personIds(ctx, name))})))`,
     );
   }
   if (p.date) conditions.push(dateCondition(sql`r.game_date`, p.date));
@@ -175,9 +180,11 @@ function runKind(
   excludeMatch: string | null,
   limit: number,
 ): SearchHit[] {
-  const { conditions } = { note: noteFilters, person: personFilters, planting: plantingFilters }[
-    kind
-  ](p);
+  const { conditions } = {
+    note: () => noteFilters(ctx, p),
+    person: () => personFilters(p),
+    planting: () => plantingFilters(p),
+  }[kind]();
   if (excludeMatch) {
     conditions.push(
       sql`r.id NOT IN (SELECT ref_id FROM search_fts WHERE search_fts MATCH ${excludeMatch} AND kind = ${kind})`,
@@ -218,15 +225,24 @@ function runKind(
 }
 
 function tagHits(ctx: Ctx, p: ParsedSearch, limit: number): SearchHit[] {
-  const words = p.terms.filter((t) => !t.phrase).map((t) => fold(t.text));
+  const words = p.terms.filter((t) => !t.phrase).map((t) => t.text);
   if (words.length === 0) return [];
-  const conditions = words.map((w) => sql`t.name_key LIKE ${`%${likeEscape(w)}%`} ESCAPE '\\'`);
-  const first = likeEscape(words[0] ?? '');
-  const rows = ctx.db.all<{ id: string; name: string }>(
-    sql`SELECT t.id AS id, t.name AS name FROM tags t WHERE ${sql.join(conditions, sql` AND `)}
-        ORDER BY (t.name_key LIKE ${`${first}%`} ESCAPE '\\') DESC, t.pinned DESC, t.name_key LIMIT ${limit}`,
-  );
-  return rows.map((r) => ({ kind: 'tag', id: r.id, title: r.name, snippet: null, gameDate: null }));
+  const rows = ctx.sqlite.prepare('SELECT id, name, pinned FROM tags').all() as {
+    id: string;
+    name: string;
+    pinned: number;
+  }[];
+  return rows
+    .filter((r) => words.every((w) => matchesName(r.name, w)))
+    .sort(
+      (a, b) =>
+        Number(!startsWithName(a.name, words[0] ?? '')) -
+          Number(!startsWithName(b.name, words[0] ?? '')) ||
+        b.pinned - a.pinned ||
+        compareNames(a.name, b.name),
+    )
+    .slice(0, limit)
+    .map((r) => ({ kind: 'tag', id: r.id, title: r.name, snippet: null, gameDate: null }));
 }
 
 const emptyGroups = (): SearchResponse['groups'] => ({
@@ -258,7 +274,7 @@ export function search(ctx: Ctx, params: SearchParams): SearchResponse {
     params.kinds ?? (['note', 'person', 'planting', 'tag', 'map'] as const)
   ).filter((kind) => kind !== 'planting' || journalUses(ctx, 'farm'));
   const kinds = eligibleKinds(parsed, requested);
-  const exclude = buildMatch(parsed.excluded, vocab);
+  const exclude = buildMatch(parsed.excluded, vocab, 'any');
 
   const run = (mode: 'all' | 'any'): SearchResponse['groups'] => {
     const found = emptyGroups();

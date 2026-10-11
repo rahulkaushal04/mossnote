@@ -66,6 +66,30 @@ describe('maps', () => {
     expect(map.scene).toEqual({ v: 2, layers: [{ id: 'layer-1', name: 'Layer 1' }], shapes: [] });
   });
 
+  it('refuses a create whose id belongs to a deleted map', async () => {
+    const id = newId();
+    await t.call('POST', '/api/maps', { id, name: 'Gone' });
+    await t.call('DELETE', `/api/maps/${id}`);
+
+    const res = await t.call('POST', '/api/maps', { id, name: 'Again' });
+
+    expect((await api.error(res, 409)).code).toBe('conflict');
+  });
+
+  it('refuses a duplicate whose id belongs to a deleted map', async () => {
+    const source = await api.json<{ id: string }>(
+      await t.call('POST', '/api/maps', { name: 'Source' }),
+      201,
+    );
+    const id = newId();
+    await t.call('POST', '/api/maps', { id, name: 'Gone' });
+    await t.call('DELETE', `/api/maps/${id}`);
+
+    const res = await t.call('POST', `/api/maps/${source.id}/duplicate`, { id });
+
+    expect((await api.error(res, 409)).code).toBe('conflict');
+  });
+
   it('create is idempotent by id', async () => {
     const id = newId();
     await makeMap({ id, name: 'Once' });

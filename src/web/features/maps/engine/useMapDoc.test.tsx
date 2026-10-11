@@ -1,19 +1,25 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook as renderPlainHook } from '@testing-library/react';
+import { act, cleanup, renderHook as renderPlainHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import type { MapShape } from '@shared/schemas/map';
 import type { MapDetail, MapPin } from '@shared/types';
-import { api } from '../../../lib/api';
+import { ToastProvider } from '../../../components/ui/Toast';
+import * as toastModule from '../../../components/ui/Toast';
+import { api, ApiError } from '../../../lib/api';
+import { resetJournalState, setCurrentJournal } from '../../../lib/journal';
 import { addShapes, makePin, moveObjects, type Doc } from './doc';
 import { queryKeys } from '../../../lib/queryKeys';
+import { readUnsaved, stashUnsaved } from './unsavedDrawing';
 import { diffDoc, useMapDoc } from './useMapDoc';
 
 /** The hook reads the query client, so every render gets one (a fresh cache per test). */
 let client = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  <QueryClientProvider client={client}>
+    <ToastProvider>{children}</ToastProvider>
+  </QueryClientProvider>
 );
 const renderHook = <T,>(hook: () => T) => renderPlainHook(hook, { wrapper });
 
@@ -40,12 +46,16 @@ const emptyMap = (pins: MapPin[] = []): MapDetail => ({
 
 let save: MockInstance<typeof api.saveMapChanges>;
 beforeEach(() => {
+  setCurrentJournal('journal');
+  localStorage.clear();
   client = new QueryClient();
   vi.useFakeTimers();
   save = vi.spyOn(api, 'saveMapChanges').mockResolvedValue({ updatedAt: 'now' });
-  vi.spyOn(api, 'saveMapChangesOnExit').mockResolvedValue(undefined);
+  vi.spyOn(api, 'saveMapChangesOnExit').mockResolvedValue(null);
 });
 afterEach(() => {
+  cleanup();
+  resetJournalState();
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -231,13 +241,272 @@ describe('useMapDoc', () => {
 
   it('saves an unsaved change on close and still caches it', () => {
     client.setQueryData(queryKeys.map('MAP'), emptyMap());
-    const onExit = vi.spyOn(api, 'saveMapChangesOnExit');
     const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
     act(() => {
       result.current.commit((d) => addShapes(d, [rect('a')]));
     });
     unmount();
-    expect(onExit).toHaveBeenCalledTimes(1);
+    expect(save).toHaveBeenCalledTimes(1);
     expect(client.getQueryData<MapDetail>(queryKeys.map('MAP'))?.scene.shapes).toHaveLength(1);
+  });
+});
+
+describe('useMapDoc and other windows', () => {
+  const draw = (result: { current: ReturnType<typeof useMapDoc> }, id: string) => {
+    act(() => {
+      result.current.commit((d) => addShapes(d, [rect(id)]));
+    });
+  };
+  const pause = () =>
+    act(async () => {
+      await vi.advanceTimersByTimeAsync(700);
+    });
+  const newerMap = (): MapDetail => ({
+    ...emptyMap(),
+    updatedAt: 'theirs',
+    scene: { ...emptyMap().scene, shapes: [rect('theirs')] },
+  });
+  const conflict = () =>
+    new ApiError(409, {
+      code: 'conflict',
+      message: 'This map changed in another window.',
+      details: { current: newerMap() },
+    });
+  const sentUpdatedAt = (call: number) =>
+    (save.mock.calls[call]?.[1] as { expectedUpdatedAt?: string }).expectedUpdatedAt;
+
+  it('sends the updatedAt it loaded with the first save', async () => {
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    await pause();
+
+    expect(sentUpdatedAt(0)).toBe('x');
+  });
+
+  it('sends the updatedAt the previous save returned with the next one', async () => {
+    save.mockResolvedValueOnce({ updatedAt: 'after-first' });
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+    await pause();
+    draw(result, 'b');
+
+    await pause();
+
+    expect(sentUpdatedAt(1)).toBe('after-first');
+  });
+
+  it('uses an updatedAt that another part of the page wrote to the cached map', async () => {
+    client.setQueryData(queryKeys.map('MAP'), { ...emptyMap(), updatedAt: 'renamed' });
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    await pause();
+
+    expect(sentUpdatedAt(0)).toBe('renamed');
+  });
+
+  it('stops saving and asks which copy to keep when another window changed the map', async () => {
+    save.mockRejectedValueOnce(conflict());
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+    await pause();
+
+    draw(result, 'b');
+    await pause();
+
+    expect(result.current.saveState).toBe('conflict');
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(result.current.doc.scene.shapes).toHaveLength(2);
+  });
+
+  it('keeps my drawing by saving it over the newer copy', async () => {
+    save.mockRejectedValueOnce(conflict());
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+    await pause();
+
+    await act(async () => {
+      await result.current.keepMine();
+    });
+
+    expect(sentUpdatedAt(1)).toBe('theirs');
+    expect(result.current.saveState).toBe('saved');
+    expect(result.current.doc.scene.shapes.map((s) => s.id)).toEqual(['a']);
+  });
+
+  it('loads the newer copy instead of mine, and saves from it afterwards', async () => {
+    save.mockRejectedValueOnce(conflict());
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+    await pause();
+
+    act(() => {
+      result.current.reloadFromServer();
+    });
+    draw(result, 'b');
+    await pause();
+
+    expect(result.current.doc.scene.shapes.map((s) => s.id)).toEqual(['theirs', 'b']);
+    expect(sentUpdatedAt(1)).toBe('theirs');
+  });
+
+  it('saves from the restored map after a version restore', async () => {
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    act(() => {
+      result.current.replace(newerMap());
+    });
+    draw(result, 'b');
+
+    await pause();
+
+    expect(sentUpdatedAt(0)).toBe('theirs');
+  });
+
+  it('sends the updatedAt with the save made when the editor closes', () => {
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    unmount();
+
+    expect(sentUpdatedAt(0)).toBe('x');
+  });
+
+  it('does not send a closing save while a conflict is waiting for an answer', async () => {
+    save.mockRejectedValueOnce(conflict());
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+    await pause();
+
+    unmount();
+
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('useMapDoc when the page is left', () => {
+  const draw = (result: { current: ReturnType<typeof useMapDoc> }, id: string) => {
+    act(() => {
+      result.current.commit((d) => addShapes(d, [rect(id)]));
+    });
+  };
+  const settle = () =>
+    act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+  const manyShapes = (count: number): MapDetail => ({
+    ...emptyMap(),
+    scene: {
+      ...emptyMap().scene,
+      shapes: Array.from({ length: count }, (_, i) => rect(`s${i}`)),
+    },
+  });
+  const unloadPage = () => {
+    window.dispatchEvent(new Event('pagehide'));
+  };
+  const hideTab = () => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+  };
+
+  it('remembers the updatedAt of the save made when the editor closes', async () => {
+    save.mockResolvedValue({ updatedAt: 'after-close' });
+    client.setQueryData(queryKeys.map('MAP'), emptyMap());
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    unmount();
+    await settle();
+
+    expect(client.getQueryData<MapDetail>(queryKeys.map('MAP'))?.updatedAt).toBe('after-close');
+  });
+
+  it('keeps the drawing and says so when the save made on closing fails', async () => {
+    save.mockRejectedValue(new Error('offline'));
+    const show = vi.fn();
+    vi.spyOn(toastModule, 'useToast').mockReturnValue({ show } as never);
+    const { result, unmount } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    unmount();
+    await settle();
+
+    expect(readUnsaved('MAP')?.doc.scene.shapes).toHaveLength(1);
+    expect((show.mock.calls[0]?.[0] as { message: string }).message).toMatch(
+      /couldn't save your last changes/i,
+    );
+  });
+
+  it('forgets the kept drawing once a save goes through', async () => {
+    stashUnsaved('MAP', 'x', emptyMap());
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(700);
+    });
+
+    expect(readUnsaved('MAP')).toBeNull();
+  });
+
+  it('sends a small drawing over keepalive when the page unloads', () => {
+    const onExit = vi.spyOn(api, 'saveMapChangesOnExit');
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+    draw(result, 'a');
+
+    unloadPage();
+
+    expect(onExit).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a drawing too large for keepalive instead of sending it when the page unloads', () => {
+    const onExit = vi.spyOn(api, 'saveMapChangesOnExit');
+    const { result } = renderHook(() => useMapDoc(manyShapes(600)));
+    draw(result, 'extra');
+
+    unloadPage();
+
+    expect(onExit).not.toHaveBeenCalled();
+    expect(readUnsaved('MAP')?.doc.scene.shapes).toHaveLength(601);
+  });
+
+  it('saves with an ordinary request when the tab is hidden', async () => {
+    const { result } = renderHook(() => useMapDoc(manyShapes(600)));
+    draw(result, 'extra');
+
+    hideTab();
+    await settle();
+
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe('saved');
+  });
+
+  it('puts back a kept drawing when the map is unchanged since, and saves it', async () => {
+    stashUnsaved('MAP', 'x', manyShapes(3));
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(700);
+    });
+
+    expect(result.current.doc.scene.shapes).toHaveLength(3);
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks which copy to keep when the map changed since the drawing was kept', () => {
+    stashUnsaved('MAP', 'older', manyShapes(3));
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+
+    expect(result.current.saveState).toBe('conflict');
+    expect(result.current.doc.scene.shapes).toHaveLength(3);
+  });
+
+  it('drops a kept drawing that is the same as the map', () => {
+    stashUnsaved('MAP', 'x', emptyMap());
+    const { result } = renderHook(() => useMapDoc(emptyMap()));
+
+    expect(result.current.saveState).toBe('saved');
+    expect(readUnsaved('MAP')).toBeNull();
   });
 });

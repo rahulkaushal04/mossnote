@@ -23,11 +23,16 @@ export function GlobalHotkeys({ onShowShortcuts }: { onShowShortcuts: () => void
       void navigate(path);
     });
 
-  useHotkeys({
-    '$mod+k': (event) => {
-      event.preventDefault();
-      palette.openPalette();
+  useHotkeys(
+    {
+      '$mod+k': (event) => {
+        event.preventDefault();
+        palette.openPalette();
+      },
     },
+    { inTextFields: true },
+  );
+  useHotkeys({
     '/': singleKey((event) => {
       event.preventDefault();
       palette.openPalette();

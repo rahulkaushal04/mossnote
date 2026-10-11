@@ -65,6 +65,11 @@ export function FieldList({
                   That label is already used here.
                 </span>
               ) : null}
+              {field.label.trim() === '' && field.value !== '' ? (
+                <span role="alert" className="text-danger">
+                  Add a label to save this field.
+                </span>
+              ) : null}
             </label>
             <label className="flex min-w-48 flex-1 flex-col text-sm">
               <span className="sr-only">Field value {index + 1}</span>

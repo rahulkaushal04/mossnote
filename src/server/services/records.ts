@@ -29,3 +29,10 @@ export function assertFresh(
 /** updatedAt always advances, so two saves in the same millisecond still conflict correctly. */
 export const nextUpdatedAt = (ctx: Ctx, previous: number): number =>
   Math.max(ctx.clock.now(), previous + 1);
+
+/** A create that reuses the id of a deleted record is refused, not answered as if it were live. */
+export function refuseDeleted(existing: { deleted_at: number | null }, noun: string): void {
+  if (existing.deleted_at !== null) {
+    throw conflict(`That ${noun} was deleted. Restore it from Recently deleted.`);
+  }
+}

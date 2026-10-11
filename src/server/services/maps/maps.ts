@@ -2,30 +2,27 @@
  * Map lifecycle and the editor's save path: list, create, rename/save scene, soft delete, restore,
  * and the atomic `applyChanges` the editor posts on every autosave.
  */
+import { LIMITS } from '@shared/constants';
 import { emptyScene, layeredScene } from '@shared/mapDefaults';
-import type { MapChanges, MapCreate, MapListQuery, MapPatch } from '@shared/schemas/map';
+import {
+  SCENE_TOO_LARGE,
+  type MapChanges,
+  type MapCreate,
+  type MapListQuery,
+  type MapPatch,
+} from '@shared/schemas/map';
 import type { MapDetail, MapSummary, Page } from '@shared/types';
 import { validationFailed } from '../../errors';
 import { inTx, iso, offsetFromCursor, pageOf, type Ctx } from '../ctx';
-import { assertFresh, nextUpdatedAt } from '../records';
+import { assertFresh, nextUpdatedAt, refuseDeleted } from '../records';
 import { assertPinLimit, insertPinRow, updatePinRow } from './pins';
-import {
-  getMap,
-  loadMap,
-  MAX_SCENE_CHARS,
-  toDetail,
-  toSummary,
-  type MapRow,
-  type PinRow,
-} from './rows';
+import { getMap, loadMap, toDetail, toSummary, type MapRow, type PinRow } from './rows';
 import { autoVersion } from './versions';
 
 export { getMap };
 
-const SCENE_TOO_LARGE = 'This map has too many drawings.';
-
 function assertSceneSize(scene: string): void {
-  if (scene.length > MAX_SCENE_CHARS) {
+  if (scene.length > LIMITS.mapSceneChars) {
     throw validationFailed(SCENE_TOO_LARGE, { scene: 'Too large.' });
   }
 }
@@ -47,7 +44,10 @@ export function createMap(ctx: Ctx, input: MapCreate): { map: MapDetail; created
     if (input.id) {
       const existing = ctx.sqlite.prepare('SELECT * FROM maps WHERE id = ?').get(input.id) as
         MapRow | undefined;
-      if (existing) return { map: toDetail(ctx, existing), created: false };
+      if (existing) {
+        refuseDeleted(existing, 'map');
+        return { map: toDetail(ctx, existing), created: false };
+      }
     }
     const id = input.id ?? ctx.newId();
     const now = ctx.clock.now();
@@ -99,6 +99,7 @@ export function restoreMap(ctx: Ctx, id: string): MapDetail {
 export function applyChanges(ctx: Ctx, mapId: string, changes: MapChanges): { updatedAt: string } {
   return inTx(ctx, () => {
     const row = loadMap(ctx, mapId);
+    assertFresh(changes.expectedUpdatedAt, row.updated_at, () => getMap(ctx, mapId), 'map');
     const scene = changes.scene === undefined ? row.scene : JSON.stringify(changes.scene);
     assertSceneSize(scene);
     const touchesPins = (changes.upsert?.length ?? 0) + (changes.remove?.length ?? 0) > 0;

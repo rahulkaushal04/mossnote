@@ -39,6 +39,17 @@ describe('create (POST /api/notes)', () => {
     expect((await api.note({ body: 'b' })).gameDate).toBeNull();
   });
 
+  it('refuses a create whose id belongs to a deleted note, and leaves it in the trash', async () => {
+    const id = newId();
+    await api.note({ id, body: 'gone' });
+    await t.call('DELETE', `/api/notes/${id}`);
+
+    const res = await t.call('POST', '/api/notes', { id, body: 'again' });
+
+    expect((await api.error(res, 409)).code).toBe('conflict');
+    expect((await t.call('GET', `/api/notes/${id}`)).status).toBe(404);
+  });
+
   it('is idempotent: repeating a POST with the same id returns the existing note with 200', async () => {
     const id = newId();
     const first = await api.note({ id, body: 'once' });

@@ -280,3 +280,34 @@ describe('while phone access is on', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('while the network socket is still open after phone access was turned off', () => {
+  beforeEach(async () => {
+    await start(true);
+    phone.setEnabled(false);
+  });
+
+  const stranger = (method: string, path: string) =>
+    t.callFrom(PHONE_ADDRESS, method, path, undefined, { host: TEST_HOST });
+
+  it('still refuses a device that is not paired, even with a loopback Host header', async () => {
+    expect((await stranger('GET', '/api/settings')).status).toBe(401);
+    expect((await stranger('POST', '/api/data/backup')).status).toBe(401);
+  });
+
+  it('keeps phone management for the computer only', async () => {
+    const res = await t.callFrom(PHONE_ADDRESS, 'PUT', '/api/phone', { enabled: true });
+
+    expect(res.status).not.toBe(200);
+  });
+
+  it('lets the computer through as it always does', async () => {
+    expect((await computer('GET', '/api/settings')).status).toBe(200);
+  });
+
+  it('trusts every device again once the socket is back on this computer only', async () => {
+    phone.setOpenToNetwork(false);
+
+    expect((await stranger('GET', '/api/settings')).status).toBe(200);
+  });
+});

@@ -135,6 +135,29 @@ test.describe('reading and editing a note', () => {
     await expect(editor(page)).toHaveValue('changed elsewhere');
   });
 
+  test('Done keeps the editor and the typed text when the save fails, and saves once it works again', async ({
+    page,
+    seed,
+  }) => {
+    await seed.note({ body: 'before', gameDate: k(1, 0, 1) });
+    await page.goto('/journal');
+    await article(page, 'before').getByText('before').click();
+    await page.route('**/api/notes/*', (route) =>
+      route.request().method() === 'PATCH' ? route.abort() : route.continue(),
+    );
+    await page.keyboard.press('End');
+    await page.keyboard.type(' and after');
+
+    await page.getByRole('button', { name: 'Done' }).click();
+
+    await expect(page.getByText('Your edit is still here.')).toBeVisible();
+    await expect(editor(page)).toHaveValue('before and after');
+    await page.unroute('**/api/notes/*');
+    await page.getByRole('button', { name: 'Done' }).click();
+    await expect(editor(page)).toHaveCount(0);
+    expect((await seed.notes()).items[0]?.body).toBe('before and after');
+  });
+
   test('Keep mine saves over the newer version on purpose', async ({ page, seed }) => {
     const note = await seed.note({ body: 'original', gameDate: k(1, 0, 1) });
     await page.goto('/journal');

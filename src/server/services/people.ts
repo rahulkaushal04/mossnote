@@ -3,7 +3,8 @@ import type { PersonCreate, PersonListQuery, PersonPatch } from '@shared/schemas
 import { normalizeTag } from '@shared/tags';
 import { notFound, validationFailed } from '../errors';
 import { first, inTx, iso, offsetFromCursor, pageOf, type Ctx } from './ctx';
-import { assertFresh, nextUpdatedAt, parseFields, serializeFields } from './records';
+import { assertFresh, nextUpdatedAt, parseFields, refuseDeleted, serializeFields } from './records';
+import { compareNames } from './names';
 import { reindex, reindexLinkedNotes, unindex } from './search-index';
 import { resolveTagIds, setTagIds, tagNames } from './tags';
 
@@ -54,7 +55,7 @@ const LIST_BY_NAME = `
   SELECT p.* FROM people p WHERE p.deleted_at IS NULL
     AND (? IS NULL OR EXISTS (SELECT 1 FROM person_tags x JOIN tags t ON t.id = x.tag_id
                                WHERE x.person_id = p.id AND t.name_key = ?))
-  ORDER BY p.name COLLATE NOCASE, p.id LIMIT ? OFFSET ?`;
+`;
 const LIST_BY_UPDATED = `
   SELECT p.* FROM people p WHERE p.deleted_at IS NULL
     AND (? IS NULL OR EXISTS (SELECT 1 FROM person_tags x JOIN tags t ON t.id = x.tag_id
@@ -65,9 +66,13 @@ export function listPeople(ctx: Ctx, query: PersonListQuery): Page<Person> {
   const offset = offsetFromCursor(query.cursor);
   const tag = query.tag === undefined ? null : normalizeTag(query.tag);
   const key = tag === null ? null : tag.ok ? tag.key : '\u0000no-such-tag';
-  const rows = ctx.sqlite
-    .prepare(query.sort === 'name' ? LIST_BY_NAME : LIST_BY_UPDATED)
-    .all(key, key, query.limit + 1, offset) as PersonRow[];
+  // name order is made here because SQLite sorts only ASCII letters case-insensitively
+  const rows =
+    query.sort === 'name'
+      ? (ctx.sqlite.prepare(LIST_BY_NAME).all(key, key) as PersonRow[])
+          .sort((a, b) => compareNames(a.name, b.name) || a.id.localeCompare(b.id))
+          .slice(offset, offset + query.limit + 1)
+      : (ctx.sqlite.prepare(LIST_BY_UPDATED).all(key, key, query.limit + 1, offset) as PersonRow[]);
   const { items, nextCursor } = pageOf(rows, query.limit, offset);
   return { items: toPeople(ctx, items), nextCursor };
 }
@@ -88,7 +93,10 @@ export function createPerson(ctx: Ctx, input: PersonCreate): { person: Person; c
     if (input.id) {
       const existing = ctx.sqlite.prepare('SELECT * FROM people WHERE id = ?').get(input.id) as
         PersonRow | undefined;
-      if (existing) return { person: first(toPeople(ctx, [existing])), created: false };
+      if (existing) {
+        refuseDeleted(existing, 'person');
+        return { person: first(toPeople(ctx, [existing])), created: false };
+      }
     }
     const progress = input.progress ?? null;
     const progressMax = input.progressMax ?? null;

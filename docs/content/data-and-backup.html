@@ -31,13 +31,13 @@ description: Where your journal is stored, how to export and import it, how snap
 <p>Exporting makes a file you can keep, read or move.</p>
 <shot name="settings-data" alt="The Data and backup section of Settings. A summary of the journal, then four buttons outlined in orange and numbered: Export JSON, Export Markdown, Import JSON and Back up now.">The Data &amp; backup buttons. (1) Export JSON, (2) Export Markdown, (3) Import JSON, (4) Back up now.</shot>
 <ul>
-  <li><strong>Export JSON</strong> downloads <code>mossnote-YYYY-MM-DD-HHMM.json</code>, a complete copy that Mossnote can import again. It holds your notes, people, farm entries, maps, tags and settings. Keep this one as your real backup. <a href="~/reference/#export-format">Format details</a>.</li>
+  <li><strong>Export JSON</strong> downloads <code>mossnote-YYYY-MM-DD-HHMM.json</code>, a complete copy that Mossnote can import again. It holds your notes, people, farm entries, maps, tags and settings. It does not hold the older versions kept for each map (History in the map editor). Keep this one as your real backup. <a href="~/reference/#export-format">Format details</a>.</li>
   <li><strong>Export Markdown</strong> downloads <code>mossnote-YYYY-MM-DD.md</code>, a plain-text version you can read anywhere: your journal by day, undated notes, questions (open and solved), people, farm entries and maps. It cannot be imported back.</li>
   <li>You can also download any journal, open or not, from <a href="~/journals/#manage">Settings → Journals</a>.</li>
 </ul>
 
 <h2 id="import">Import</h2>
-<p>Import <strong>replaces everything in the journal that is open</strong> with the contents of a JSON file. Your other journals are untouched.</p>
+<p>Import <strong>replaces everything in the journal that is open</strong> with the contents of a JSON file, including the journal's template and calendar, and it clears the version history of every map. Your other journals are untouched. The snapshot taken first still holds everything that was there.</p>
 <ol class="steps">
   <li>Choose <strong>Import JSON</strong> and pick a file made by <strong>Export JSON</strong> (up to 50 MB).</li>
   <li>Mossnote checks the file without changing anything. If it is not valid, you get a list of what is wrong (up to 20 items) and <em>Nothing was changed.</em>, for example <em>That file isn't a Mossnote export.</em></li>
