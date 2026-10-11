@@ -21,6 +21,7 @@ import zlib from 'node:zlib';
  *
  *   npm run package:npm-smoke                         pack, then test
  *   npm run package:npm-smoke -- --tarball x.tgz      test a tarball that is already made
+ *   PACKAGE_TARBALL=x.tgz npm run package:npm-smoke   the same, for shells that drop the `--`
  */
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -218,7 +219,7 @@ const DEV_ONLY = [
   'tsup',
 ];
 
-function checkTarball(files: PackedFile[], packageJson: PackageJson): void {
+function checkTarball(files: PackedFile[], packageJson: PackageJson, modesAreReal: boolean): void {
   const names = files.map((file) => file.path);
   for (const required of REQUIRED) check(names.includes(required), `the tarball has ${required}`);
   check(
@@ -241,7 +242,9 @@ function checkTarball(files: PackedFile[], packageJson: PackageJson): void {
   );
 
   const bin = files.find((file) => file.path === 'bin/mossnote.js');
-  check(bin && (bin.mode & 0o111) !== 0, 'bin/mossnote.js is marked executable in the tarball');
+  if (modesAreReal) {
+    check(bin && (bin.mode & 0o111) !== 0, 'bin/mossnote.js is marked executable in the tarball');
+  }
   const total = files.reduce((sum, file) => sum + file.size, 0);
   check(
     total < 5 * 1024 * 1024,
@@ -505,9 +508,11 @@ async function main(): Promise<void> {
   const live: Server[] = [];
   try {
     const given = process.argv.indexOf('--tarball');
+    const wanted = given === -1 ? process.env.PACKAGE_TARBALL : process.argv[given + 1];
+    const useBuilt = given !== -1 || Boolean(process.env.PACKAGE_TARBALL);
 
-    step(given === -1 ? 'Build the tarball' : 'Use the tarball that was built earlier');
-    const tarball = given === -1 ? pack(base) : findTarball(process.argv[given + 1]);
+    step(useBuilt ? 'Use the tarball that was built earlier' : 'Build the tarball');
+    const tarball = useBuilt ? findTarball(wanted) : pack(base);
     check(fs.existsSync(tarball), `the tarball exists: ${path.basename(tarball)}`);
     process.stdout.write(
       `   ${path.basename(tarball)} on Node ${process.versions.node}, ${platformKey()}\n`,
@@ -516,7 +521,7 @@ async function main(): Promise<void> {
     step('Check what is in the tarball');
     const { files, read } = readTarball(tarball);
     const packedJson = JSON.parse(read('package.json').toString('utf8')) as PackageJson;
-    checkTarball(files, packedJson);
+    checkTarball(files, packedJson, !isWindows || useBuilt);
     process.stdout.write(`   ${files.length} files, version ${packedJson.version}\n`);
 
     step('Install it into an empty project');

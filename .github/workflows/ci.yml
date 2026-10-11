@@ -113,7 +113,9 @@ jobs:
           name: npm-package
           path: package-under-test
       - name: Install the tarball in an empty project and run it (version, help, API, data folder, stop)
-        run: npm run package:npm-smoke -- --tarball package-under-test
+        run: npm run package:npm-smoke
+        env:
+          PACKAGE_TARBALL: package-under-test
 
   webkit-smoke:
     name: WebKit smoke (macOS)
