@@ -10,3 +10,8 @@ local_reference
 
 docs/content
 docs/assets/.video-tmp
+
+# Python wheel: the app copied in by `npm run package:python`, and tool caches.
+python/src/mossnote/_app
+.pytest_cache
+__pycache__

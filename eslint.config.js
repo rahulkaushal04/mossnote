@@ -81,6 +81,8 @@ export default defineConfig(
       'docs/assets/js',
       'build',
       'release',
+      // The app and its dependencies, copied in by `npm run package:python`.
+      'python/src/mossnote/_app',
       '.tsbuild',
       '.dev-data',
       'node_modules',

@@ -165,3 +165,13 @@ local_reference/
 
 # Documentation capture scratch
 docs/assets/.video-tmp/
+
+# Python wheel: the app is copied in by `npm run package:python`; none of this is source.
+python/src/mossnote/_app/
+python/LICENSE
+python/build/
+python/*.egg-info/
+python/src/*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/

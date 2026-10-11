@@ -44,10 +44,14 @@ function run(command: string, args: string[], cwd: string): void {
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed.`);
 }
 
-/** The app as it ships in the npm package, plus only the production dependencies. */
-function stageApp(): string {
-  const stage = path.join(work, 'app');
-  fs.rmSync(work, { recursive: true, force: true });
+/**
+ * The app as it ships in the npm package, plus only the production dependencies, in
+ * `<into>/app`. `into` is emptied first. The Python wheel (`scripts/python/build-wheel.ts`)
+ * stages the same way, so both carry exactly what `npm run build` made.
+ */
+export function stageApp(into: string = work): string {
+  const stage = path.join(into, 'app');
+  fs.rmSync(into, { recursive: true, force: true });
   fs.mkdirSync(stage, { recursive: true });
   for (const folder of ['dist/server', 'dist/web', 'drizzle']) {
     fs.cpSync(path.join(root, folder), path.join(stage, folder), { recursive: true });
@@ -55,7 +59,9 @@ function stageApp(): string {
   for (const file of ['package.json', 'package-lock.json']) {
     fs.copyFileSync(path.join(root, file), path.join(stage, file));
   }
-  run('npm', ['ci', '--omit=dev', '--no-audit', '--no-fund'], stage);
+  // Install scripts are skipped: better-sqlite3 ships prebuilt binaries, and on Windows with Node
+  // 22's npm an install script tries to compile it and fails.
+  run('npm', ['ci', '--omit=dev', '--no-audit', '--no-fund', '--ignore-scripts'], stage);
   return stage;
 }
 

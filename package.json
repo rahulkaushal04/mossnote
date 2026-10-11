@@ -65,7 +65,8 @@
     "prepack": "npm run build",
     "package:binary": "tsx scripts/package/build-binary.ts",
     "package:smoke": "tsx scripts/package/smoke.ts",
-    "package:npm-smoke": "tsx scripts/package/npm-smoke.ts"
+    "package:npm-smoke": "tsx scripts/package/npm-smoke.ts",
+    "package:python": "tsx scripts/python/build-wheel.ts"
   },
   "dependencies": {
     "@hono/node-server": "2.1.3",

@@ -117,6 +117,56 @@ jobs:
         env:
           PACKAGE_TARBALL: package-under-test
 
+  # One wheel, built on Linux, is installed and run on every system and Python (no Node.js on the PATH).
+  python-wheel:
+    name: Build the Python wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run build
+      - run: python -m pip install build
+      - name: Make the wheel
+        run: npm run package:python
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: python-wheel
+          path: release/python/*.whl
+          if-no-files-found: error
+
+  python-package:
+    name: Python wheel on ${{ matrix.os }}, Python ${{ matrix.python }}
+    needs: python-wheel
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+        python: ['3.10', '3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install pytest pipx nodejs-wheel-binaries
+      - name: The launcher, tested with a stand-in app
+        run: python -m pytest python/tests -q
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: python-wheel
+          path: python-wheel
+      - name: Install the wheel into an empty environment and run it (version, options, API, data folder, stop)
+        run: python python/tests/wheel_smoke.py python-wheel ${{ matrix.os == 'ubuntu-latest' && '--pipx' || '' }}
+
   webkit-smoke:
     name: WebKit smoke (macOS)
     runs-on: macos-latest

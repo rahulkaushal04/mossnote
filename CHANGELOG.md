@@ -8,6 +8,12 @@ marked as a prerelease. Changes made since the last tag go under "Unreleased".
 
 ## Unreleased
 
+### Python package
+
+- **`pip install mossnote` and `pipx install mossnote`, with no Node.js needed.** One wheel (`py3-none-any`, about 12 MB) carries the app exactly as `npm run build` makes it, its production dependencies and the SQLite module for every system. It runs on the Node.js from the `nodejs-wheel-binaries` package. The `mossnote` command is the npm command: it takes the same options, gives the same errors and uses the same data folders. The beta is `0.1.0b1` to pip and `0.1.0-beta.1` everywhere else. It is built and tested but not published yet.
+- `npm run package:python` builds the wheel, and `python/tests/wheel_smoke.py` installs it into an empty environment with no Node.js on the `PATH` and runs it. CI does that on Linux (x64 and arm64), macOS and Windows with Python 3.10, 3.12 and 3.14. `.github/workflows/pypi.yml` publishes with trusted publishing (TestPyPI by hand, PyPI by hand or on a tag when `PUBLISH_TO_PYPI` is set). Nothing is published.
+- Fixed: the standalone program builder ran install scripts, which would try to compile the SQLite module on Windows with Node 22 and fail.
+
 ## 0.1.0-beta.1 - 2026-10-11
 
 The first beta, and the first version published to npm (`npx mossnote@beta`). It collects
