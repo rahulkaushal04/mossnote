@@ -15,7 +15,8 @@ import { API_ARGS } from './dev-command';
  * tsconfig flag fails here instead of on a user's machine.
  */
 const root = path.resolve('.');
-const tsx = path.join(root, 'node_modules', '.bin', 'tsx');
+// `.bin/tsx` is a `.cmd` file on Windows, so run tsx's script with this Node.
+const tsx = path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -35,22 +36,18 @@ describe('npm script entry points', () => {
     const dataDir = makeTempDir();
     const port = await freePort();
     // Same arguments as `npm run dev`, without `watch` so the process is simple to stop.
-    const child = spawn(
-      tsx,
-      API_ARGS.filter((arg) => arg !== 'watch'),
-      {
-        cwd: root,
-        env: {
-          ...process.env,
-          NODE_ENV: 'development',
-          MOSS_DATA_DIR: dataDir,
-          MOSS_PORT: String(port),
-          MOSS_OPEN_BROWSER: '0',
-          MOSS_LOG_LEVEL: 'error',
-        },
-        stdio: ['ignore', 'pipe', 'pipe'],
+    const child = spawn(process.execPath, [tsx, ...API_ARGS.filter((arg) => arg !== 'watch')], {
+      cwd: root,
+      env: {
+        ...process.env,
+        NODE_ENV: 'development',
+        MOSS_DATA_DIR: dataDir,
+        MOSS_PORT: String(port),
+        MOSS_OPEN_BROWSER: '0',
+        MOSS_LOG_LEVEL: 'error',
       },
-    );
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
     let stderr = '';
     child.stderr.on('data', (chunk: Buffer) => {
       stderr += chunk.toString();
@@ -97,6 +94,7 @@ describe('npm script entry points', () => {
     ).close();
     const vacuum = spawnSync('npm', ['run', '--silent', 'db:vacuum'], {
       cwd: root,
+      shell: process.platform === 'win32',
       env: { ...process.env, MOSS_DATA_DIR: dataDir },
       encoding: 'utf8',
     });

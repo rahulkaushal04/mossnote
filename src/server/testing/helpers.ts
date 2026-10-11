@@ -14,7 +14,7 @@ export function makeTempDir(prefix = 'moss-test-'): string {
 }
 
 export function removeDir(dir: string): void {
-  fs.rmSync(dir, { recursive: true, force: true });
+  fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 }
 
 export interface FakeClock extends Clock {

@@ -12,10 +12,16 @@ export type { Database, Db, Sqlite } from './types';
  */
 export function openDatabase(filename: string): Database {
   const sqlite = new BetterSqlite3(filename);
-  sqlite.pragma('journal_mode = WAL');
-  sqlite.pragma('foreign_keys = ON');
-  sqlite.pragma('synchronous = NORMAL');
-  sqlite.pragma('busy_timeout = 5000');
+  try {
+    sqlite.pragma('journal_mode = WAL');
+    sqlite.pragma('foreign_keys = ON');
+    sqlite.pragma('synchronous = NORMAL');
+    sqlite.pragma('busy_timeout = 5000');
+  } catch (error) {
+    // An open handle would keep a bad file locked on Windows.
+    sqlite.close();
+    throw error;
+  }
 
   if (filename !== ':memory:') {
     try {

@@ -27,7 +27,7 @@ describe('focus rings', () => {
     const offenders = walk(root)
       .filter((f) => /\.(tsx|css)$/.test(f) && !f.endsWith('.test.tsx'))
       .filter((f) => /outline-none|outline:\s*none/.test(fs.readFileSync(f, 'utf8')))
-      .map((f) => path.relative(root, f))
+      .map((f) => path.relative(root, f).split(path.sep).join('/'))
       .filter((f) => !(f in ALLOWED));
     expect(offenders).toEqual([]);
   });
