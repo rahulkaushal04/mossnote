@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { MIN_NODE, nodeIsSupported } from '../../bin/options.js';
+import { LINUX_FLOOR } from './linux-floor';
 
 /**
  * The oldest Node and the version number are each written in several places. These tests fail when
@@ -79,5 +80,27 @@ describe('the version number', () => {
     const stable = /(?<![\d.])0\.1\.0(?![\d.-]|b\d|a\d|rc\d)/;
     const offenders = candidates.filter((file) => stable.test(read(file)));
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('the Linux floor of the standalone program', () => {
+  it('is what the documentation says, and none of it still names an older number', () => {
+    for (const document of [
+      'README.md',
+      'python/README.md',
+      'docs/content/getting-started.html',
+      'docs/content/troubleshooting.html',
+    ]) {
+      expect(read(document), document).toContain(`glibc ${LINUX_FLOOR.glibc}`);
+      expect(read(document), document).not.toMatch(/glibc 2\.(?:17|28|31)\b/);
+    }
+  });
+
+  it('is run on by the programs workflow, in the distributions the README names', () => {
+    const workflow = read('.github/workflows/binaries.yml');
+    for (const image of ['ubuntu:22.04', 'ubuntu:24.04', 'debian:12', 'fedora:latest']) {
+      expect(workflow).toContain(`'${image}'`);
+    }
+    expect(workflow).toContain('ubuntu-24.04-arm');
   });
 });

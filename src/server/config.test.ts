@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { ConfigError, isLoopbackHost, loadConfig } from './config';
 
 const base = { MOSS_DATA_DIR: '/tmp/moss-config-test' };
+// The data folder is made absolute, which on Windows adds a drive letter.
+const dataDir = path.resolve('/tmp/moss-config-test');
 
 describe('loadConfig', () => {
   it('uses the documented defaults', () => {
@@ -21,9 +23,9 @@ describe('loadConfig', () => {
 
   it('derives every path from the data folder and journal name', () => {
     const config = loadConfig({ ...base, MOSS_JOURNAL: 'second-run' });
-    expect(config.dbPath).toBe(path.join('/tmp/moss-config-test', 'second-run.db'));
-    expect(config.lockPath).toBe(path.join('/tmp/moss-config-test', 'second-run.lock'));
-    expect(config.backupsDir).toBe(path.join('/tmp/moss-config-test', 'backups'));
+    expect(config.dbPath).toBe(path.join(dataDir, 'second-run.db'));
+    expect(config.lockPath).toBe(path.join(dataDir, 'second-run.lock'));
+    expect(config.backupsDir).toBe(path.join(dataDir, 'backups'));
   });
 
   it('resolves the default data folder from the platform', () => {

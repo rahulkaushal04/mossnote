@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { inject } from 'postject';
 import { build as bundle } from 'tsup';
 import { pack, readFolder } from './archive';
+import { atMost, highest, versionNeeds } from './elf';
+import { LINUX_FLOOR } from './linux-floor';
 
 /**
  * `npm run package:binary`: build the standalone download for the machine this runs on.
@@ -65,6 +67,33 @@ export function stageApp(into: string = work): string {
   return stage;
 }
 
+/** On Linux, fail if the program needs more than the documented floor (`linux-floor.ts`). */
+export function assertLinuxFloor(
+  stage: string,
+  node: string = process.execPath,
+  architecture: string = process.arch,
+): void {
+  const arch = architecture === 'arm64' ? 'arm64' : 'x64';
+  const files = [
+    node,
+    path.join(stage, 'node_modules', 'better-sqlite3', 'prebuilds', `linux-${arch}.node`),
+  ];
+  for (const file of files) {
+    const needs = versionNeeds(fs.readFileSync(file));
+    const glibc = highest(needs, 'GLIBC');
+    const glibcxx = highest(needs, 'GLIBCXX');
+    process.stdout.write(
+      `${path.basename(file)}: glibc ${glibc ?? '-'}, libstdc++ ${glibcxx ?? '-'}\n`,
+    );
+    if (!atMost(glibc, LINUX_FLOOR.glibc) || !atMost(glibcxx, LINUX_FLOOR.glibcxx)) {
+      throw new Error(
+        `${file} needs glibc ${glibc} and libstdc++ ${glibcxx}, which is more than the documented floor ` +
+          `(glibc ${LINUX_FLOOR.glibc}, libstdc++ ${LINUX_FLOOR.glibcxx}). Update scripts/package/linux-floor.ts and the documentation.`,
+      );
+    }
+  }
+}
+
 async function main(): Promise<void> {
   const [major = 0, minor = 0] = process.versions.node.split('.').map(Number);
   if (major < 22 || (major === 22 && minor < 14)) {
@@ -80,6 +109,7 @@ async function main(): Promise<void> {
 
   process.stdout.write('Staging the app with its production dependencies…\n');
   const stage = stageApp();
+  if (process.platform === 'linux') assertLinuxFloor(stage);
   const files = readFolder(stage, isDeadWeight);
   const archive = pack(files);
   const archivePath = path.join(work, 'app.bin');

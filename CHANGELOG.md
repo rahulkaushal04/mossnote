@@ -8,6 +8,16 @@ marked as a prerelease. Changes made since the last tag go under "Unreleased".
 
 ## Unreleased
 
+### Linux and Windows programs
+
+- **The standalone programs are built, run and checked on each system by a new workflow** (`binaries.yml`): Linux x64 and arm64 and Windows x64, each on its own system. The Linux downloads are also run in clean Ubuntu 22.04 and 24.04, Debian 12 and Fedora containers, on both architectures. It runs by hand and on pull requests, needs no tag and publishes nothing. The release workflow calls it and attaches exactly the files it tested, to a draft release created only after every program passed.
+- **Linux arm64 is now built.** The minimum Linux is documented from measurement: glibc 2.34 and the C++ library of GCC 11, set by the SQLite module (the Node.js inside needs only glibc 2.28). The build fails if either number rises. Alpine and older systems are not supported, and the README says how to tell.
+- **Fixed: the Windows program could not be built in the release workflow.** On Windows with Node 22, `npm ci` tried to compile the SQLite module and failed.
+- **Fixed: the program's command line was looser than the npm one.** A typo such as `--prot 4000` was ignored and `--port=4000` did nothing. It now uses the same parser, with the same messages.
+- **The program stops cleanly when its terminal window is closed** (SIGHUP, and Ctrl+Break on Windows), as it does for Ctrl+C. This applies to the npm and Python routes too.
+- **First-run unpacking is sturdier.** On Windows it tries again when an antivirus scanner is still reading the new files, a failure to unpack says why and how to choose another cache, and half-finished unpacks left by a crash are removed.
+- `npm run package:smoke` now unpacks the real tarball, runs the program from a folder with a space in its name with no Node.js on the `PATH`, checks the cache, and runs the same checks as the npm package. `npm run package:checksums` verifies every `.sha256`. The Windows program is not code-signed; the README says what SmartScreen does and how to proceed.
+
 ### Python package
 
 - **`pip install mossnote` and `pipx install mossnote`, with no Node.js needed.** One wheel (`py3-none-any`, about 12 MB) carries the app exactly as `npm run build` makes it, its production dependencies and the SQLite module for every system. It runs on the Node.js from the `nodejs-wheel-binaries` package. The `mossnote` command is the npm command: it takes the same options, gives the same errors and uses the same data folders. The beta is `0.1.0b1` to pip and `0.1.0-beta.1` everywhere else. It is built and tested but not published yet.

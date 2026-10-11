@@ -119,7 +119,10 @@ export function parseArgs(args) {
 }
 
 /** The text of `mossnote --help`. */
-export function helpText(version) {
+export function helpText(version, { program = false } = {}) {
+  const runtime = program
+    ? 'This program includes its own Node.js.'
+    : 'Mossnote needs Node 22.14 or newer.';
   return `Mossnote ${version}
 A private journal for the games you play. It runs on this computer only.
 
@@ -135,7 +138,7 @@ Options:
   --help, -h           Print this help
 
 Both forms work: --port 4000 and --port=4000. An option wins over its environment variable.
-Press Ctrl+C to stop. Mossnote needs Node 22.14 or newer.
+Press Ctrl+C to stop. ${runtime}
 
 Your journals live in your user folder, never beside the program, so installing,
 upgrading or reinstalling Mossnote never touches them. The default folder is

@@ -206,14 +206,46 @@ pip install --pre mossnote
 
 ### Use the program
 
-Download the program for your system from the [releases page](https://github.com/rahulkaushal04/mossnote/releases). Check the file against its `.sha256` file.
+A single file with its own Node.js inside, so there is nothing to install first. Download the one for your system from the [releases page](https://github.com/rahulkaushal04/mossnote/releases).
 
-| System  | File                                   | How to run it                                    |
-| ------- | -------------------------------------- | ------------------------------------------------ |
-| Windows | `mossnote-v<version>-win-x64.exe`      | Double-click it                                  |
-| Linux   | `mossnote-v<version>-linux-x64.tar.gz` | Unpack it with `tar -xzf`, then run `./mossnote` |
+| System      | File                                     | Needs                                                                                                             |
+| ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Linux x64   | `mossnote-v<version>-linux-x64.tar.gz`   | glibc 2.34 or newer, and the C++ library of GCC 11 or newer (Ubuntu 22.04, Debian 12, Fedora 35, RHEL 9 or newer) |
+| Linux arm64 | `mossnote-v<version>-linux-arm64.tar.gz` | The same                                                                                                          |
+| Windows x64 | `mossnote-v<version>-win-x64.exe`        | Windows 10 or 11, 64-bit. Windows on ARM runs it through its x64 emulation, which has not been tested             |
 
-The programs are not code-signed, so Windows may ask you to confirm the first run. On macOS, use Node.
+Each file has a `.sha256` file beside it. macOS has no download: use [Node](#use-node) or [Python](#use-python).
+
+**Linux**
+
+```bash
+sha256sum -c mossnote-v<version>-linux-x64.tar.gz.sha256
+tar -xzf mossnote-v<version>-linux-x64.tar.gz
+./mossnote
+```
+
+It opens your browser (add `--no-open` to stop that) and prints the address, `http://127.0.0.1:4317`. Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop it. To run it from anywhere, move it onto your `PATH`, for example `mv mossnote ~/.local/bin/`.
+
+**Windows**
+
+1. Check the download. In PowerShell, `(Get-FileHash .\mossnote-v<version>-win-x64.exe).Hash` must match the digits in the `.sha256` file (case does not matter).
+2. Double-click the file. A console window opens and then your browser. Close the window, or press <kbd>Ctrl</kbd> + <kbd>C</kbd> in it, to stop Mossnote.
+3. **The program is not code-signed yet**, so Windows SmartScreen may show "Windows protected your PC". That warning is about a program Windows has not seen much, and it is not a verdict that the file is harmful. Once you have checked the checksum, choose **More info**, then **Run anyway**. Some antivirus programs also scan a new program for a moment on its first start.
+
+**What it keeps, and where**
+
+- **Your journals** are in your [data folder](#your-data), never beside the program. Replacing the file with a newer one, or deleting it, does not touch them.
+- **A copy of the app** is unpacked on the first start, about 60 MB, in `~/.cache/Mossnote/app` on Linux (or under `$XDG_CACHE_HOME`) and `%LOCALAPPDATA%\Mossnote\Cache\app` on Windows. The first start takes a few seconds longer. It holds code only, so deleting it is always safe: it is unpacked again next time. Other versions are removed on their own.
+- **To update**, replace the file. **To remove it**, delete the file and that cache folder.
+
+It takes the same options as the [Node route](#use-node) (`--port`, `--data-dir`, `--journal`, `--no-open`, `--lan`, `--version`, `--help`) and reports mistakes the same way.
+
+**Limits**
+
+- **Linux needs glibc 2.34.** Ubuntu 20.04, Debian 11 and RHEL 8 are older and are not supported: the program stops with a message such as ``version `GLIBC_2.34' not found``. The number comes from the SQLite module the program carries, measured on the real files. Check yours with `ldd --version`.
+- **Alpine and other musl systems are not supported**, because the program is built for glibc. Use the [Node](#use-node) or [Python](#use-python) route there.
+- **Windows: ending only `mossnote.exe` in Task Manager** is an abrupt stop. The next start recovers by itself, but closing the console window or pressing Ctrl+C stops it cleanly.
+- It does not check for updates.
 
 ### Your first journal
 

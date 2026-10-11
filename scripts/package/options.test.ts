@@ -149,5 +149,8 @@ describe('helpText', () => {
     expect(text).toContain('.local/share/mossnote');
     expect(text).toContain('%APPDATA%\\Mossnote');
     expect(text).toContain('Node 22.14');
+    const program = helpText('1.2.3', { program: true });
+    expect(program).toContain('includes its own Node.js');
+    expect(program).not.toContain('Node 22.14');
   });
 });
