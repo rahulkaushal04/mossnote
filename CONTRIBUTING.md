@@ -60,6 +60,7 @@ npm run test:e2e       # for anything a person can see or click
 - **Runs in both places.** The server code also runs in the browser (the web version). Code in `src/server/services`, `src/server/app.ts` and the portable parts of `src/server/db` must not use Node APIs. Put anything that needs files behind the `Sqlite` and `Storage` interfaces. Changes to the database, snapshots or journals must also pass `npm run test:wasm`.
 - **Web version.** Changes people can see there are checked with `npm run build:standalone` and `npx playwright test --project=standalone` (add `--project=standalone-webkit` for Safari's engine). The web version must never request another site. Changes to how it is built or hosted are also checked with `npm run verify:pages`, which builds it for a GitHub project site and opens it the way Pages serves it (see _Publish the web version_ in the README).
 - **Packaging.** Changes to `bin/`, `scripts/package/`, `package.json` (its `files`, `engines` or dependencies) or `.github/workflows/release.yml` are checked with `npm run package:npm-smoke` (builds the npm tarball, installs it into an empty project, and runs it) and, for the downloadable programs, `npm run package:binary` and `npm run package:smoke`, on your system. They must not add a network call or write outside the data folder. The oldest Node is written in `package.json`, `bin/options.js` and `scripts/package/build-binary.ts`, and `scripts/package/versions.test.ts` fails if they disagree.
+- **Python package.** Changes to `python/`, `scripts/python/` or `.github/workflows/pypi.yml` are checked with `npm run build`, `npm run package:python` (needs `pip install build`), then `python python/tests/wheel_smoke.py release/python` (add `--pipx` with pipx installed) and `python -m pytest python/tests`. The launcher passes every argument to `bin/mossnote.js` untouched; do not add options or checks of its own.
 - **Docs.** Update the README if something a user can see changed. Leave `CHANGELOG.md` for the maintainer.
 
 ## Commit messages
@@ -99,6 +100,20 @@ The workflow then checks the code, builds the Windows and Linux programs, builds
 For a later release, change the version with `npm version <new version> --no-git-tag-version` (it updates `package.json` and the lockfile together), update the changelog, merge, and push the new tag. A version can be published only once, so a fix after a bad publish is a new version.
 
 After it finishes, check from a machine that has never had the repository: `npm view mossnote dist-tags versions`, then `npx mossnote@beta --version` and a real start. The package page on npmjs.com should show the provenance. If a bad version goes out, `npm deprecate mossnote@<version> "<reason>"` is the safe fix; npm only allows removing a version within 72 hours of publishing it.
+
+## Releasing to PyPI (maintainers)
+
+The Python package (`python/`) is one wheel that carries the app from `npm run build`, its production `node_modules` and a launcher. It depends on `nodejs-wheel-binaries` for Node.js. `.github/workflows/pypi.yml` builds it, installs and runs it on Linux, macOS and Windows (`python/tests/wheel_smoke.py`), and publishes it with PyPI's **trusted publishing**: no password or token is stored anywhere. Nothing has to be set up in the repository's secrets. What the maintainer needs:
+
+1. **PyPI and TestPyPI accounts** with two-factor authentication. Check the name is free: `https://pypi.org/project/mossnote/` should say 404 (it did when this was written).
+2. **A pending publisher on PyPI** (pypi.org, Your account, Publishing, Add a new pending publisher): project name `mossnote`, owner `rahulkaushal04`, repository `mossnote`, workflow `pypi.yml`, environment `pypi`. Do the same on test.pypi.org with environment `testpypi`. A pending publisher creates the project on its first publish.
+3. **Two GitHub environments** (repository Settings, Environments): `pypi` and `testpypi`. Add yourself as a required reviewer on `pypi` if you want a manual approval before anything goes to PyPI.
+4. **Try TestPyPI first.** Actions, _PyPI_, Run workflow, repository `testpypi`. Then in a clean machine: `pipx run --pre --index-url https://test.pypi.org/simple/ --pip-args="--extra-index-url https://pypi.org/simple/" mossnote --version`.
+5. **PyPI.** Either run the workflow by hand with repository `pypi`, or set the repository variable `PUBLISH_TO_PYPI` to `true` and push the version tag (the same `v0.1.0-beta.1` tag as the npm release). A tag without the variable only builds and tests.
+
+The version is written twice and kept in step by a check: `package.json` says `0.1.0-beta.1` and `python/pyproject.toml` says `0.1.0b1`. `scripts/python/version.ts` converts one into the other (`-alpha.N`, `-beta.N` and `-rc.N` become `aN`, `bN` and `rcN`), a test fails if they disagree, and `npm run package:python` refuses to build. To change the version, run `npm version <new version> --no-git-tag-version` and edit `python/pyproject.toml` to match. PyPI never accepts the same version twice, and a published file cannot be replaced; a bad release is yanked (`pip` then skips it) and the fix is a new version.
+
+When the first version is on PyPI, remove the "not published yet" notes in `README.md` and `docs/content/getting-started.html`.
 
 ## Security problems
 

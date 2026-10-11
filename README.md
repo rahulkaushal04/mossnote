@@ -113,11 +113,11 @@ On a big screen you get a sidebar. On a tablet you get a slim icon bar. On a pho
 
 Pick the row that matches how you play.
 
-| You play on                                    | Use                                                                                                                      | Your journal is kept        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
-| A PC or laptop, with notes on the same machine | [Use Node](#use-node) (`npx mossnote@beta`), the [program](#use-the-program), or [run it from source](#run-from-source). | In a folder on the computer |
-| A PC or laptop, with notes on a phone          | The same, with [phone access](#phone-access) turned on                                                                   | In a folder on the computer |
-| A console, with notes on a phone               | The [web version](https://rahulkaushal04.github.io/mossnote/) on the phone                                               | In the phone's browser      |
+| You play on                                    | Use                                                                                                                                                                                                 | Your journal is kept        |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| A PC or laptop, with notes on the same machine | [Use Node](#use-node) (`npx mossnote@beta`), [use Python](#use-python) (`pipx install --pre mossnote`, no Node needed), the [program](#use-the-program), or [run it from source](#run-from-source). | In a folder on the computer |
+| A PC or laptop, with notes on a phone          | The same, with [phone access](#phone-access) turned on                                                                                                                                              | In a folder on the computer |
+| A console, with notes on a phone               | The [web version](https://rahulkaushal04.github.io/mossnote/) on the phone                                                                                                                          | In the phone's browser      |
 
 A journal on a computer and a journal in a browser are separate. To move one, export it and then import the file on the other side. You will find both in **Settings → Data & backup**.
 
@@ -170,6 +170,39 @@ Open the address it prints, or let it open your browser. Press <kbd>Ctrl</kbd> +
 **If it stops suddenly.** After a crash, a power cut or a forced quit, the next start recovers on its own. A second copy for the same journal refuses to start and says so.
 
 **Limits.** Mossnote listens only on this computer unless you turn on [phone access](#phone-access). It does not check for updates, so update it yourself.
+
+### Use Python
+
+You do not need Node.js for this route: the package brings the one it needs. The Python package is built and tested, but it is **not published to PyPI yet**. This section describes how it works once it is.
+
+```bash
+pipx install --pre mossnote   # recommended: keeps it apart from your other Python programs
+mossnote
+```
+
+To try it without installing, or to use plain pip:
+
+```bash
+pipx run --pre mossnote
+pip install --pre mossnote
+```
+
+`--pre` makes sure the beta is chosen. Once a stable version exists, pip and pipx skip betas unless you ask for one.
+
+**Requirements**
+
+- **Python 3.10 or newer.** The package is one wheel for every system. CI installs and runs it on Linux (x64 and arm64), macOS (arm64) and Windows (x64) with Python 3.10, 3.12 and 3.14. Intel Macs and Windows on ARM are not in CI. They should work, because Node.js has wheels for them, but they have not been tested.
+- **The Node.js it uses** comes from the `nodejs-wheel-binaries` package (Node 22.14 or newer, 24.x at the time of writing). It is separate from any Node you may have, and Mossnote ignores a Node on your `PATH`.
+- **About 250 MB of disk space once installed, and a download of about 70 MB.** The Mossnote wheel is about 12 MB (32 MB unpacked). It carries the app, its production dependencies and the SQLite module for every system. The Node.js package is the rest, around 200 MB unpacked.
+- **Linux with glibc** needs glibc 2.34 or newer (Ubuntu 22.04, Debian 12, RHEL 9 or newer). Alpine (musl) is covered too.
+
+**Using it.** `mossnote` takes the same options as the [Node route](#use-node), because it starts the same program: `--port`, `--data-dir`, `--journal`, `--no-open`, `--lan`, `--version` and `--help`. Mistakes are reported the same way, and journals go to the same [data folder](#your-data). Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop it. `python -m mossnote` does the same as `mossnote`.
+
+**Two spellings of one version.** pip writes the beta as `0.1.0b1`. `mossnote --version`, the app's Settings and exports write `0.1.0-beta.1`. It is the same release.
+
+**Updating and removing.** `pipx upgrade mossnote` (or `pip install --upgrade --pre mossnote`) and `pipx uninstall mossnote` never touch your journals, which are in your data folder.
+
+**Limits.** On Windows, closing the terminal window or pressing Ctrl+C stops Mossnote. Ending only `mossnote.exe` in Task Manager can leave the server running, so end `node.exe` as well. A Windows stop is also abrupt, so only recovery after a kill is tested there. It does not check for updates.
 
 ### Use the program
 
@@ -282,7 +315,7 @@ src/web         The React app
 
 The same code runs in Node and in the browser. Only the code that touches files is different. It sits behind two small interfaces, `Sqlite` and `Storage`. The other scripts are described in [CONTRIBUTING](CONTRIBUTING.md) and on the [how it works](https://rahulkaushal04.github.io/mossnote/docs/how-it-works/) page.
 
-When someone pushes a tag such as `v0.1.0-beta.1`, [`release.yml`](.github/workflows/release.yml) checks the code, builds and tests the Windows and Linux programs, and adds them to a draft release. A tag with a `-` in it is a prerelease: the GitHub release is marked that way, and the npm package goes under the `beta` tag, never `latest`. Publishing to npm stays off until the maintainer sets it up (see _Releasing to npm_ in [CONTRIBUTING](CONTRIBUTING.md)). `npm run package:npm-smoke` builds the npm package, installs it into an empty project and runs it, the same check CI runs on Windows, macOS and Linux.
+When someone pushes a tag such as `v0.1.0-beta.1`, [`release.yml`](.github/workflows/release.yml) checks the code, builds and tests the Windows and Linux programs, and adds them to a draft release. A tag with a `-` in it is a prerelease: the GitHub release is marked that way, and the npm package goes under the `beta` tag, never `latest`. Publishing to npm stays off until the maintainer sets it up (see _Releasing to npm_ in [CONTRIBUTING](CONTRIBUTING.md)). The Python wheel is built and published by [`pypi.yml`](.github/workflows/pypi.yml) (see _Releasing to PyPI_). `npm run package:python` builds it from the real npm build, and `python python/tests/wheel_smoke.py release/python` installs it into an empty environment and runs it. `npm run package:npm-smoke` builds the npm package, installs it into an empty project and runs it, the same check CI runs on Windows, macOS and Linux.
 
 ## What Mossnote will not do
 

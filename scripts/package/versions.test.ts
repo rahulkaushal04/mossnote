@@ -75,7 +75,8 @@ describe('the version number', () => {
       ...files('src', (name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)),
       ...files('scripts', (name) => name.endsWith('.ts') && !name.endsWith('.test.ts')),
     ];
-    const stable = /(?<![\d.])0\.1\.0(?![\d.-])/;
+    // 0.1.0-beta.1 and its Python spelling 0.1.0b1 are fine; a bare 0.1.0 is not.
+    const stable = /(?<![\d.])0\.1\.0(?![\d.-]|b\d|a\d|rc\d)/;
     const offenders = candidates.filter((file) => stable.test(read(file)));
     expect(offenders).toEqual([]);
   });
