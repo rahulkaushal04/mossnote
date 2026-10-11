@@ -31,6 +31,20 @@ export default defineConfig({
       testIgnore: /webkit\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // The web version served the way GitHub Pages serves a project site (`tests/pages`): under
+    // `/<repository>/`, with a 404.html fallback. `npm run verify:pages` builds it for that.
+    {
+      name: 'pages',
+      testDir: 'tests/pages',
+      testIgnore: /webkit\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'pages-webkit',
+      testDir: 'tests/pages',
+      testMatch: /webkit\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
     {
       name: 'standalone-webkit',
       testDir: 'tests/standalone',

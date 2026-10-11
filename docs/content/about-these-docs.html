@@ -44,7 +44,7 @@ description: How this documentation was produced and checked, what was tested, w
   <li><strong>Touch input.</strong> Pinch zoom, long-press names and touch menus in the map editor.</li>
   <li><strong>Other browsers.</strong> Safari, Firefox and Edge; installing the web version; its offline use and update bar.</li>
   <li><strong>The first public release.</strong> The <code>npx</code> and downloadable-program routes depend on a release that does not exist yet.</li>
-  <li><strong>GitHub Pages itself.</strong> The site was built and served locally with the project-site base path <code>/mossnote/</code> and its links, images and videos were checked there. The live deployment depends on the repository owner turning Pages on and running the workflow.</li>
+  <li><strong>GitHub Pages itself.</strong> The site is built with the project-site base path <code>/mossnote/</code> and tested through a local server that answers like GitHub Pages (a missing address gets <code>404.html</code>, a folder without a slash is redirected), in Chromium and in WebKit. That checks the base path, refreshing on a deep link, offline use and these pages' links. It is not the same as the live site: browsers other than Chromium and WebKit, and the live host's own behaviour, were not tested.</li>
   <li><strong>Print output.</strong>, <strong>very large journals</strong> and <strong>paging beyond 50 notes</strong>.</li>
   <li><strong>The integrity-check failure path</strong>, upgrade snapshots, and the web version's backup reminder and update bar, which need a particular situation to appear.</li>
   <li><strong>Restoring a map version</strong>, and the exact behaviour of changing a marker type after use.</li>

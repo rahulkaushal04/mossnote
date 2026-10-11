@@ -25,7 +25,7 @@
 </p>
 
 > [!NOTE]
-> Mossnote has no public release yet. For now, [run it from the source code](#get-started). The `npx` and download options work after the first release. The web version and documentation links work after the project's _Web version_ workflow has been run.
+> Mossnote has no public release yet. For now, [run it from the source code](#get-started). The `npx` and download options work after the first release. The [web version](https://rahulkaushal04.github.io/mossnote/) and the [documentation](https://rahulkaushal04.github.io/mossnote/docs/) are published on GitHub Pages and need no install. If you host your own copy, see [Publish the web version](#publish-the-web-version).
 
 ## Why Mossnote
 
@@ -178,7 +178,27 @@ The web version runs in your browser and needs no server. It keeps your journal 
 - **Use one tab.** A second tab shows a message instead of risking damage to your notes.
 - **Avoid private windows.** They often cannot save files.
 
-To host it yourself, run `npm run build:standalone` and serve the `dist/standalone` folder. For a GitHub project site, set `MOSS_BASE=/repository-name/` first. The repository's _Web version_ workflow does this and also adds the documentation at `/docs/`.
+A page refresh or a link to any page, such as `/mossnote/journal`, opens the app. GitHub Pages has no file for that address, so it sends the app's `404.html` (a copy of the front page). Your browser shows the app. The status code is 404, which is how static hosts serve a single-page app.
+
+#### Publish the web version
+
+The repository's _Web version_ workflow builds the web version, checks it and publishes it to GitHub Pages, together with the documentation at `/docs/`. Turn Pages on once in your fork or copy of the repository:
+
+1. Open the repository on GitHub, then **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Open the **Actions** tab, choose **Web version**, then **Run workflow** on `main`. After that it runs on every push to `main`.
+4. When the **Publish to GitHub Pages** job finishes, the address is shown in the job and in **Settings → Pages**. For a repository called `mossnote` it is `https://<owner>.github.io/mossnote/`.
+
+The workflow works out the base path (`/<repository>/` for a project site, `/` for a repository named `<owner>.github.io`). For a custom domain, set a repository variable named `MOSS_BASE` to `/` under **Settings → Secrets and variables → Actions → Variables**. The workflow does not publish unless the tests, the outbound-URL check and the checks of the finished site pass.
+
+To try the same checks on your computer, run `npx playwright install chromium` once, then:
+
+```bash
+npm run verify:pages                # build for /mossnote/ and open it the way Pages serves it
+npm run verify:pages -- /my-fork/   # another repository name
+```
+
+To host it somewhere else, run `npm run build:standalone` and serve the `dist/standalone` folder. Set `MOSS_BASE=/folder/` first if it is not at the root of its address.
 
 ## Your data
 

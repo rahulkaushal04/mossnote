@@ -1,10 +1,23 @@
 name: Web version
 
-# Publishes the web version (the journal in the browser, no server) to GitHub Pages. It only runs
-# when someone starts it by hand from the Actions tab: nothing is published by a push or a tag.
-# Turn Pages on first: Settings, Pages, Source: GitHub Actions.
+# Publishes the web version (the journal in the browser, no server) and the documentation to
+# GitHub Pages: on every push to main, and by hand from the Actions tab. Nothing is published until
+# the build has passed the same checks as `npm run verify:pages`, including opening the finished
+# site the way Pages serves it.
+#
+# Turn Pages on first, once: Settings, Pages, Source: GitHub Actions. See "Publish the web version"
+# in the README.
+#
+# Where the site will live decides the base path it is built for:
+#   https://<owner>.github.io/<repository>/   a project site: /<repository>/ (the usual case)
+#   https://<owner>.github.io/                a repository named <owner>.github.io: /
+#   your own domain                           set the repository variable MOSS_BASE to /
+# A repository variable named MOSS_BASE (Settings, Secrets and variables, Actions, Variables)
+# always wins.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,28 +29,65 @@ concurrency:
 
 jobs:
   build:
-    name: Build the web version
+    name: Build and check the web version
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: npm
+      - id: base
+        name: Work out the address the site will have
+        env:
+          OVERRIDE: ${{ vars.MOSS_BASE }}
+          REPOSITORY: ${{ github.event.repository.name }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+          if [ -n "$OVERRIDE" ]; then
+            base="$OVERRIDE"
+          elif [ "$(lower "$REPOSITORY")" = "$(lower "$OWNER").github.io" ]; then
+            base="/"
+          else
+            base="/$REPOSITORY/"
+          fi
+          case "$base" in /*) ;; *) base="/$base" ;; esac
+          case "$base" in */) ;; *) base="$base/" ;; esac
+          echo "The site will be served at $base"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
       - run: npm ci
+      - run: npm run typecheck
       - run: npm test
       - run: npm run test:wasm
-      - name: Build for this repository's address
+      - name: Build the web version for that address
         run: npm run build:standalone
         env:
-          # A project site lives at https://<owner>.github.io/<repository>/.
-          MOSS_BASE: /${{ github.event.repository.name }}/
+          MOSS_BASE: ${{ steps.base.outputs.base }}
       - run: npm run check:network
       # The documentation is added after the outbound-URL check on purpose: it links to GitHub
       # pages the reader may click, and loads nothing from the network itself.
       - name: Build the documentation into the site (served at /docs/)
         run: npm run docs:build
+      - name: Check addresses, 404.html and the offline file list
+        run: npm run check:pages -- "$BASE"
+        env:
+          BASE: ${{ steps.base.outputs.base }}
+      - run: npx playwright install --with-deps chromium
+      - name: Open the finished site the way GitHub Pages serves it
+        run: npx playwright test --project=pages
+        env:
+          MOSS_EXPECT_BASE: ${{ steps.base.outputs.base }}
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-traces-pages
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

@@ -53,6 +53,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: End-to-end and accessibility tests (production build, full CSP, and the web version)
         run: npm run test:e2e -- --project=chromium --project=standalone
+      - name: Web version as a GitHub project site (base path, 404.html fallback, offline, docs)
+        run: npm run verify:pages
       - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -79,6 +81,14 @@ jobs:
         run: npx playwright install webkit
       - name: Smoke tests in WebKit (the server's app and the web version)
         run: npm run test:e2e -- --project=webkit --project=standalone-webkit --grep @smoke
+      - name: Web version as a GitHub project site, in WebKit
+        run: |
+          npm run build:standalone
+          npm run docs:build
+          npx playwright test --project=pages-webkit
+        env:
+          MOSS_BASE: /mossnote/
+          MOSS_EXPECT_BASE: /mossnote/
       - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
