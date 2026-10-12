@@ -100,8 +100,9 @@ function removeStale(lockPath: string, pid: number, bootedAt: number): boolean {
   }
   try {
     const now = readLock(lockPath);
-    if (now !== null && !isStale(now, pid, bootedAt)) return false;
-    fs.rmSync(lockPath, { force: true });
+    if (now === null) return true;
+    if (!isStale(now, pid, bootedAt)) return false;
+    fs.rmSync(lockPath);
     return true;
   } finally {
     fs.rmSync(guard, { force: true });

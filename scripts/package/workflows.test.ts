@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
  */
 const root = path.resolve(import.meta.dirname, '..', '..');
 const read = (file: string) =>
-  fs.readFileSync(path.join(root, '.github', 'workflows', file), 'utf8');
+  fs.readFileSync(path.join(root, '.github', 'workflows', file), 'utf8').replaceAll('\r\n', '\n');
 
 /** The text of one job: from its name at two spaces of indentation to the next job's. */
 function job(workflow: string, name: string): string {

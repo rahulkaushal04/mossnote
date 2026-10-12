@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { acquireLock, AlreadyRunningError } from './lock';
 import { makeTempDir, removeDir } from './testing/helpers';
 
@@ -153,5 +153,39 @@ describe('acquireLock', () => {
     const b = acquireLock(path.join(dir, 'b.lock'));
     a.release();
     b.release();
+  });
+
+  it('does not remove a lock another process made after the stale one was taken away', () => {
+    fs.writeFileSync(lockPath, '4000001');
+    const realWrite = fs.writeFileSync.bind(fs);
+    const realRead = fs.readFileSync.bind(fs);
+    const realRemove = fs.rmSync.bind(fs);
+    let madeNew = false;
+    vi.spyOn(fs, 'writeFileSync').mockImplementation((file, data, options) => {
+      realWrite(file, data, options);
+      // the other process removes the stale lock right after we take the guard
+      if (String(file).endsWith('.takeover')) realRemove(lockPath);
+    });
+    vi.spyOn(fs, 'readFileSync').mockImplementation(((
+      file: fs.PathOrFileDescriptor,
+      options?: never,
+    ) => {
+      try {
+        return realRead(file, options);
+      } catch (error) {
+        // and makes its own lock the moment we see that the stale one is gone
+        if (String(file) === lockPath && !madeNew) {
+          madeNew = true;
+          realWrite(lockPath, String(otherPid));
+        }
+        throw error;
+      }
+    }) as typeof fs.readFileSync);
+    try {
+      expect(() => acquireLock(lockPath)).toThrow(AlreadyRunningError);
+      expect(fs.readFileSync(lockPath, 'utf8')).toBe(String(otherPid));
+    } finally {
+      vi.restoreAllMocks();
+    }
   });
 });
