@@ -2,7 +2,7 @@ import type { ErrorHandler, NotFoundHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { ZodError } from 'zod';
 import { AppError } from '../errors';
-import type { Logger } from '../logger';
+import { errorFacts, type Logger } from '../logger';
 import type { Env } from '../env';
 
 /** The part of a zod error these helpers read (works for both zod and zod-core errors). */
@@ -24,6 +24,17 @@ export function fromZod(error: IssueSource): AppError {
   const fields = zodFields(error);
   const message = error.issues[0]?.message ?? 'That request is not valid.';
   return new AppError('validation_failed', message, { fields });
+}
+
+/** The error at the bottom of a chain of causes: what actually broke. */
+function rootCause(error: unknown): unknown {
+  let current = error;
+  for (let depth = 0; depth < 5; depth++) {
+    const next = (current as { cause?: unknown } | null)?.cause;
+    if (next === undefined || next === null) break;
+    current = next;
+  }
+  return current;
 }
 
 function isDiskFull(error: unknown): boolean {
@@ -59,11 +70,21 @@ export function errorHandler(logger: Logger): ErrorHandler<Env> {
     }
 
     if (app.status >= 500) {
-      logger.error('request failed', {
+      const own = errorFacts(error);
+      const fields: Record<string, string | number> = {
         id: requestId,
         code: app.code,
-        kind: error instanceof Error ? error.name : 'unknown',
-      });
+        kind: own.name ?? 'unknown',
+      };
+      // An AppError's own `code` is the app's; for anything else it is the driver's or the system's.
+      if (!(error instanceof AppError) && own.code) fields.errorCode = own.code;
+      const root = rootCause(error);
+      if (root !== error) {
+        const cause = errorFacts(root);
+        if (cause.name) fields.cause = cause.name;
+        if (cause.code) fields.causeCode = cause.code;
+      }
+      logger.error('request failed', fields);
     }
     return c.json(app.toBody(), app.status);
   };

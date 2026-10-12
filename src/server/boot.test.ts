@@ -33,6 +33,75 @@ afterEach(() => {
   removeDir(dir);
 });
 
+describe('openJournal and files a crash left behind', () => {
+  const HOUR = 3_600_000;
+  const plant = (file: string, ageMs: number) => {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, 'x'.repeat(2000));
+    const when = (clock.now() - ageMs) / 1000;
+    fs.utimesSync(file, when, when);
+    return file;
+  };
+
+  it('removes old partial snapshots and temporary files, and keeps recent ones', async () => {
+    const oldPartial = plant(
+      path.join(config.backupsDir, 'other-20261006-0900-auto.db.partial'),
+      2 * HOUR,
+    );
+    const recentPartial = plant(
+      path.join(config.backupsDir, 'other-20261007-0925-auto.db.partial'),
+      5 * 60_000,
+    );
+    const oldRestore = plant(path.join(config.dataDir, 'other.db.restoring'), 3 * HOUR);
+    const oldTmp = plant(path.join(config.dataDir, 'phone-devices.json.99.tmp'), 2 * HOUR);
+
+    const journal = await open();
+    journal.close();
+
+    expect(fs.existsSync(oldPartial)).toBe(false);
+    expect(fs.existsSync(oldRestore)).toBe(false);
+    expect(fs.existsSync(oldTmp)).toBe(false);
+    expect(fs.existsSync(recentPartial)).toBe(true);
+  });
+
+  it('removes what a crashed run left for this very journal, however recent', async () => {
+    const first = await open();
+    first.close();
+    const own = plant(
+      path.join(config.backupsDir, 'journal-20261007-0929-manual.db.partial'),
+      1_000,
+    );
+    const staged = plant(`${config.dbPath}.restoring`, 1_000);
+
+    const again = await open();
+    again.close();
+
+    expect(fs.existsSync(own)).toBe(false);
+    expect(fs.existsSync(staged)).toBe(false);
+  });
+
+  it('does not touch the files of a journal that another Mossnote has open', async () => {
+    const other = loadConfig({ MOSS_DATA_DIR: config.dataDir, MOSS_JOURNAL: 'second' });
+    const theirs = await openJournal({
+      config: other,
+      clock,
+      logger: silentLogger,
+      migrationsFolder: MIGRATIONS_FOLDER,
+      pid: process.ppid,
+    });
+    const writing = plant(
+      path.join(config.backupsDir, 'second-20261007-0929-auto.db.partial'),
+      1_000,
+    );
+
+    const mine = await open();
+    mine.close();
+
+    expect(fs.existsSync(writing)).toBe(true);
+    theirs.close();
+  });
+});
+
 describe('openJournal', () => {
   it('creates the data folder with restricted permissions, the database and the lock', async () => {
     const journal = await open();

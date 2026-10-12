@@ -67,8 +67,10 @@ export function createPhoneAccess(options: PhoneAccessOptions): PhoneAccess {
     isEnabled: () => enabled,
     setEnabled(next) {
       if (next === enabled) return;
-      enabled = next;
+      // Saved first: if that fails, nothing has changed and the caller is told, instead of the
+      // computer saying yes while the socket, the listeners and the saved choice all say no.
       if (dataDir) writePhonePreference(dataDir, next);
+      enabled = next;
       for (const listener of listeners) listener(next);
     },
     isOpenToNetwork: () => open,
@@ -90,8 +92,8 @@ export function createPhoneAccess(options: PhoneAccessOptions): PhoneAccess {
       const issued = codes.issue();
       return { code: formatCode(issued.code), expiresAt: issued.expiresAt };
     },
-    redeemCode(code, userAgent) {
-      const outcome = codes.redeem(code);
+    redeemCode(code, userAgent, peer) {
+      const outcome = codes.redeem(code, peer);
       if (outcome !== 'ok') return { ok: false, reason: outcome };
       return { ok: true, ...devices.add(userAgent) };
     },

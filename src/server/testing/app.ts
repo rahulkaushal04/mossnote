@@ -2,6 +2,7 @@ import { createApp, type AppConfig } from '../app';
 import { createFolderStorage } from '../db/folderStorage';
 import type { Database } from '../db/client';
 import { serveWeb } from '../middleware/static';
+import type { Logger } from '../logger';
 import type { PhoneAccess } from '../phone/types';
 import { ensureSettings } from '../services/settings';
 import path from 'node:path';
@@ -69,6 +70,8 @@ export async function makeTestApp(
     webRoot?: string;
     template?: string;
     phone?: PhoneAccess;
+    logger?: Logger;
+    openFolder?: (dir: string) => Promise<void>;
   } = {},
 ): Promise<TestApp> {
   const database = await migratedMemoryDatabase();
@@ -91,6 +94,8 @@ export async function makeTestApp(
     config,
     ...(options.webRoot ? { web: serveWeb(options.webRoot) } : {}),
     ...(options.phone ? { phone: options.phone } : {}),
+    ...(options.logger ? { logger: options.logger } : {}),
+    ...(options.openFolder ? { openFolder: options.openFolder } : {}),
   });
   return {
     app,

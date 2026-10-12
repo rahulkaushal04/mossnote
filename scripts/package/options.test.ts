@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { JOURNAL_PATTERN } from '../../src/shared/journalId';
 import { helpText, MIN_NODE, nodeIsSupported, parseArgs, UsageError } from '../../bin/options.js';
@@ -152,5 +154,32 @@ describe('helpText', () => {
     const program = helpText('1.2.3', { program: true });
     expect(program).toContain('includes its own Node.js');
     expect(program).not.toContain('Node 22.14');
+  });
+});
+
+describe('where --help sends you for the environment variables', () => {
+  const root = path.resolve(import.meta.dirname, '..', '..');
+  const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
+  const REFERENCE = 'https://rahulkaushal04.github.io/mossnote/docs/reference/#options';
+
+  it('is the documentation reference, which ships nowhere that could be missing', () => {
+    const text = helpText('1.2.3');
+    expect(text).toContain(REFERENCE);
+    // The README names only two variables and defers to `.env.example`, which the npm package lacks.
+    expect(text).not.toContain('README');
+  });
+
+  it('is a page that lists every variable the app supports', () => {
+    const reference = read('docs/content/reference.html');
+    const listed = [...read('.env.example').matchAll(/^#? ?(MOSS_[A-Z_]+)=/gm)].map((m) => m[1]);
+    expect(listed.length).toBeGreaterThan(5);
+    // Allowing a non-loopback host is deliberately undocumented: "an override exists but is unsupported".
+    for (const name of listed.filter((v) => v !== 'MOSS_ALLOW_REMOTE')) {
+      expect(reference, name).toContain(`<code>${name}</code>`);
+    }
+  });
+
+  it('is also named by the README, whose own link to .env.example does not work from npm', () => {
+    expect(read('README.md')).toContain('docs/reference/');
   });
 });

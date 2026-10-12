@@ -31,4 +31,19 @@ export function createLogger(
   return { error: emit('error'), warn: emit('warn'), info: emit('info'), debug: emit('debug') };
 }
 
+// A name or code is logged only when it is plain identifier text, so nothing a person wrote, and
+// nothing that could break a log line, can get in by way of an error.
+const NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
+const CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
+
+/** What may be logged about an error: its name and its code (SQLITE_FULL, ENOENT), never its message. */
+export function errorFacts(error: unknown): { name?: string; code?: string } {
+  if (typeof error !== 'object' || error === null) return {};
+  const { name, code } = error as { name?: unknown; code?: unknown };
+  return {
+    ...(typeof name === 'string' && NAME_PATTERN.test(name) ? { name } : {}),
+    ...(typeof code === 'string' && CODE_PATTERN.test(code) ? { code } : {}),
+  };
+}
+
 export const silentLogger: Logger = createLogger('error', () => undefined);

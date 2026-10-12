@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { LIMITS } from '@shared/constants';
 import type { CustomField, Planting } from '@shared/types';
 import { useNewNote } from '../../app/NewNote';
+import { ConflictNotice } from '../../components/ui/ConflictNotice';
 import { Dialog } from '../../components/ui/Dialog';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { FieldList, savableFields } from '../../components/ui/FieldList';
@@ -14,6 +15,7 @@ import { TagEditor } from '../../components/ui/TagEditor';
 import { ApiError } from '../../lib/api';
 import { useToast } from '../../components/ui/Toast';
 import { useAutosave } from '../../lib/useAutosave';
+import { useGuardedSave } from '../../lib/useGuardedSave';
 import { GameDateChip } from '../calendar/GameDateChip';
 import { OnMaps } from '../maps/OnMaps';
 import { NoteEntry } from '../notes/NoteEntry';
@@ -109,12 +111,24 @@ function Details({ entry }: { entry: Planting }) {
     });
   };
 
-  const notesSave = useAutosave(async () => {
-    if (latestText.current !== entry.notes) await save({ notes: latestText.current });
+  const notesGuard = useGuardedSave<Planting, string>({
+    record: entry,
+    read: (p) => ({ value: p.notes, updatedAt: p.updatedAt }),
+    send: (notes, expectedUpdatedAt) =>
+      update.mutateAsync({ id: entry.id, patch: { notes, expectedUpdatedAt } }),
+    message: 'The notes changed in another window.',
   });
+  const fieldsGuard = useGuardedSave<Planting, CustomField[]>({
+    record: entry,
+    read: (p) => ({ value: p.customFields, updatedAt: p.updatedAt }),
+    send: (customFields, expectedUpdatedAt) =>
+      update.mutateAsync({ id: entry.id, patch: { customFields, expectedUpdatedAt } }),
+    message: 'The fields changed in another window.',
+  });
+  const notesSave = useAutosave(() => notesGuard.save(() => latestText.current));
   const fieldsSave = useAutosave(async () => {
     const clean = savableFields(latestFields.current);
-    if (clean) await save({ customFields: clean });
+    if (clean) await fieldsGuard.save(() => clean);
   });
   const list = notes.data?.pages.flatMap((p) => p.items) ?? [];
 
@@ -203,7 +217,23 @@ function Details({ entry }: { entry: Planting }) {
           />
         </label>
         <SavedIndicator show={notesSave.saved} />
-        {notesSave.error ? (
+        {notesGuard.conflict !== null ? (
+          <ConflictNotice
+            message="The notes changed in another window."
+            onReload={() => {
+              const theirs = notesGuard.reload();
+              notesSave.clearError();
+              if (theirs === null) return;
+              latestText.current = theirs;
+              setText(theirs);
+            }}
+            onKeepMine={() => {
+              notesGuard.keepMine();
+              notesSave.clearError();
+              notesSave.schedule();
+            }}
+          />
+        ) : notesSave.error ? (
           <p role="alert" className="text-sm text-danger">
             {notesSave.error}
           </p>
@@ -231,7 +261,23 @@ function Details({ entry }: { entry: Planting }) {
           }}
         />
         <SavedIndicator show={fieldsSave.saved} />
-        {fieldsSave.error ? (
+        {fieldsGuard.conflict !== null ? (
+          <ConflictNotice
+            message="The fields changed in another window."
+            onReload={() => {
+              const theirs = fieldsGuard.reload();
+              fieldsSave.clearError();
+              if (theirs === null) return;
+              latestFields.current = theirs;
+              setFields(theirs);
+            }}
+            onKeepMine={() => {
+              fieldsGuard.keepMine();
+              fieldsSave.clearError();
+              fieldsSave.schedule();
+            }}
+          />
+        ) : fieldsSave.error ? (
           <p role="alert" className="text-sm text-danger">
             {fieldsSave.error}
           </p>

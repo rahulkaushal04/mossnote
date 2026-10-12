@@ -70,7 +70,7 @@ function SeasonsEditor() {
     <div className="flex flex-col gap-4">
       <p className="text-ink-muted">
         Name your seasons and say how many days each one has. Renaming a season only changes how
-        dates look.
+        dates look. Only the last season can be removed.
       </p>
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {rows.map((row, index) => (
@@ -100,18 +100,21 @@ function SeasonsEditor() {
               />
               <span className="text-sm text-ink-muted">days</span>
             </label>
-            <button
-              type="button"
-              className="tap text-ink-muted hover:text-danger disabled:opacity-40"
-              aria-label={`Remove ${row.name || `season ${index + 1}`}`}
-              disabled={rows.length <= LIMITS.seasonsMin}
-              onClick={() => {
-                setRows((r) => r.filter((_, i) => i !== index));
-                setSaved(false);
-              }}
-            >
-              <CloseIcon />
-            </button>
+            {index === rows.length - 1 ? (
+              <button
+                type="button"
+                className="tap text-ink-muted hover:text-danger disabled:opacity-40"
+                aria-label={`Remove ${row.name || `season ${index + 1}`}`}
+                disabled={rows.length <= LIMITS.seasonsMin}
+                onClick={() => {
+                  setRows((r) => r.slice(0, -1));
+                  setSaved(false);
+                  setError(null);
+                }}
+              >
+                <CloseIcon />
+              </button>
+            ) : null}
           </li>
         ))}
       </ul>

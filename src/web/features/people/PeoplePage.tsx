@@ -9,7 +9,7 @@ import { RemovableChip } from '../../components/ui/Chip';
 import { PeopleArt } from '../../components/ui/art';
 import { Avatar } from '../../components/ui/Avatar';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
+import { ListSkeleton, LoadError, LoadingMore } from '../../components/ui/Skeleton';
 import { TagPicker } from '../journal/FilterBar';
 import { TagList } from '../notes/NoteParts';
 import { useCreatePerson, usePeople } from './hooks';
@@ -29,7 +29,7 @@ export function PeoplePage() {
   const [filter, setFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const all = people.data?.items ?? [];
+  const all = people.items;
   const needle = filter.trim().toLowerCase();
   const rows = needle ? all.filter((p) => p.name.toLowerCase().includes(needle)) : all;
   const typed = name.trim().toLowerCase();
@@ -150,7 +150,7 @@ export function PeoplePage() {
 
       {people.isError ? <LoadError onRetry={() => void people.refetch()} /> : null}
       <ListSkeleton pending={people.isPending} />
-      {people.data && rows.length === 0 ? (
+      {people.loaded && rows.length === 0 && !people.loadingMore ? (
         all.length === 0 && !tag ? (
           <EmptyState
             art={<PeopleArt />}
@@ -204,6 +204,7 @@ export function PeoplePage() {
           ))}
         </ul>
       ) : null}
+      <LoadingMore show={people.loadingMore} />
     </>
   );
 }

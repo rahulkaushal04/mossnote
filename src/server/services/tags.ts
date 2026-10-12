@@ -3,7 +3,7 @@ import { normalizeTag, normalizeTags } from '@shared/tags';
 import type { Tag } from '@shared/types';
 import { AppError, notFound, validationFailed } from '../errors';
 import { inTx, type Ctx } from './ctx';
-import { reindex, reindexTagged } from './search-index';
+import { reindexMany, reindexTagged } from './search-index';
 
 export type TagKind = 'note' | 'person' | 'planting';
 
@@ -206,6 +206,6 @@ export function deleteTag(ctx: Ctx, id: string): void {
     assertExists(ctx, id);
     const carried = ctx.sqlite.prepare(CARRIED).all(id, id, id) as { kind: TagKind; id: string }[];
     ctx.sqlite.prepare('DELETE FROM tags WHERE id = ?').run(id);
-    for (const record of carried) reindex(ctx, record.kind, record.id);
+    reindexMany(ctx, carried);
   });
 }

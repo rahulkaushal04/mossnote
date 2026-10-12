@@ -7,6 +7,7 @@ import { JournalManager } from './journals/manager';
 import { createFolderStorage } from './db/folderStorage';
 import { ALL_INTERFACES, startListener, type Listener } from './listener';
 import { createLogger } from './logger';
+import { scheduleTrashPurge } from './trashSchedule';
 import { serveWeb } from './middleware/static';
 import { createPhoneAccess, readPhonePreference } from './phone';
 import { followPhoneAccess } from './phone/followAccess';
@@ -96,7 +97,10 @@ async function main(): Promise<void> {
 
   followPhoneAccess({ phone, listener, hostFor, delayMs: REBIND_DELAY_MS, logger });
 
+  const stopPurging = scheduleTrashPurge(() => journals.purgeExpiredTrash(), logger);
+
   const shutdown = () => {
+    stopPurging();
     void listener.close();
     journals.close();
     process.exit(0);

@@ -29,7 +29,7 @@ The supported way to reach it from a phone or tablet is **phone access**, which 
 
 - **This computer is trusted; every other device must be paired.** Who is "this computer" is decided from the address on the other end of the connection, never from a header the sender chooses. A request whose sender cannot be determined is treated as another device.
 - **Pairing.** A one-time code (50 bits, readable alphabet) is shown as a QR code on the computer. It works once, expires after ten minutes, and ten wrong tries lock pairing for a minute. Exchanging it sets a session cookie (`HttpOnly`, `SameSite=Strict`). The server keeps only a SHA-256 hash of each session token, in `phone-devices.json` in the data folder (mode 0600), and compares in constant time.
-- **Management stays on the computer.** Turning phone access off, making codes, and removing devices are refused for paired phones.
+- **Management stays on the computer.** Turning phone access off, making codes, removing devices, and showing the data folder on the computer's screen are refused for paired phones.
 - **Host check, widened.** The accepted `Host` values become the computer's own addresses (and `<name>.local`), read live. Any other name is refused, which keeps DNS rebinding out.
 - **Plain HTTP.** The connection is not encrypted. Anyone who can watch your network traffic can read it, and can steal a paired phone's cookie. Use it on a network you trust, and remove devices you no longer use.
 

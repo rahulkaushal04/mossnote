@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { encode } from '@shared/gameDate';
 import type { ExportFile } from '@shared/schemas/export';
 import type { BackupInfo, DataInfo, ImportSummary, SearchResponse } from '@shared/types';
+import { createLogger } from '../logger';
 import { Api, newId } from '../testing/api';
 import { makeTestApp, type TestApp } from '../testing/app';
 
@@ -541,6 +542,51 @@ describe('import is all or nothing', () => {
     t.database.sqlite.exec('DROP TRIGGER fail_import');
     expect(withoutTime(await exportJson())).toEqual(withoutTime(original));
     api.expectIndexConsistent();
+  });
+});
+
+describe('a failed import leaves its reason in the log', () => {
+  it('logs the kind and code of what broke, never its message or any text of the journal', async () => {
+    const lines: string[] = [];
+    const logged = await makeTestApp({ logger: createLogger('error', (line) => lines.push(line)) });
+    const a = new Api(logged);
+    try {
+      const first = await a.json<{ id: string }>(
+        await logged.call('POST', '/api/maps', { name: 'First' }),
+        201,
+      );
+      const second = await a.json<{ id: string }>(
+        await logged.call('POST', '/api/maps', { name: 'Second' }),
+        201,
+      );
+      for (const [map, label] of [
+        [first, 'Secret label one'],
+        [second, 'Secret label two'],
+      ] as const) {
+        a.tick();
+        await logged.call('POST', `/api/maps/${map.id}/pins`, { x: 0, y: 0, label });
+      }
+      const original = await exportJson(a);
+      // Valid on its face, but one pin id on pins of two maps: the database allows each id once.
+      const clash = structuredClone(original);
+      clash.maps[1]!.pins[0]!.id = clash.maps[0]!.pins[0]!.id;
+      expect((await importFile(clash, a, true)).status).toBe(200);
+
+      const error = await a.error(await importFile(clash, a), 500);
+
+      expect(error.message).toBe('Import failed. Your journal is unchanged.');
+      expect(error.details?.snapshot).toMatch(/pre-import/);
+      expect(JSON.stringify(error)).not.toMatch(/SQLITE|cause|UNIQUE/);
+      expect(withoutTime(await exportJson(a))).toEqual(withoutTime(original));
+      expect(lines).toHaveLength(1);
+      expect(lines[0]).toMatch(/^error request failed /);
+      expect(lines[0]).toContain('code=internal');
+      expect(lines[0]).toMatch(/ cause=[A-Za-z0-9_]+/);
+      expect(lines[0]).toMatch(/ causeCode=SQLITE_CONSTRAINT/);
+      expect(lines.join('\n')).not.toMatch(/Secret label|map_pins|UNIQUE constraint/);
+    } finally {
+      logged.close();
+    }
   });
 });
 

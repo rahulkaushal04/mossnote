@@ -307,7 +307,7 @@ Each journal is one SQLite file in a folder that belongs to you.
 - A journal made by a newer version is left alone and shows a message.
 - Nothing is shared unless you export a file and send it yourself.
 
-All settings are environment variables. They are listed with comments in [`.env.example`](.env.example). For snapshots and restoring, see the [data and backup guide](https://rahulkaushal04.github.io/mossnote/docs/data-and-backup/).
+All settings are environment variables. They are listed in the [reference](https://rahulkaushal04.github.io/mossnote/docs/reference/#options), and with comments in [`.env.example`](.env.example). For snapshots and restoring, see the [data and backup guide](https://rahulkaushal04.github.io/mossnote/docs/data-and-backup/).
 
 ## Documentation
 

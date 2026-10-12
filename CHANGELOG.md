@@ -18,7 +18,7 @@ wording and structure only, never game information.
 
 - Notes with a composer that saves on Cmd/Ctrl+Enter, keeps drafts through a refresh or an outage, and stamps each note with the current game date. Notes can be edited in place; the editor stays open, with a "Discard changes" choice, if a save fails or a newer version is waiting.
 - Today, Day and Journal views with filters for discoveries, questions, tags, people, date ranges and undated notes. On a wide screen the date, tags and links of a note sit in a right-hand margin.
-- Discoveries and questions. A question can be left open, marked solved or ignored, and given an answer.
+- Discoveries and questions. A question is open or solved, and can be given an answer.
 - People and farm entries, each page built from the notes that mention it. `@person`, `[[farm entry]]`, `#tag` and `/` pickers create records as you type, and keep what you typed meanwhile if creating one fails. The editors say when a change could not be saved.
 - A tag manager (rename, pin, merge, delete) and suggestions for field labels. Tags and people ignore case and accents (`#cafe` finds `café`).
 - An editable game calendar, with checks when a change would affect existing dates.

@@ -75,6 +75,44 @@ describe('diffDoc', () => {
     expect(d?.upsert?.map((p) => p.id)).toEqual(['A']);
     expect(d?.remove).toEqual(['B']);
   });
+
+  describe('a marker link', () => {
+    const linked = makePin('MAP', 'A', 1, 1, 'layer-1');
+    const withLink = { ...linked, target: { type: 'person' as const, id: 'P', label: 'Linus' } };
+    const docOf = (pin: MapPin): Doc => ({ ...base, pins: [pin] });
+
+    it('is left out when only something else about the marker changed', () => {
+      const d = diffDoc(docOf(withLink), docOf({ ...withLink, x: 9 }));
+      expect(d?.upsert?.[0]).not.toHaveProperty('target');
+      expect(d?.upsert?.[0]?.x).toBe(9);
+    });
+
+    it('is left out for a marker whose link the server hides, so the stored link survives', () => {
+      const d = diffDoc(docOf(linked), docOf({ ...linked, x: 9 }));
+      expect(d?.upsert?.[0]).not.toHaveProperty('target');
+    });
+
+    it('is sent as null when it was removed', () => {
+      const d = diffDoc(docOf(withLink), docOf({ ...withLink, target: null }));
+      expect(d?.upsert?.[0]).toHaveProperty('target', null);
+    });
+
+    it('is sent when it was added or pointed somewhere else', () => {
+      const added = diffDoc(docOf(linked), docOf(withLink));
+      expect(added?.upsert?.[0]?.target).toEqual({ type: 'person', id: 'P' });
+      const other = { ...withLink, target: { type: 'note' as const, id: 'N', label: 'x' } };
+      expect(diffDoc(docOf(withLink), docOf(other))?.upsert?.[0]?.target).toEqual({
+        type: 'note',
+        id: 'N',
+      });
+    });
+
+    it('is sent with a new marker that has one, and left out when it has none', () => {
+      const created = diffDoc(base, docOf(withLink));
+      expect(created?.upsert?.[0]?.target).toEqual({ type: 'person', id: 'P' });
+      expect(diffDoc(base, docOf(linked))?.upsert?.[0]).not.toHaveProperty('target');
+    });
+  });
 });
 
 describe('useMapDoc', () => {

@@ -41,7 +41,7 @@ description: Reference tables for limits, command-line and environment options, 
   <tbody>
     <tr><td><code>--port &lt;n&gt;</code></td><td><code>MOSS_PORT</code></td><td><code>4317</code></td><td>Port to listen on</td></tr>
     <tr><td><code>--data-dir &lt;folder&gt;</code></td><td><code>MOSS_DATA_DIR</code></td><td>platform default</td><td>Where the data folder is</td></tr>
-    <tr><td><code>--journal &lt;name&gt;</code></td><td><code>MOSS_JOURNAL</code></td><td>not set</td><td>Journal (file name without <code>.db</code>) to open at start; made from the Default template if it does not exist. Unset: the one used last</td></tr>
+    <tr><td><code>--journal &lt;name&gt;</code></td><td><code>MOSS_JOURNAL</code></td><td>not set</td><td>Journal (file name without <code>.db</code>) to open at start; made from the Default template if it does not exist. If it is damaged or was made by a newer version, Mossnote stops instead of opening a different journal. Unset: the one used last</td></tr>
     <tr><td><code>--lan</code></td><td><code>MOSS_LAN</code></td><td>not set</td><td><code>1</code> allows paired phones; <code>0</code> never, whatever Settings says. Unset: the choice saved in Settings</td></tr>
     <tr><td><code>--no-open</code></td><td><code>MOSS_OPEN_BROWSER</code></td><td><code>1</code></td><td><code>0</code> stops it opening a browser</td></tr>
     <tr><td></td><td><code>MOSS_BACKUP_KEEP</code></td><td><code>14</code></td><td>Automatic snapshots to keep per journal</td></tr>

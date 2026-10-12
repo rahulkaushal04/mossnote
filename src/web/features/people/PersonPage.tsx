@@ -4,6 +4,7 @@ import { LIMITS } from '@shared/constants';
 import type { CustomField, Person } from '@shared/types';
 import { useNewNote } from '../../app/NewNote';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { ConflictNotice } from '../../components/ui/ConflictNotice';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { EllipsisIcon } from '../../components/ui/icons';
 import { FieldList, savableFields } from '../../components/ui/FieldList';
@@ -14,6 +15,7 @@ import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
 import { TagEditor } from '../../components/ui/TagEditor';
 import { ApiError } from '../../lib/api';
 import { useAutosave } from '../../lib/useAutosave';
+import { useGuardedSave } from '../../lib/useGuardedSave';
 import { OnMaps } from '../maps/OnMaps';
 import { NoteEntry } from '../notes/NoteEntry';
 import {
@@ -203,11 +205,14 @@ function NotesField({ person }: { person: Person }) {
   const update = useUpdatePerson();
   const [text, setText] = useState(person.notes);
   const latest = useRef(text);
-  const autosave = useAutosave(async () => {
-    if (latest.current !== person.notes) {
-      await update.mutateAsync({ id: person.id, patch: { notes: latest.current } });
-    }
+  const guard = useGuardedSave<Person, string>({
+    record: person,
+    read: (p) => ({ value: p.notes, updatedAt: p.updatedAt }),
+    send: (notes, expectedUpdatedAt) =>
+      update.mutateAsync({ id: person.id, patch: { notes, expectedUpdatedAt } }),
+    message: 'The notes changed in another window.',
   });
+  const autosave = useAutosave(() => guard.save(() => latest.current));
   return (
     <div>
       <label className="flex flex-col gap-1">
@@ -227,7 +232,23 @@ function NotesField({ person }: { person: Person }) {
         />
       </label>
       <SavedIndicator show={autosave.saved} />
-      {autosave.error ? (
+      {guard.conflict !== null ? (
+        <ConflictNotice
+          message="The notes changed in another window."
+          onReload={() => {
+            const theirs = guard.reload();
+            autosave.clearError();
+            if (theirs === null) return;
+            latest.current = theirs;
+            setText(theirs);
+          }}
+          onKeepMine={() => {
+            guard.keepMine();
+            autosave.clearError();
+            autosave.schedule();
+          }}
+        />
+      ) : autosave.error ? (
         <p role="alert" className="text-sm text-danger">
           {autosave.error}
         </p>
@@ -240,9 +261,16 @@ function Fields({ person }: { person: Person }) {
   const update = useUpdatePerson();
   const [fields, setFields] = useState<CustomField[]>(person.customFields);
   const latest = useRef(fields);
+  const guard = useGuardedSave<Person, CustomField[]>({
+    record: person,
+    read: (p) => ({ value: p.customFields, updatedAt: p.updatedAt }),
+    send: (customFields, expectedUpdatedAt) =>
+      update.mutateAsync({ id: person.id, patch: { customFields, expectedUpdatedAt } }),
+    message: 'The fields changed in another window.',
+  });
   const autosave = useAutosave(async () => {
     const clean = savableFields(latest.current);
-    if (clean) await update.mutateAsync({ id: person.id, patch: { customFields: clean } });
+    if (clean) await guard.save(() => clean);
   });
   return (
     <div>
@@ -256,7 +284,23 @@ function Fields({ person }: { person: Person }) {
         }}
       />
       <SavedIndicator show={autosave.saved} />
-      {autosave.error ? (
+      {guard.conflict !== null ? (
+        <ConflictNotice
+          message="The fields changed in another window."
+          onReload={() => {
+            const theirs = guard.reload();
+            autosave.clearError();
+            if (theirs === null) return;
+            latest.current = theirs;
+            setFields(theirs);
+          }}
+          onKeepMine={() => {
+            guard.keepMine();
+            autosave.clearError();
+            autosave.schedule();
+          }}
+        />
+      ) : autosave.error ? (
         <p role="alert" className="text-sm text-danger">
           {autosave.error}
         </p>

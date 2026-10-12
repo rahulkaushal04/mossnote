@@ -21,6 +21,12 @@ const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Mobile/15
 
 let t: TestApp;
 let phone: PhoneAccess;
+/** The folders the app was asked to show in the file manager. */
+let opened: string[] = [];
+const openFolder = (dir: string) => {
+  opened.push(dir);
+  return Promise.resolve();
+};
 
 async function start(enabled: boolean) {
   phone = createPhoneAccess({
@@ -29,7 +35,8 @@ async function start(enabled: boolean) {
     enabled,
     network: { interfaces: INTERFACES, hostname: () => 'laptop' },
   });
-  t = await makeTestApp({ phone });
+  opened = [];
+  t = await makeTestApp({ phone, openFolder });
 }
 
 afterEach(() => {
@@ -205,6 +212,21 @@ describe('while phone access is on', () => {
     expect(await again.text()).toContain('expired');
   });
 
+  it('locks out only the device that keeps guessing, not a phone that pairs meanwhile', async () => {
+    const { code } = phone.issueCode();
+    for (let guess = 0; guess < 10; guess++) {
+      await t.callFrom('192.168.1.99', 'GET', '/pair?code=WRONGWRONG');
+    }
+    const guesser = await t.callFrom('192.168.1.99', 'GET', `/pair?code=${code}`);
+
+    const honest = await t.callFrom(PHONE_ADDRESS, 'GET', `/pair?code=${code}`, undefined, {
+      'user-agent': IPHONE,
+    });
+
+    expect(guesser.status).toBe(429);
+    expect(honest.status).toBe(303);
+  });
+
   it('locks pairing after repeated wrong codes', async () => {
     phone.issueCode();
     for (let guess = 0; guess < 10; guess++) {
@@ -228,6 +250,26 @@ describe('while phone access is on', () => {
       const res = await t.callFrom(PHONE_ADDRESS, method, path, body, { cookie });
       expect(res.status, `${method} ${path}`).toBe(403);
     }
+  });
+
+  it('does not let a paired phone open the data folder on the computer', async () => {
+    const cookie = await pairPhone();
+
+    const res = await t.callFrom(PHONE_ADDRESS, 'POST', '/api/data/open-folder', undefined, {
+      cookie,
+    });
+
+    expect(res.status).toBe(403);
+    expect(opened).toEqual([]);
+  });
+
+  it('still opens the data folder for the computer itself', async () => {
+    await pairPhone();
+
+    const res = await computer('POST', '/api/data/open-folder');
+
+    expect(res.status).toBe(204);
+    expect(opened).toEqual([t.dir]);
   });
 
   it('makes a pairing code with a link per address for the computer', async () => {
@@ -309,5 +351,22 @@ describe('while the network socket is still open after phone access was turned o
     phone.setOpenToNetwork(false);
 
     expect((await stranger('GET', '/api/settings')).status).toBe(200);
+  });
+});
+
+describe('without any phone access to manage, as in the browser runtime', () => {
+  it('still opens the data folder, because there is no other device to refuse', async () => {
+    const folders: string[] = [];
+    t = await makeTestApp({
+      openFolder: (dir) => {
+        folders.push(dir);
+        return Promise.resolve();
+      },
+    });
+
+    const res = await t.call('POST', '/api/data/open-folder');
+
+    expect(res.status).toBe(204);
+    expect(folders).toEqual([t.dir]);
   });
 });

@@ -5,6 +5,7 @@ import { useToast } from '../../components/ui/Toast';
 import { api } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { queryKeys } from '../../lib/queryKeys';
+import { useAllPages } from '../../lib/useAllPages';
 
 const AFTER_PERSON_CHANGE: readonly (readonly unknown[])[] = [
   ['people'],
@@ -18,12 +19,21 @@ const AFTER_PERSON_CHANGE: readonly (readonly unknown[])[] = [
   ['fieldLabels'],
 ];
 
-export const usePeople = (params: { tag?: string | undefined; sort: 'name' | 'updated' }) =>
-  useQuery({
+/** Every person, a page at a time as they arrive. */
+export function usePeople(params: { tag?: string | undefined; sort: 'name' | 'updated' }) {
+  const query = useInfiniteQuery({
     queryKey: queryKeys.people(params),
-    queryFn: () =>
-      api.listPeople({ ...(params.tag ? { tag: params.tag } : {}), sort: params.sort }),
+    queryFn: ({ pageParam }) =>
+      api.listPeople({
+        ...(params.tag ? { tag: params.tag } : {}),
+        sort: params.sort,
+        ...(pageParam ? { cursor: pageParam } : {}),
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+  return useAllPages(query);
+}
 
 export const usePerson = (id: string) =>
   useQuery({ queryKey: queryKeys.person(id), queryFn: () => api.getPerson(id) });

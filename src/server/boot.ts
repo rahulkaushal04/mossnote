@@ -9,6 +9,7 @@ import {
 } from './db/backup';
 import { openDatabase, type Database } from './db/client';
 import { isCorruption } from './db/corruption';
+import { removeLeftovers } from './db/leftovers';
 import { knownMigrations, peekSchema } from './db/catalog';
 import {
   MigrationFailedError,
@@ -82,6 +83,13 @@ export async function openJournal(options: OpenJournalOptions): Promise<Journal>
   const lock: Lock = acquireLock(config.lockPath, options.pid);
   let database: Database | undefined;
   try {
+    const cleared = removeLeftovers({
+      dataDir: config.dataDir,
+      backupsDir: config.backupsDir,
+      journal: config.journal,
+      now: clock.now(),
+    });
+    if (cleared > 0) logger.info('removed files left by an earlier crash', { count: cleared });
     let problems: string[];
     try {
       database = openDatabase(config.dbPath);

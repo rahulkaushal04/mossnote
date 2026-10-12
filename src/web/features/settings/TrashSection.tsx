@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TrashItem } from '@shared/types';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { api } from '../../lib/api';
+import { useToast } from '../../components/ui/Toast';
+import { api, ApiError } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { formatDateTime } from '../../lib/format';
 import { ALL_DATA_KEYS, queryKeys } from '../../lib/queryKeys';
@@ -26,18 +27,29 @@ export function TrashSection() {
   const [emptying, setEmptying] = useState(false);
   const kindLabel = (kind: TrashItem['kind']): string =>
     kind === 'planting' ? sentence(terms.farm.one) : KIND[kind];
+  const toast = useToast();
   const refresh = () => invalidateEverywhere(client, ALL_DATA_KEYS);
+  // The list is refreshed whatever happened: an item that is already gone leaves it.
+  const failed = (what: string) => (error: Error) => {
+    toast.show({
+      message: error instanceof ApiError ? error.message : `Couldn't ${what}.`,
+      tone: 'alert',
+    });
+  };
   const restore = useMutation({
     mutationFn: (item: TrashItem) => api.restoreFromTrash(item.kind, item.id),
-    onSuccess: refresh,
+    onError: failed('restore that'),
+    onSettled: refresh,
   });
   const empty = useMutation({
     mutationFn: () => api.emptyTrash(),
-    onSuccess: refresh,
+    onError: failed('empty Recently deleted'),
+    onSettled: refresh,
   });
   const remove = useMutation({
     mutationFn: (item: TrashItem) => api.deleteForever(item.kind, item.id),
-    onSuccess: refresh,
+    onError: failed('delete that'),
+    onSettled: refresh,
   });
 
   const items = trash.data?.items ?? [];

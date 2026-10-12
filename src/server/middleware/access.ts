@@ -39,13 +39,15 @@ export function access(phone: PhoneAccess): MiddlewareHandler<Env> {
 }
 
 /**
- * For routes only the computer itself may use: pairing codes and the list of devices. Takes a
- * function because the phone access may be missing, in which case asking for it throws.
+ * For routes only the computer itself may use: pairing codes, the list of devices, and showing the
+ * data folder on its screen. Takes a function because there may be no phone access (the browser
+ * runtime): the phone routes then throw their own "not found" from it, and a route that has
+ * another use passes, since there is no other device to keep out.
  */
-export function localOnly(phone: () => PhoneAccess): MiddlewareHandler<Env> {
+export function localOnly(phone: () => PhoneAccess | undefined): MiddlewareHandler<Env> {
   return async (c, next) => {
     const access = phone();
-    if (access.isLocalPeer(peerAddress(c)) || !onNetwork(access)) return next();
-    throw new AppError('forbidden', 'Phone access can only be managed on the computer itself.');
+    if (!access || access.isLocalPeer(peerAddress(c)) || !onNetwork(access)) return next();
+    throw new AppError('forbidden', 'This can only be done on the computer itself.');
   };
 }
