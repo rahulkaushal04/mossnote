@@ -178,11 +178,6 @@ async function main(): Promise<void> {
   const sum = crypto.createHash('sha256').update(fs.readFileSync(output)).digest('hex');
   fs.writeFileSync(`${output}.sha256`, `${sum}  ${path.basename(output)}\n`);
   process.stdout.write(`\nBuilt ${output}\nSHA-256 ${sum}\n`);
-  if (platform === 'macos') {
-    process.stdout.write(
-      'This is a macOS build for checking the pipeline only. It is not released.\n',
-    );
-  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

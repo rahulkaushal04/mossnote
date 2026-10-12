@@ -34,6 +34,8 @@ jobs:
         include:
           - { target: linux-x64, os: ubuntu-latest }
           - { target: linux-arm64, os: ubuntu-24.04-arm }
+          - { target: macos-arm64, os: macos-latest }
+          - { target: macos-x64, os: macos-15-intel }
           - { target: win-x64, os: windows-latest }
     defaults:
       run:

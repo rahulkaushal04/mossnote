@@ -212,9 +212,11 @@ A single file with its own Node.js inside, so there is nothing to install first.
 | ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Linux x64   | `mossnote-v<version>-linux-x64.tar.gz`   | glibc 2.34 or newer, and the C++ library of GCC 11 or newer (Ubuntu 22.04, Debian 12, Fedora 35, RHEL 9 or newer) |
 | Linux arm64 | `mossnote-v<version>-linux-arm64.tar.gz` | The same                                                                                                          |
+| macOS arm64 | `mossnote-v<version>-macos-arm64.tar.gz` | An Apple silicon Mac (M1 or newer). Not code-signed: see below                                                    |
+| macOS x64   | `mossnote-v<version>-macos-x64.tar.gz`   | An Intel Mac. Not code-signed: see below                                                                          |
 | Windows x64 | `mossnote-v<version>-win-x64.exe`        | Windows 10 or 11, 64-bit. Windows on ARM runs it through its x64 emulation, which has not been tested             |
 
-Each file has a `.sha256` file beside it. macOS has no download: use [Node](#use-node) or [Python](#use-python).
+Each file has a `.sha256` file beside it.
 
 **Linux**
 
@@ -226,6 +228,22 @@ tar -xzf mossnote-v<version>-linux-x64.tar.gz
 
 It opens your browser (add `--no-open` to stop that) and prints the address, `http://127.0.0.1:4317`. Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop it. To run it from anywhere, move it onto your `PATH`, for example `mv mossnote ~/.local/bin/`.
 
+**macOS**
+
+```bash
+shasum -a 256 -c mossnote-v<version>-macos-arm64.tar.gz.sha256
+tar -xzf mossnote-v<version>-macos-arm64.tar.gz
+./mossnote
+```
+
+The program is not signed with an Apple Developer ID or notarized yet, so a file downloaded in a browser is blocked the first time: macOS says it "cannot be opened" or "cannot verify" it. That is a warning about an unknown developer, not a verdict that the file is harmful. After checking the checksum, either Control-click `mossnote` in Finder, choose **Open**, then **Open** again; or remove the download mark in Terminal and run it as above:
+
+```bash
+xattr -d com.apple.quarantine mossnote
+```
+
+A file fetched with `curl` carries no mark and starts at once. To run it from anywhere, move it onto your `PATH`, for example `mv mossnote /usr/local/bin/`.
+
 **Windows**
 
 1. Check the download. In PowerShell, `(Get-FileHash .\mossnote-v<version>-win-x64.exe).Hash` must match the digits in the `.sha256` file (case does not matter).
@@ -235,7 +253,7 @@ It opens your browser (add `--no-open` to stop that) and prints the address, `ht
 **What it keeps, and where**
 
 - **Your journals** are in your [data folder](#your-data), never beside the program. Replacing the file with a newer one, or deleting it, does not touch them.
-- **A copy of the app** is unpacked on the first start, about 60 MB, in `~/.cache/Mossnote/app` on Linux (or under `$XDG_CACHE_HOME`) and `%LOCALAPPDATA%\Mossnote\Cache\app` on Windows. The first start takes a few seconds longer. It holds code only, so deleting it is always safe: it is unpacked again next time. Other versions are removed on their own.
+- **A copy of the app** is unpacked on the first start, about 60 MB, in `~/.cache/Mossnote/app` on Linux (or under `$XDG_CACHE_HOME`), `~/Library/Caches/Mossnote/app` on macOS and `%LOCALAPPDATA%\Mossnote\Cache\app` on Windows. The first start takes a few seconds longer. It holds code only, so deleting it is always safe: it is unpacked again next time. Other versions are removed on their own.
 - **To update**, replace the file. **To remove it**, delete the file and that cache folder.
 
 It takes the same options as the [Node route](#use-node) (`--port`, `--data-dir`, `--journal`, `--no-open`, `--lan`, `--version`, `--help`) and reports mistakes the same way.
