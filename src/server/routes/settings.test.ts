@@ -173,6 +173,55 @@ describe('PATCH calendar', () => {
     expect((await patch({ calendar: fewer })).status).toBe(200);
   });
 
+  it('refuses to remove a season from the middle, which would relabel later dates', async () => {
+    addNote('n1', k(1, 2, 5));
+    addNote('n2', k(1, 1, 10));
+    const { seasons } = DEFAULT_CALENDAR;
+    const middleGone = { seasons: [seasons[0]!, seasons[2]!, seasons[3]!] };
+    const res = await patch({ calendar: middleGone });
+    expect(res.status).toBe(409);
+    expect((await errorOf(res)).message).toBe(
+      'Only the last seasons can be removed. Rename seasons instead.',
+    );
+    expect((await get()).calendar).toEqual(DEFAULT_CALENDAR);
+  });
+
+  it('refuses a middle removal when only the current game date would be relabelled', async () => {
+    await patch({ currentGameDate: k(1, 3, 5) });
+    const { seasons } = DEFAULT_CALENDAR;
+    const res = await patch({ calendar: { seasons: [seasons[0]!, seasons[1]!, seasons[3]!] } });
+    expect(res.status).toBe(409);
+    expect((await get()).currentGameDate).toBe(k(1, 3, 5));
+  });
+
+  it('allows a shorter calendar when no stored date sits in a season that moves', async () => {
+    addNote('n1', k(1, 0, 5));
+    const { seasons } = DEFAULT_CALENDAR;
+    const res = await patch({ calendar: { seasons: [seasons[0]!, seasons[2]!] } });
+    expect(res.status).toBe(200);
+  });
+
+  it('refuses a shorter calendar that renames a season holding dates in the same save', async () => {
+    addNote('n1', k(1, 0, 5));
+    const renamed = {
+      seasons: [{ name: 'Thaw', days: 28 }, ...DEFAULT_CALENDAR.seasons.slice(1, 3)],
+    };
+    expect((await patch({ calendar: renamed })).status).toBe(409);
+  });
+
+  it('allows removing several trailing seasons, and changing day counts while doing so', async () => {
+    const { seasons } = DEFAULT_CALENDAR;
+    const res = await patch({ calendar: { seasons: [{ ...seasons[0]!, days: 30 }, seasons[1]!] } });
+    expect(res.status).toBe(200);
+    expect((await get()).calendar.seasons.map((s) => s.name)).toEqual(['Spring', 'Summer']);
+  });
+
+  it('still allows renaming every season when the count is unchanged', async () => {
+    addNote('n1', k(1, 2, 5));
+    const renamed = { seasons: DEFAULT_CALENDAR.seasons.map((s, i) => ({ ...s, name: `S${i}` })) };
+    expect((await patch({ calendar: renamed })).status).toBe(200);
+  });
+
   it('refuses a calendar that would invalidate the current game date', async () => {
     await patch({ currentGameDate: k(1, 0, 20) });
     const smaller = structuredClone(DEFAULT_CALENDAR);

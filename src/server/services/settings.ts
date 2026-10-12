@@ -31,6 +31,8 @@ const SAME_TEMPLATE =
 const SAME_CALENDAR =
   'A journal keeps the kind of calendar it was made with. Make a new journal to use another one.';
 
+const ONLY_LAST_REMOVED = 'Only the last seasons can be removed. Rename seasons instead.';
+
 function readRaw(database: Database, key: string): unknown {
   const row = database.db
     .select({ value: settings.value })
@@ -200,6 +202,27 @@ function conflictMessage(conflict: CalendarConflict): string {
     : `${total} ${noun} day ${conflict.highestDay} of ${conflict.season}.`;
 }
 
+/**
+ * Dates are stored by season position, so a shorter calendar whose seasons moved up or were
+ * renamed would show a stored date (or the current one) under a different season's name.
+ */
+function relabelsStoredDates(
+  database: Database,
+  current: Calendar,
+  next: Calendar,
+  currentGameDate: number | null,
+): boolean {
+  if (next.seasons.length >= current.seasons.length) return false;
+  const moved = new Set<number>();
+  next.seasons.forEach((season, i) => {
+    if (season.name !== current.seasons[i]?.name) moved.add(i);
+  });
+  if (moved.size === 0) return false;
+  const keys = storedDates(database).map((use) => use.key);
+  if (currentGameDate !== null) keys.push(currentGameDate);
+  return keys.some((key) => moved.has(decode(key).season));
+}
+
 function mergePrefs(database: Database, patch: Partial<Prefs>): Prefs {
   const raw = readRaw(database, 'prefs');
   const current = { ...DEFAULT_PREFS, ...(raw === undefined ? {} : prefsSchema.parse(raw)) };
@@ -241,6 +264,18 @@ export function updateSettings(
       throw new AppError('validation_failed', OUTSIDE_CALENDAR, {
         fields: { currentGameDate: OUTSIDE_CALENDAR },
       });
+    }
+
+    if (
+      patch.calendar &&
+      relabelsStoredDates(
+        database,
+        before.calendar,
+        patch.calendar,
+        patch.currentGameDate === undefined ? before.currentGameDate : null,
+      )
+    ) {
+      throw new AppError('conflict', ONLY_LAST_REMOVED, { details: { reason: 'seasons_shifted' } });
     }
 
     if (patch.calendar) {
