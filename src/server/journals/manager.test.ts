@@ -319,6 +319,42 @@ describe('a journal named at start that cannot be opened', () => {
   });
 });
 
+describe('purging Recently deleted in the open journal', () => {
+  const DAY = 24 * 3_600_000;
+  const trash = async () =>
+    ((await (await t.call('GET', '/api/trash')).json()) as { items: { label: string }[] }).items;
+
+  it('removes what has been there more than thirty days, and keeps the rest', async () => {
+    await create('Notes');
+    const old = (await (await t.call('POST', '/api/people', { name: 'Long gone' })).json()) as {
+      id: string;
+    };
+    await t.call('DELETE', `/api/people/${old.id}`);
+    t.clock.advance(20 * DAY);
+    const recent = (await (await t.call('POST', '/api/people', { name: 'Recent' })).json()) as {
+      id: string;
+    };
+    await t.call('DELETE', `/api/people/${recent.id}`);
+    t.clock.advance(11 * DAY);
+
+    expect((await trash()).map((i) => i.label).sort()).toEqual(['Long gone', 'Recent']);
+    expect(await t.manager.purgeExpiredTrash()).toBe(1);
+
+    expect((await trash()).map((i) => i.label)).toEqual(['Recent']);
+    expect(await t.manager.purgeExpiredTrash()).toBe(0);
+  });
+
+  it('does nothing when no journal is open', async () => {
+    t.stop();
+    const none = await makeJournalsApp({ dir: t.dir, start: false });
+    try {
+      expect(await none.manager.purgeExpiredTrash()).toBe(0);
+    } finally {
+      none.stop();
+    }
+  });
+});
+
 describe('changes that arrive together', () => {
   it('run one at a time: two journals made at once get two ids and both exist', async () => {
     const [a, b] = await Promise.all([create('Same name'), create('Same name')]);

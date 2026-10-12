@@ -145,5 +145,6 @@ upgrading or reinstalling Mossnote never touches them. The default folder is
   macOS    ~/Library/Application Support/Mossnote
   Linux    ~/.local/share/mossnote   (or $XDG_DATA_HOME/mossnote)
   Windows  %APPDATA%\\Mossnote
-The README lists every MOSS_* variable.`;
+Every option, and the MOSS_* variable that stands for it:
+  https://rahulkaushal04.github.io/mossnote/docs/reference/#options`;
 }

@@ -14,6 +14,7 @@ import { conflict, notFound, validationFailed } from '../errors';
 import type { Logger } from '../logger';
 import { iso, type Ctx } from '../services/ctx';
 import { renameJournal } from '../services/settings';
+import { purgeOldTrash } from '../services/trash';
 import {
   lockedHandle,
   newerApp,
@@ -159,6 +160,21 @@ export class JournalManager implements Journals {
         }
       }
       if (firstError instanceof Error) throw firstError;
+    });
+  }
+
+  /**
+   * Remove what has been in Recently deleted for more than 30 days from the open journal, and say
+   * how many records went. A journal is also purged when it is opened; this is for one that stays
+   * open for weeks. Does not overlap a switch or a restore.
+   */
+  purgeExpiredTrash(): Promise<number> {
+    return this.exclusive(() => {
+      const journal = this.current;
+      if (!journal) return Promise.resolve(0);
+      return Promise.resolve(
+        purgeOldTrash({ sqlite: journal.database.sqlite, clock: this.options.clock }),
+      );
     });
   }
 

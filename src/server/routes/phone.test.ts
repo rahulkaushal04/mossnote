@@ -212,6 +212,21 @@ describe('while phone access is on', () => {
     expect(await again.text()).toContain('expired');
   });
 
+  it('locks out only the device that keeps guessing, not a phone that pairs meanwhile', async () => {
+    const { code } = phone.issueCode();
+    for (let guess = 0; guess < 10; guess++) {
+      await t.callFrom('192.168.1.99', 'GET', '/pair?code=WRONGWRONG');
+    }
+    const guesser = await t.callFrom('192.168.1.99', 'GET', `/pair?code=${code}`);
+
+    const honest = await t.callFrom(PHONE_ADDRESS, 'GET', `/pair?code=${code}`, undefined, {
+      'user-agent': IPHONE,
+    });
+
+    expect(guesser.status).toBe(429);
+    expect(honest.status).toBe(303);
+  });
+
   it('locks pairing after repeated wrong codes', async () => {
     phone.issueCode();
     for (let guess = 0; guess < 10; guess++) {

@@ -3,6 +3,7 @@ import { setCookie } from 'hono/cookie';
 import type { Env } from '../env';
 import { AppError } from '../errors';
 import { SESSION_COOKIE } from '../middleware/access';
+import { peerAddress } from '../middleware/peer';
 import type { PhoneAccess } from '../phone/types';
 
 /** A paired phone stays paired for a year; removing it from Settings ends that sooner. */
@@ -73,7 +74,7 @@ export const pairRoutes = (phone: PhoneAccess) =>
     .get('/', (c) => {
       const code = c.req.query('code');
       if (code === undefined) return respondPage(c, null, 200);
-      const result = phone.redeemCode(code, c.req.header('user-agent'));
+      const result = phone.redeemCode(code, c.req.header('user-agent'), peerAddress(c));
       if (!result.ok) {
         return respondPage(c, PROBLEMS[result.reason], result.reason === 'locked' ? 429 : 400);
       }

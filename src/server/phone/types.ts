@@ -40,8 +40,11 @@ export interface PhoneAccess {
   authenticate(token: string): PairedDevice | null;
   /** Make a new one-time code. Any earlier code stops working. */
   issueCode(): IssuedCode;
-  /** Exchange a code for a session token. */
-  redeemCode(code: string, userAgent: string | undefined): RedeemResult;
+  /**
+   * Exchange a code for a session token. `peer` is the address the request came from, so wrong
+   * guesses are counted for that device alone.
+   */
+  redeemCode(code: string, userAgent: string | undefined, peer?: string): RedeemResult;
   listDevices(): PairedDevice[];
   revokeDevice(id: string): boolean;
   /** Returns how many devices were removed. */
