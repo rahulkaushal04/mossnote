@@ -21,8 +21,9 @@ export function readCalendar(ctx: Ctx): Calendar {
   return row ? calendarSchema.parse(JSON.parse(row.value)) : DEFAULT_CALENDAR;
 }
 
-// One row per live record, with tag names and linked names gathered in SQL. The trailing
-// `(? IS NULL OR id = ?)` lets the same statement reindex one record or all of them.
+// One row per live record, with tag names and linked names gathered in SQL. Each kind has the
+// statement for every live record and the same one narrowed to a single id: a combined
+// `(? IS NULL OR id = ?)` would stop SQLite from seeking the id and scan every record each time.
 const NOTES_SQL = `
   SELECT n.id, n.title, n.body, n.game_date, n.solved_game_date, n.resolution,
     (SELECT group_concat(t.name, ' ') FROM note_tags nt JOIN tags t ON t.id = nt.tag_id
@@ -31,19 +32,31 @@ const NOTES_SQL = `
        WHERE l.source_note_id = n.id AND p.deleted_at IS NULL) AS persons,
     (SELECT group_concat(pl.label, ' ') FROM links l JOIN plantings pl ON pl.id = l.target_planting_id
        WHERE l.source_note_id = n.id AND pl.deleted_at IS NULL) AS plantings
-  FROM notes n WHERE n.deleted_at IS NULL AND (? IS NULL OR n.id = ?)`;
+  FROM notes n WHERE n.deleted_at IS NULL`;
 
 const PEOPLE_SQL = `
   SELECT p.id, p.name, p.notes, p.custom_fields,
     (SELECT group_concat(t.name, ' ') FROM person_tags pt JOIN tags t ON t.id = pt.tag_id
        WHERE pt.person_id = p.id) AS tags
-  FROM people p WHERE p.deleted_at IS NULL AND (? IS NULL OR p.id = ?)`;
+  FROM people p WHERE p.deleted_at IS NULL`;
 
 const PLANTINGS_SQL = `
   SELECT pl.id, pl.label, pl.notes, pl.custom_fields, pl.planted_on, pl.harvested_on,
     (SELECT group_concat(t.name, ' ') FROM planting_tags pt JOIN tags t ON t.id = pt.tag_id
        WHERE pt.planting_id = pl.id) AS tags
-  FROM plantings pl WHERE pl.deleted_at IS NULL AND (? IS NULL OR pl.id = ?)`;
+  FROM plantings pl WHERE pl.deleted_at IS NULL`;
+
+/** The select for each kind, and the same narrowed to one id (the `?`). */
+const SELECT_ALL: Record<IndexKind, string> = {
+  note: NOTES_SQL,
+  person: PEOPLE_SQL,
+  planting: PLANTINGS_SQL,
+};
+const SELECT_ONE: Record<IndexKind, string> = {
+  note: `${NOTES_SQL} AND n.id = ?`,
+  person: `${PEOPLE_SQL} AND p.id = ?`,
+  planting: `${PLANTINGS_SQL} AND pl.id = ?`,
+};
 
 const INSERT_SQL =
   'INSERT INTO search_fts (kind, ref_id, title, body, tags, extra) VALUES (?, ?, ?, ?, ?, ?)';
@@ -88,12 +101,24 @@ interface PlantingRow {
   tags: string | null;
 }
 
-/** Insert the index rows for one kind. `id` null means every live record of that kind. */
-function insertRows(ctx: Ctx, kind: IndexKind, id: string | null, calendar: Calendar): number {
+/** The rows to index for one kind: every live record, or only those with the given ids. */
+function selectRows<T>(ctx: Ctx, kind: IndexKind, ids: readonly string[] | null): T[] {
+  if (ids === null) return ctx.sqlite.prepare(SELECT_ALL[kind]).all() as T[];
+  const one = ctx.sqlite.prepare(SELECT_ONE[kind]);
+  return ids.flatMap((id) => one.all(id) as T[]);
+}
+
+/** Insert the index rows for one kind. `ids` null means every live record of that kind. */
+function insertRows(
+  ctx: Ctx,
+  kind: IndexKind,
+  ids: readonly string[] | null,
+  calendar: Calendar,
+): number {
   const insert = ctx.sqlite.prepare(INSERT_SQL);
   let count = 0;
   if (kind === 'note') {
-    for (const r of ctx.sqlite.prepare(NOTES_SQL).all(id, id) as NoteRow[]) {
+    for (const r of selectRows<NoteRow>(ctx, 'note', ids)) {
       insert.run(
         'note',
         r.id,
@@ -111,12 +136,12 @@ function insertRows(ctx: Ctx, kind: IndexKind, id: string | null, calendar: Cale
       count++;
     }
   } else if (kind === 'person') {
-    for (const r of ctx.sqlite.prepare(PEOPLE_SQL).all(id, id) as PersonRow[]) {
+    for (const r of selectRows<PersonRow>(ctx, 'person', ids)) {
       insert.run('person', r.id, r.name, r.notes, r.tags ?? '', fieldWords(r.custom_fields));
       count++;
     }
   } else {
-    for (const r of ctx.sqlite.prepare(PLANTINGS_SQL).all(id, id) as PlantingRow[]) {
+    for (const r of selectRows<PlantingRow>(ctx, 'planting', ids)) {
       insert.run(
         'planting',
         r.id,
@@ -141,13 +166,45 @@ function insertRows(ctx: Ctx, kind: IndexKind, id: string | null, calendar: Cale
  */
 export function reindex(ctx: Ctx, kind: IndexKind, id: string): void {
   ctx.sqlite.prepare(DELETE_SQL).run(kind, id);
-  insertRows(ctx, kind, id, readCalendar(ctx));
+  insertRows(ctx, kind, [id], readCalendar(ctx));
   ctx.vocab.noteWrites();
 }
 
 export function unindex(ctx: Ctx, kind: IndexKind, id: string): void {
   ctx.sqlite.prepare(DELETE_SQL).run(kind, id);
   ctx.vocab.noteWrites();
+}
+
+export interface IndexRef {
+  kind: IndexKind;
+  id: string;
+}
+
+const KINDS: readonly IndexKind[] = ['note', 'person', 'planting'];
+
+// `ref_id` is not indexed, so every delete reads the whole index: delete many records with one
+// statement (the ids go in as one JSON array) rather than one statement per record.
+const DELETE_MANY_SQL =
+  'DELETE FROM search_fts WHERE kind = ? AND ref_id IN (SELECT value FROM json_each(?))';
+
+function deleteRows(ctx: Ctx, kind: IndexKind, ids: readonly string[]): void {
+  ctx.sqlite.prepare(DELETE_MANY_SQL).run(kind, JSON.stringify(ids));
+}
+
+/**
+ * Rebuild the index rows of several records, in the caller's transaction, as `reindex` would for
+ * each one. The cost grows with the index once, not once per record.
+ */
+export function reindexMany(ctx: Ctx, refs: readonly IndexRef[]): void {
+  if (refs.length === 0) return;
+  const calendar = readCalendar(ctx);
+  for (const kind of KINDS) {
+    const ids = [...new Set(refs.filter((ref) => ref.kind === kind).map((ref) => ref.id))];
+    if (ids.length === 0) continue;
+    deleteRows(ctx, kind, ids);
+    insertRows(ctx, kind, ids, calendar);
+    ctx.vocab.noteWrites(ids.length);
+  }
 }
 
 /** Rebuild the whole index from the tables (`npm run db:reindex`, import, calendar rename). */
@@ -174,7 +231,10 @@ export function reindexLinkedNotes(ctx: Ctx, targetId: string): void {
   const ids = ctx.sqlite.prepare(NOTES_LINKING).all(targetId, targetId, targetId) as {
     id: string;
   }[];
-  for (const { id } of ids) reindex(ctx, 'note', id);
+  reindexMany(
+    ctx,
+    ids.map(({ id }) => ({ kind: 'note', id })),
+  );
 }
 
 const TAGGED = `
@@ -184,11 +244,7 @@ const TAGGED = `
 
 /** Reindex every record that carries a tag (rename, merge, delete). */
 export function reindexTagged(ctx: Ctx, tagId: string): void {
-  const rows = ctx.sqlite.prepare(TAGGED).all(tagId, tagId, tagId) as {
-    kind: IndexKind;
-    id: string;
-  }[];
-  for (const row of rows) reindex(ctx, row.kind, row.id);
+  reindexMany(ctx, ctx.sqlite.prepare(TAGGED).all(tagId, tagId, tagId) as IndexRef[]);
 }
 
 /** Row count per kind, for the consistency tests and `db:reindex`. */
