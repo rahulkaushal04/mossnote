@@ -52,5 +52,9 @@ export function useAutosave(save: () => Promise<unknown>, delay = 800) {
     [],
   );
 
-  return { schedule, flush, saved, error };
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  return { schedule, flush, saved, error, clearError };
 }
