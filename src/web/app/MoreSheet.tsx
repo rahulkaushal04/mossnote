@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { DOCS_URL } from '@shared/links';
 import { templateById } from '@shared/templates';
-import { CheckIcon, ChevronRightIcon, PlusIcon, SettingsIcon } from '../components/ui/icons';
+import {
+  ArrowUpRightIcon,
+  CheckIcon,
+  ChevronRightIcon,
+  HelpIcon,
+  PlusIcon,
+  SettingsIcon,
+} from '../components/ui/icons';
 import { Sheet } from '../components/ui/Sheet';
 import { NewJournalDialog, RenameJournalDialog } from '../features/journals/JournalDialogs';
 import { useJournals, useSwitchJournal } from '../features/journals/hooks';
@@ -127,6 +135,17 @@ export function MoreSheet({
             <SettingsIcon className="size-5" />
             Settings
           </Link>
+          <a
+            href={DOCS_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="sheet-row"
+            onClick={close}
+          >
+            <HelpIcon className="size-5" />
+            Help &amp; docs
+            <ArrowUpRightIcon className="ml-auto size-5 text-ink-muted" />
+          </a>
         </div>
       </Sheet>
       <NewJournalDialog open={creating} onOpenChange={setCreating} />

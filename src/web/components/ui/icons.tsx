@@ -107,6 +107,13 @@ export const SettingsIcon = (props: IconProps) => (
   </svg>
 );
 
+export const HelpIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 16.5v.01" />
+  </svg>
+);
+
 // Map editor tools and actions.
 export const SelectIcon = stroked(['M5 3l14 7.5-6 1.8L10.5 19 5 3z']);
 export const HandIcon = stroked([

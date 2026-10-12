@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouteError } from 'react-router';
+import { docsUrl } from '@shared/links';
 
 /** Route-level error boundary. Nothing is ever sent anywhere. */
 export function RouteError() {
@@ -13,7 +14,13 @@ export function RouteError() {
   return (
     <main className="mx-auto flex max-w-176 flex-col gap-4 px-4 py-16" role="alert">
       <h1 className="text-2xl font-semibold">Something went wrong on this page.</h1>
-      <p>Your journal is safe. Reload the page, or copy the details if you want to report it.</p>
+      <p>
+        Your journal is safe. Reload the page, or copy the details if you want to report it. See{' '}
+        <a href={docsUrl('troubleshooting')} target="_blank" rel="noreferrer noopener">
+          Troubleshooting
+        </a>{' '}
+        for common fixes.
+      </p>
       <div className="flex gap-3">
         <button
           type="button"

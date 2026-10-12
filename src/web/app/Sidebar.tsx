@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router';
+import { DOCS_URL } from '@shared/links';
 import { Button } from '../components/ui/Button';
 import { Logo } from '../components/ui/Logo';
 import { Kbd } from '../components/ui/Kbd';
-import { LockIcon, PlusIcon, SearchIcon } from '../components/ui/icons';
+import { HelpIcon, LockIcon, PlusIcon, SearchIcon } from '../components/ui/icons';
 import { JournalSwitcher } from '../features/journals/JournalSwitcher';
 import { useActiveJournal } from '../features/journals/hooks';
 import { usePalette } from '../features/search/PaletteProvider';
@@ -102,6 +103,10 @@ export function Sidebar({ items, onNewNote }: { items: NavItem[]; onNewNote: () 
           Stays {WHERE_IT_LIVES.place}
         </p>
         <SideLink item={SETTINGS_ITEM} />
+        <a href={DOCS_URL} target="_blank" rel="noreferrer noopener" className="side-link">
+          <HelpIcon className="size-4.5" />
+          Help &amp; docs
+        </a>
       </div>
     </nav>
   );

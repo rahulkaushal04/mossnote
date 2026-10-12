@@ -13,6 +13,7 @@ from typing import Sequence
 
 APP_DIR = Path(__file__).resolve().parent / "_app"
 STOP_TIMEOUT_SECONDS = 15
+HELP_URL = "https://rahulkaushal04.github.io/mossnote/docs/troubleshooting/"
 
 
 class LauncherError(Exception):
@@ -68,7 +69,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         line = command(arguments)
     except LauncherError as error:
-        sys.stderr.write(f"{error}\n")
+        sys.stderr.write(f"{error}\nMore help: {HELP_URL}\n")
         return 1
 
     sys.stdout.flush()
@@ -78,7 +79,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             os.execv(line[0], line)
         except OSError as error:
-            sys.stderr.write(f"Mossnote could not start {line[0]}: {error}\n")
+            sys.stderr.write(f"Mossnote could not start {line[0]}: {error}\nMore help: {HELP_URL}\n")
             return 1
     # Windows cannot replace a process (os.execv returns the prompt at once).
     return _wait(subprocess.Popen(line))

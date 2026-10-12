@@ -13,6 +13,7 @@ export function nodeIsSupported(version) {
   return major > MIN_NODE.major || (major === MIN_NODE.major && minor >= MIN_NODE.minor);
 }
 
+const DOCS = 'https://rahulkaushal04.github.io/mossnote/docs/';
 const JOURNAL_PATTERN = /^[A-Za-z0-9_-]{1,40}$/;
 
 /** Options that take a value, and the environment variable each one sets. */
@@ -83,8 +84,8 @@ export function parseArgs(args) {
     if (!Object.hasOwn(VALUE_OPTIONS, flag)) {
       fail(
         arg.startsWith('-')
-          ? `Unknown option "${arg}". Run mossnote --help.`
-          : `Unexpected argument "${arg}". Run mossnote --help.`,
+          ? `Unknown option "${arg}". Run mossnote --help, or see ${DOCS}reference/#options`
+          : `Unexpected argument "${arg}". Run mossnote --help, or see ${DOCS}reference/#options`,
       );
       continue;
     }
@@ -95,7 +96,7 @@ export function parseArgs(args) {
     } else {
       value = args[index + 1];
       if (value === undefined || value.startsWith('--')) {
-        fail(`${flag} needs a value. Run mossnote --help.`);
+        fail(`${flag} needs a value. Run mossnote --help, or see ${DOCS}reference/#options`);
         continue;
       }
       index++;

@@ -1,3 +1,4 @@
+import { docsUrl } from '@shared/links';
 import { Dialog } from '../components/ui/Dialog';
 import { modLabel } from '../lib/hotkeys';
 import { useSections } from '../features/settings/useLayout';
@@ -45,6 +46,11 @@ export function ShortcutsDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title="Keyboard shortcuts">
       <ShortcutsList />
+      <p className="mt-4 text-sm text-ink-muted">
+        <a href={docsUrl('shortcuts')} target="_blank" rel="noreferrer noopener">
+          All shortcuts in the docs
+        </a>
+      </p>
     </Dialog>
   );
 }

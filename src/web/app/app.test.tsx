@@ -43,7 +43,7 @@ describe('empty app shell', () => {
     const labels = within(nav)
       .getAllByRole('link')
       .map((a) => a.textContent);
-    expect(labels).toEqual(['Today', 'Journal', 'People', 'Maps', 'Settings']);
+    expect(labels).toEqual(['Today', 'Journal', 'People', 'Maps', 'Settings', 'Help & docs']);
     const current = screen.getAllByRole('link', { current: 'page' }).map((a) => a.textContent);
     expect(current).toContain('Journal');
     expect(current).not.toContain('Today');
@@ -117,7 +117,7 @@ describe('empty app shell', () => {
       within(nav)
         .getAllByRole('link')
         .map((a) => a.textContent),
-    ).toEqual(['Today', 'Daily journal', 'NPCs', 'Farm', 'Maps', 'Settings']);
+    ).toEqual(['Today', 'Daily journal', 'NPCs', 'Farm', 'Maps', 'Settings', 'Help & docs']);
   });
 
   it('/farm/:id is a sheet over the list, as a labelled modal dialog', async () => {
@@ -468,7 +468,7 @@ describe('game template and sections', () => {
         within(nav)
           .getAllByRole('link')
           .map((a) => a.textContent),
-      ).toEqual(['Maps', 'Today', 'Logbook', 'NPCs', 'Settings']);
+      ).toEqual(['Maps', 'Today', 'Logbook', 'NPCs', 'Settings', 'Help & docs']);
     });
   });
 

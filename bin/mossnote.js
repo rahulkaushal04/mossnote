@@ -30,7 +30,8 @@ if (options.version) {
 if (!nodeIsSupported(process.versions.node)) {
   process.stderr.write(
     `Mossnote needs Node ${MIN_NODE.major}.${MIN_NODE.minor} or newer. This is Node ${process.versions.node}.\n` +
-      'Get a newer Node from https://nodejs.org.\n',
+      'Get a newer Node from https://nodejs.org.\n' +
+      'More help: https://rahulkaushal04.github.io/mossnote/docs/troubleshooting/\n',
   );
   process.exit(1);
 }
@@ -38,7 +39,8 @@ if (!nodeIsSupported(process.versions.node)) {
 const server = fileURLToPath(new URL('dist/server/index.js', root));
 if (!fs.existsSync(server)) {
   process.stderr.write(
-    'This copy of Mossnote has not been built yet. Run "npm run build" in its folder, or use "npm start".\n',
+    'This copy of Mossnote has not been built yet. Run "npm run build" in its folder, or use "npm start".\n' +
+      'More help: https://rahulkaushal04.github.io/mossnote/docs/troubleshooting/\n',
   );
   process.exit(1);
 }

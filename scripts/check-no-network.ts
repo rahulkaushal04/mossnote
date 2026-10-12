@@ -23,6 +23,7 @@ export const BUILT_HOSTS = new Set([
   'reactjs.org',
   'reactrouter.com',
   'github.com',
+  'rahulkaushal04.github.io',
   'tailwindcss.com',
   // zod ships a JSON Schema generator whose error message names this host; it is never fetched.
   'json-schema.org',
@@ -45,7 +46,7 @@ export const STANDALONE_HOSTS = new Set([
  * browser (see `src/shared/links.ts`). Nothing in the app ever fetches them.
  */
 const LINK_FILE = path.join('src', 'shared', 'links.ts');
-const LINK_HOSTS = new Set([...SOURCE_HOSTS, 'github.com']);
+const LINK_HOSTS = new Set([...SOURCE_HOSTS, 'github.com', 'rahulkaushal04.github.io']);
 
 const URL_PATTERN =
   /(?<![\w/.:-])(?:https?:)?\/\/([a-z0-9][a-z0-9.-]*\.[a-z]{2,}|localhost|127\.0\.0\.1)(?::\d+)?(?:[/"'`)\s]|$)/gi;

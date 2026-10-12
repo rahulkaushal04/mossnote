@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { docsUrl } from '@shared/links';
 import { FirstRun } from '../features/journals/FirstRun';
 import { api, ApiError, NetworkError } from '../lib/api';
 import { listenForJournalSwitch } from '../lib/broadcast';
@@ -25,7 +26,11 @@ export function Unreachable({ onRetry }: { onRetry: () => void }) {
         Mossnote might not be running. Start it again (open the app, or run{' '}
         <code className="rounded-md bg-surface px-1.5 py-0.5">mossnote</code> in a terminal), then
         try again. On a phone or tablet, make sure the computer is on and phone access is still
-        turned on. Nothing you wrote is lost.
+        turned on. Nothing you wrote is lost.{' '}
+        <a href={docsUrl('troubleshooting')} target="_blank" rel="noreferrer noopener">
+          Get help
+        </a>
+        .
       </p>
       <div>
         <button type="button" className="btn tap" onClick={onRetry}>
@@ -49,7 +54,11 @@ function NotPaired() {
       <h1 className="text-2xl font-semibold">This device isn&apos;t paired anymore.</h1>
       <p>
         It was removed from the computer&apos;s list of devices, or the pairing ran out. Pair it
-        again on the computer, under Settings, then Phone. Nothing you wrote is lost.
+        again on the computer, under Settings, then Phone. Nothing you wrote is lost.{' '}
+        <a href={docsUrl('phone-access')} target="_blank" rel="noreferrer noopener">
+          How phone access works
+        </a>
+        .
       </p>
       <div>
         <a className="btn btn-primary tap no-underline" href="/pair">
