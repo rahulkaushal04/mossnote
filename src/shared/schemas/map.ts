@@ -3,6 +3,7 @@ import { LIMITS, MAP_COLORS, MAP_ICONS } from '../constants';
 import { DEFAULT_STYLE, EMPTY_SCENE_LAYER_ID, emptyScene } from '../mapDefaults';
 import {
   boundedText,
+  cleanedString,
   customFieldsSchema,
   isoTimestamp,
   nameSchema,
@@ -30,12 +31,12 @@ export const mapStyleSchema = z
 const base = {
   id: objectId,
   layer: objectId,
-  name: z.string().max(LIMITS.shapeName).optional(),
+  name: cleanedString(z.string().max(LIMITS.shapeName)).optional(),
   locked: z.boolean().optional(),
   hidden: z.boolean().optional(),
   group: objectId.optional(),
   /** A short note attached to the object. */
-  note: z.string().max(LIMITS.shapeNote).optional(),
+  note: cleanedString(z.string().max(LIMITS.shapeNote)).optional(),
   style: mapStyleSchema,
 };
 const rotation = z.number().min(-360).max(360).optional();
@@ -107,7 +108,7 @@ const text = z
     t: z.literal('text'),
     x: coord,
     y: coord,
-    text: z.string().min(1).max(LIMITS.mapText),
+    text: cleanedString(z.string().min(1).max(LIMITS.mapText)),
     size: z.number().min(6).max(400),
     rot: rotation,
     kind: z.enum(['plain', 'card', 'callout', 'sticky']),
@@ -130,7 +131,7 @@ export const mapShapeSchema = z.discriminatedUnion('t', [
 export const mapLayerSchema = z
   .object({
     id: objectId,
-    name: z.string().trim().min(1).max(40),
+    name: cleanedString(z.string().min(1).max(40), { trim: true }),
     hidden: z.boolean().optional(),
     locked: z.boolean().optional(),
   })
@@ -150,7 +151,10 @@ export const mapSceneSchema = z
       .optional(),
     /** What one grid cell is worth, for the measure tool. */
     scale: z
-      .object({ unit: z.string().trim().min(1).max(12), size: z.number().positive().max(1e6) })
+      .object({
+        unit: cleanedString(z.string().min(1).max(12), { trim: true }),
+        size: z.number().positive().max(1e6),
+      })
       .strict()
       .optional(),
   })
@@ -233,7 +237,7 @@ export function readScene(raw: unknown): MapScene {
 export const mapMarkerTypeSchema = z
   .object({
     id: objectId,
-    name: z.string().trim().min(1).max(30),
+    name: cleanedString(z.string().min(1).max(30), { trim: true }),
     icon: z.enum(MAP_ICONS),
     color: mapColorSchema,
   })
@@ -245,8 +249,11 @@ export const pinPropsSchema = z
   .object({
     type: objectId.optional(),
     icon: z.enum(MAP_ICONS).optional(),
-    status: z.string().trim().max(LIMITS.pinStatus).optional(),
-    tags: z.array(z.string().trim().min(1).max(30)).max(LIMITS.pinTags).optional(),
+    status: cleanedString(z.string().max(LIMITS.pinStatus), { trim: true }).optional(),
+    tags: z
+      .array(cleanedString(z.string().min(1).max(30), { trim: true }))
+      .max(LIMITS.pinTags)
+      .optional(),
     fields: customFieldsSchema.max(LIMITS.pinFields).optional(),
     layer: objectId.optional(),
     locked: z.boolean().optional(),
@@ -284,13 +291,10 @@ export const pinTargetSchema = z
 const pinBase = {
   x: coord,
   y: coord,
-  label: z
-    .string()
-    .transform((s) => s.trim())
-    .refine(
-      (s) => s.length <= LIMITS.pinLabel,
-      `Labels can be up to ${LIMITS.pinLabel} characters.`,
-    ),
+  label: cleanedString(
+    z.string().max(LIMITS.pinLabel, `Labels can be up to ${LIMITS.pinLabel} characters.`),
+    { trim: true },
+  ),
   color: mapColorSchema,
   note: boundedText(LIMITS.pinNote),
   target: pinTargetSchema.nullable(),
@@ -340,7 +344,7 @@ export const mapDuplicateSchema = z
   .strict();
 
 export const versionCreateSchema = z
-  .object({ name: z.string().trim().min(1).max(60).optional() })
+  .object({ name: cleanedString(z.string().min(1).max(60), { trim: true }).optional() })
   .strict();
 
 export const pinsByTargetQuerySchema = z.object({

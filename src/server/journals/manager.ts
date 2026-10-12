@@ -21,7 +21,7 @@ import {
   withClosedJournal,
   type ClosedEnv,
 } from './closed';
-import { freeJournalId } from './ids';
+import { freeJournalId, resolveJournalId } from './ids';
 import { journalPaths } from './paths';
 import { restoreSnapshot } from './restore';
 import type { Journals } from './types';
@@ -107,14 +107,14 @@ export class JournalManager implements Journals {
   // Start and stop
   // ---------------------------------------------------------------------------------------------
 
-  /** The journals to try at start, best first: the named one, the last used, the legacy one, the rest. */
+  /** The journals to try at start when none was named, best first: the last used, the legacy one, the rest. */
   private startOrder(): string[] {
     const ids = journalIds(this.config.dataDir);
     const order: string[] = [];
-    const add = (id: string | null | undefined) => {
-      if (id && ids.includes(id) && !order.includes(id)) order.push(id);
+    const add = (wanted: string | null | undefined) => {
+      const id = wanted ? resolveJournalId(ids, wanted) : null;
+      if (id !== null && !order.includes(id)) order.push(id);
     };
-    if (this.config.journalExplicit) add(this.config.journal);
     add(this.savedActive());
     add(LEGACY_JOURNAL_ID);
     const recent = [...ids].sort((a, b) => this.modifiedMs(b) - this.modifiedMs(a));
@@ -124,18 +124,25 @@ export class JournalManager implements Journals {
 
   /**
    * Open the journal to start with. A first run (no journal files, no `MOSS_JOURNAL`) opens none:
-   * the web app asks which template to use and creates it. A journal that cannot be opened is
-   * skipped for the next one, and only when none can be opened is the first problem raised.
+   * the web app asks which template to use and creates it. A journal named with `MOSS_JOURNAL` or
+   * `--journal` is opened or made, and if it cannot be opened start-up fails: opening another one
+   * instead would put the next notes somewhere they were not meant to go. Without a name, a journal
+   * that cannot be opened is skipped for the next one, and only when none can be opened is the
+   * first problem raised.
    */
   async start(): Promise<void> {
     await this.exclusive(async () => {
       ensureDataDir(this.config);
       const ids = journalIds(this.config.dataDir);
-      if (this.config.journalExplicit && !ids.includes(this.config.journal)) {
-        this.current = await this.open(this.config.journal, {
-          name: this.config.journal,
-          template: DEFAULT_TEMPLATE_ID,
-        });
+      if (this.config.journalExplicit) {
+        const named = resolveJournalId(ids, this.config.journal);
+        this.current =
+          named === null
+            ? await this.open(this.config.journal, {
+                name: this.config.journal,
+                template: DEFAULT_TEMPLATE_ID,
+              })
+            : await this.open(named);
         return;
       }
       let firstError: unknown;

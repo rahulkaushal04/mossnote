@@ -261,9 +261,10 @@ export async function importJournal(ctx: Ctx, raw: unknown): Promise<ImportResul
     inTx(ctx, () => {
       replaceAll(ctx, result.file);
     });
-  } catch {
+  } catch (cause) {
     throw new AppError('internal', 'Import failed. Your journal is unchanged.', {
       details: { snapshot: snapshot.name },
+      cause,
     });
   }
   ctx.vocab.invalidate();

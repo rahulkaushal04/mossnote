@@ -4,6 +4,8 @@ import { zValidator } from '@hono/zod-validator';
 import { fromZod } from '../middleware/errors';
 import { importQuerySchema } from '@shared/schemas/misc';
 import type { Env } from '../env';
+import { localOnly } from '../middleware/access';
+import type { PhoneAccess } from '../phone/types';
 import { AppError, validationFailed } from '../errors';
 import { validateQuery } from '../middleware/validate';
 import { backupNow, dataInfo, deleteBackup, listBackups } from '../services/backups';
@@ -19,7 +21,7 @@ const validateBackupName = zValidator(
   },
 );
 
-export const dataRoutes = (ctx: Ctx) =>
+export const dataRoutes = (ctx: Ctx, phone?: PhoneAccess) =>
   new Hono<Env>()
     .get('/info', (c) => c.json(dataInfo(ctx)))
     .get('/export.json', (c) => {
@@ -57,7 +59,12 @@ export const dataRoutes = (ctx: Ctx) =>
       return c.body(null, 204);
     })
     // Opens the data folder in the system file manager. Takes no path: it can only open this one.
-    .post('/open-folder', async (c) => {
-      await ctx.openFolder(ctx.config.dataDir);
-      return c.body(null, 204);
-    });
+    // It happens on the computer's screen, so a paired phone may not ask for it.
+    .post(
+      '/open-folder',
+      localOnly(() => phone),
+      async (c) => {
+        await ctx.openFolder(ctx.config.dataDir);
+        return c.body(null, 204);
+      },
+    );

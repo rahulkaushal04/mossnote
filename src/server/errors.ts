@@ -9,9 +9,13 @@ export class AppError extends Error {
   constructor(
     code: ErrorCode,
     message: string,
-    extra: { fields?: Record<string, string>; details?: Record<string, unknown> } = {},
+    extra: {
+      fields?: Record<string, string>;
+      details?: Record<string, unknown>;
+      cause?: unknown;
+    } = {},
   ) {
-    super(message);
+    super(message, extra.cause === undefined ? undefined : { cause: extra.cause });
     this.name = 'AppError';
     this.code = code;
     this.fields = extra.fields;

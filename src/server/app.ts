@@ -99,7 +99,7 @@ export function createApp(deps: AppDeps) {
     .route('/field-labels', fieldLabelRoutes(ctx))
     .route('/search', searchRoutes(ctx))
     .route('/pick', pickRoutes(ctx))
-    .route('/data', dataRoutes(ctx))
+    .route('/data', dataRoutes(ctx, deps.phone))
     .route('/trash', trashRoutes(ctx))
     .route('/phone', phoneRoutes(deps.phone, deps.config.port));
 

@@ -19,6 +19,20 @@ export function boundedText(max: number) {
     });
 }
 
+/**
+ * A string with CRLF and NUL normalised first and then checked by `check`, so a limit counts what
+ * is stored. `trim` also strips the ends. For text that `boundedText` and `nameSchema` do not fit.
+ */
+export function cleanedString<T extends z.ZodType<string, string>>(
+  check: T,
+  { trim = false } = {},
+) {
+  return z
+    .string()
+    .transform((s) => (trim ? cleanText(s).trim() : cleanText(s)))
+    .pipe(check);
+}
+
 /** A trimmed name of 1 to `max` characters. */
 export function nameSchema(max: number) {
   return z

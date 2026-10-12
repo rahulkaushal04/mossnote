@@ -26,6 +26,32 @@ export function fromZod(error: IssueSource): AppError {
   return new AppError('validation_failed', message, { fields });
 }
 
+// A name or code is logged only when it is plain identifier text, so nothing a person wrote, and
+// nothing that could break a log line, can get in by way of an error.
+const NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
+const CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
+
+/** What may be logged about an error: its name and its code (SQLITE_FULL, ENOENT), never its message. */
+function errorFacts(error: unknown): { name?: string; code?: string } {
+  if (typeof error !== 'object' || error === null) return {};
+  const { name, code } = error as { name?: unknown; code?: unknown };
+  return {
+    ...(typeof name === 'string' && NAME_PATTERN.test(name) ? { name } : {}),
+    ...(typeof code === 'string' && CODE_PATTERN.test(code) ? { code } : {}),
+  };
+}
+
+/** The error at the bottom of a chain of causes: what actually broke. */
+function rootCause(error: unknown): unknown {
+  let current = error;
+  for (let depth = 0; depth < 5; depth++) {
+    const next = (current as { cause?: unknown } | null)?.cause;
+    if (next === undefined || next === null) break;
+    current = next;
+  }
+  return current;
+}
+
 function isDiskFull(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;
   return code === 'SQLITE_FULL' || code === 'ENOSPC';
@@ -59,11 +85,21 @@ export function errorHandler(logger: Logger): ErrorHandler<Env> {
     }
 
     if (app.status >= 500) {
-      logger.error('request failed', {
+      const own = errorFacts(error);
+      const fields: Record<string, string | number> = {
         id: requestId,
         code: app.code,
-        kind: error instanceof Error ? error.name : 'unknown',
-      });
+        kind: own.name ?? 'unknown',
+      };
+      // An AppError's own `code` is the app's; for anything else it is the driver's or the system's.
+      if (!(error instanceof AppError) && own.code) fields.errorCode = own.code;
+      const root = rootCause(error);
+      if (root !== error) {
+        const cause = errorFacts(root);
+        if (cause.name) fields.cause = cause.name;
+        if (cause.code) fields.causeCode = cause.code;
+      }
+      logger.error('request failed', fields);
     }
     return c.json(app.toBody(), app.status);
   };
