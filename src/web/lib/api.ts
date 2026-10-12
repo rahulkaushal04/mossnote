@@ -230,7 +230,9 @@ export const api = {
     ),
 
   // farm entries
-  listPlantings: async (query: { tag?: string; status?: 'growing' | 'done' | 'noted' } = {}) =>
+  listPlantings: async (
+    query: { tag?: string; status?: 'growing' | 'done' | 'noted'; cursor?: string } = {},
+  ) =>
     unwrap<Page<Planting>>(
       await client.api.plantings.$get({ query: stripUndefined({ ...query, limit: '500' }) }),
     ),
@@ -255,8 +257,10 @@ export const api = {
     ),
 
   // maps
-  listMaps: async () =>
-    unwrap<Page<MapSummary>>(await client.api.maps.$get({ query: { limit: '500' } })),
+  listMaps: async (cursor?: string) =>
+    unwrap<Page<MapSummary>>(
+      await client.api.maps.$get({ query: stripUndefined({ cursor, limit: '500' }) }),
+    ),
   createMap: async (input: MapCreate) =>
     unwrap<MapDetail>(await client.api.maps.$post(withBody(input))),
   getMap: async (id: string) =>
@@ -330,8 +334,10 @@ export const api = {
     unwrapEmpty(
       await client.api.maps[':id'].pins[':pinId'].$delete({ param: { id: mapId, pinId } }),
     ),
-  places: async () =>
-    unwrap<{ items: (MapPin & { mapName: string })[] }>(await client.api.maps.places.$get()),
+  places: async (cursor?: string) =>
+    unwrap<Page<MapPin & { mapName: string }>>(
+      await client.api.maps.places.$get({ query: stripUndefined({ cursor, limit: '500' }) }),
+    ),
   pinsFor: async (type: 'note' | 'person' | 'planting', id: string) =>
     unwrap<{ items: PinRef[] }>(await client.api.maps.pins.$get({ query: { type, id } })),
 

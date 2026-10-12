@@ -49,3 +49,12 @@ export function LoadError({ onRetry }: { onRetry: () => void }) {
     </p>
   );
 }
+
+/** Said while the rest of a long list is still arriving, so a short list is not taken for all of it. */
+export function LoadingMore({ show }: { show: boolean }) {
+  return (
+    <p role="status" className="py-2 text-sm text-ink-muted">
+      {show ? 'Loading the rest…' : ''}
+    </p>
+  );
+}

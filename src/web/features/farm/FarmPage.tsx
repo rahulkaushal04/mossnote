@@ -9,7 +9,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { RemovableChip } from '../../components/ui/Chip';
 import { LeafArt } from '../../components/ui/art';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
+import { ListSkeleton, LoadError, LoadingMore } from '../../components/ui/Skeleton';
 import { useCalendar } from '../calendar/CalendarProvider';
 import { FarmRow } from './FarmRow';
 import { useCreatePlanting, usePlantings } from './hooks';
@@ -72,7 +72,7 @@ export function FarmPage() {
   const listId = useId();
   const entryInput = useRef<HTMLInputElement>(null);
 
-  const items = plantings.data?.items ?? [];
+  const items = plantings.items;
   const growing = items.filter((p) => p.plantedOn !== null && p.harvestedOn === null);
   const done = items.filter((p) => p.harvestedOn !== null);
   const noted = items.filter((p) => p.plantedOn === null && p.harvestedOn === null);
@@ -156,7 +156,7 @@ export function FarmPage() {
 
       {plantings.isError ? <LoadError onRetry={() => void plantings.refetch()} /> : null}
       <ListSkeleton pending={plantings.isPending} />
-      {plantings.data && items.length === 0 ? (
+      {plantings.loaded && items.length === 0 ? (
         <EmptyState
           art={<LeafArt />}
           action={
@@ -177,6 +177,7 @@ export function FarmPage() {
       <Group title="Growing" items={growing} askingId={askingId} onAsking={setAskingId} />
       <Group title="Done" items={done} askingId={askingId} onAsking={setAskingId} />
       <Group title="Noted" items={noted} askingId={askingId} onAsking={setAskingId} />
+      <LoadingMore show={plantings.loadingMore} />
       <Outlet />
     </>
   );

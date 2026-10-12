@@ -10,7 +10,7 @@ import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { MapArt } from '../../components/ui/art';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { ListSkeleton, LoadError } from '../../components/ui/Skeleton';
+import { ListSkeleton, LoadError, LoadingMore } from '../../components/ui/Skeleton';
 import { api } from '../../lib/api';
 import { formatDateTime } from '../../lib/format';
 import { refreshMaps, useCreateMap, useMaps, usePlaces } from './hooks';
@@ -32,9 +32,9 @@ export function MapsPage() {
   const [message, setMessage] = useState<string | null>(null);
   const client = useQueryClient();
   const file = useRef<HTMLInputElement>(null);
-  const items = maps.data?.items ?? [];
+  const items = maps.items;
   const needle = filter.trim().toLowerCase();
-  const pins = (places.data?.items ?? []).filter(
+  const pins = places.items.filter(
     (p) => needle === '' || `${p.label} ${p.note} ${p.mapName}`.toLowerCase().includes(needle),
   );
 
@@ -141,7 +141,7 @@ export function MapsPage() {
 
       {maps.isError ? <LoadError onRetry={() => void maps.refetch()} /> : null}
       <ListSkeleton pending={maps.isPending} />
-      {maps.data && items.length === 0 ? (
+      {maps.loaded && items.length === 0 ? (
         <EmptyState
           art={<MapArt />}
           action={
@@ -181,8 +181,9 @@ export function MapsPage() {
           ))}
         </ul>
       ) : null}
+      <LoadingMore show={maps.loadingMore} />
 
-      {(places.data?.items.length ?? 0) > 0 ? (
+      {places.items.length > 0 ? (
         <section aria-labelledby="places" className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 id="places" className="day-label static">
@@ -216,6 +217,7 @@ export function MapsPage() {
               </li>
             ))}
           </ul>
+          <LoadingMore show={places.loadingMore} />
         </section>
       ) : null}
     </>

@@ -1,13 +1,14 @@
 /**
  * Data hooks for maps (TanStack Query): the list, one map, places, and pins pointing at a record.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { MapCreate } from '@shared/schemas/map';
 import type { MapSummary } from '@shared/types';
 import { useToast } from '../../components/ui/Toast';
 import { api } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { queryKeys } from '../../lib/queryKeys';
+import { useAllPages } from '../../lib/useAllPages';
 
 const AFTER_MAP_CHANGE: readonly (readonly unknown[])[] = [
   ['maps'],
@@ -17,9 +18,27 @@ const AFTER_MAP_CHANGE: readonly (readonly unknown[])[] = [
   ['data'],
 ];
 
-export const useMaps = () => useQuery({ queryKey: queryKeys.maps, queryFn: api.listMaps });
+/** Every map, a page at a time as they arrive. */
+export function useMaps() {
+  const query = useInfiniteQuery({
+    queryKey: queryKeys.maps,
+    queryFn: ({ pageParam }) => api.listMaps(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  return useAllPages(query);
+}
 
-export const usePlaces = () => useQuery({ queryKey: queryKeys.places, queryFn: api.places });
+/** Every pin across the maps, a page at a time as they arrive. */
+export function usePlaces() {
+  const query = useInfiniteQuery({
+    queryKey: queryKeys.places,
+    queryFn: ({ pageParam }) => api.places(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  return useAllPages(query);
+}
 
 /** The editor keeps its own working copy, so the map is fetched once per visit. */
 export const useMap = (id: string) =>

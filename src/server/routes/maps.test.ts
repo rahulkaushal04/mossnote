@@ -48,6 +48,11 @@ const text = (id: string, value: string) => ({
   style: STYLE,
 });
 
+interface Places {
+  items: (MapPin & { mapName: string })[];
+  nextCursor: string | null;
+}
+
 const makeMap = async (body: Record<string, unknown> = {}) => {
   api.tick();
   return api.json<MapDetail>(await t.call('POST', '/api/maps', body), 201);
@@ -270,6 +275,53 @@ describe('search and places', () => {
     expect((await find('locked'))[0]?.snippet).toBe('locked for now');
     expect((await find('bridge'))[0]?.snippet).toBe('old bridge');
     expect(await find('#sometag river')).toEqual([]);
+  });
+
+  it('pages the maps list, newest first, with no map missing or repeated', async () => {
+    const made: string[] = [];
+    for (let i = 0; i < 5; i++) made.push((await makeMap({ name: `Map ${i}` })).id);
+    const seen: string[] = [];
+    let cursor: string | null = null;
+    do {
+      const page: Page<MapSummary> = await api.json(
+        await t.call('GET', `/api/maps?limit=2${cursor ? `&cursor=${cursor}` : ''}`),
+      );
+      expect(page.items.length).toBeLessThanOrEqual(2);
+      seen.push(...page.items.map((m) => m.id));
+      cursor = page.nextCursor;
+    } while (cursor);
+    expect(seen).toEqual([...made].reverse());
+  });
+
+  it('pages places past 500, newest first, with no pin missing or repeated', async () => {
+    const a = await makeMap({ name: 'A' });
+    const b = await makeMap({ name: 'B' });
+    const batch = (prefix: string) =>
+      Array.from({ length: 300 }, (_, i) => ({ id: newId(), x: i, y: i, label: `${prefix}${i}` }));
+    for (const [map, prefix] of [
+      [a, 'a'],
+      [b, 'b'],
+    ] as const) {
+      api.tick();
+      await api.json(
+        await t.call('POST', `/api/maps/${map.id}/changes`, { upsert: batch(prefix) }),
+      );
+    }
+
+    const first = await api.json<Places>(await t.call('GET', '/api/maps/places'));
+    expect(first.items).toHaveLength(500);
+    expect(first.nextCursor).not.toBeNull();
+    const second = await api.json<Places>(
+      await t.call('GET', `/api/maps/places?cursor=${first.nextCursor}`),
+    );
+    expect(second.items).toHaveLength(100);
+    expect(second.nextCursor).toBeNull();
+    const ids = [...first.items, ...second.items].map((p) => p.id);
+    expect(new Set(ids).size).toBe(600);
+  });
+
+  it('refuses a places cursor that is not one', async () => {
+    expect((await t.call('GET', '/api/maps/places?cursor=nope')).status).toBe(400);
   });
 
   it('lists every pin across maps as places', async () => {

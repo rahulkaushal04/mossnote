@@ -69,7 +69,9 @@ export const mapRoutes = (ctx: Ctx) =>
     .post('/import', validateJson(mapProjectSchema), (c) =>
       c.json(importMapProject(ctx, c.req.valid('json')), 201),
     )
-    .get('/places', (c) => c.json({ items: listPlaces(ctx) }))
+    .get('/places', validateQuery(mapListQuerySchema), (c) =>
+      c.json(listPlaces(ctx, c.req.valid('query'))),
+    )
     .get('/pins', validateQuery(pinsByTargetQuerySchema), (c) => {
       const { type, id } = c.req.valid('query');
       return c.json({ items: pinsPointingAt(ctx, type, id) });

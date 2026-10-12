@@ -5,6 +5,7 @@ import { useToast } from '../../components/ui/Toast';
 import { api } from '../../lib/api';
 import { invalidateEverywhere } from '../../lib/broadcast';
 import { queryKeys } from '../../lib/queryKeys';
+import { useAllPages } from '../../lib/useAllPages';
 
 const AFTER_PLANTING_CHANGE: readonly (readonly unknown[])[] = [
   ['plantings'],
@@ -18,11 +19,20 @@ const AFTER_PLANTING_CHANGE: readonly (readonly unknown[])[] = [
   ['fieldLabels'],
 ];
 
-export const usePlantings = (params: { tag?: string | undefined } = {}) =>
-  useQuery({
+/** Every farm entry, a page at a time as they arrive. */
+export function usePlantings(params: { tag?: string | undefined } = {}) {
+  const query = useInfiniteQuery({
     queryKey: queryKeys.plantings(params),
-    queryFn: () => api.listPlantings(params.tag ? { tag: params.tag } : {}),
+    queryFn: ({ pageParam }) =>
+      api.listPlantings({
+        ...(params.tag ? { tag: params.tag } : {}),
+        ...(pageParam ? { cursor: pageParam } : {}),
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+  return useAllPages(query);
+}
 
 export const usePlanting = (id: string) =>
   useQuery({ queryKey: queryKeys.planting(id), queryFn: () => api.getPlanting(id) });

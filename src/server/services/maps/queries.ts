@@ -1,8 +1,9 @@
 /**
  * Read-only queries across maps: which pins point at a record, map search, and the "Places" list.
  */
-import type { LinkType, MapHit, MapPin, PinRef } from '@shared/types';
-import type { Ctx } from '../ctx';
+import type { MapListQuery } from '@shared/schemas/map';
+import type { LinkType, MapHit, MapPin, Page, PinRef } from '@shared/types';
+import { offsetFromCursor, pageOf, type Ctx } from '../ctx';
 import { parseScene, toPin, type MapRow, type PinRow } from './rows';
 
 const PINS_BY_TARGET: Record<LinkType, string> = {
@@ -97,13 +98,15 @@ export function searchMaps(ctx: Ctx, q: string, limit = 20): MapHit[] {
   return hits.slice(0, limit);
 }
 
-/** Every live pin across live maps, newest first: the "Places" view. */
-export function listPlaces(ctx: Ctx): (MapPin & { mapName: string })[] {
+/** Every live pin across live maps, newest first, a page at a time: the "Places" view. */
+export function listPlaces(ctx: Ctx, query: MapListQuery): Page<MapPin & { mapName: string }> {
+  const offset = offsetFromCursor(query.cursor);
   const rows = ctx.sqlite
     .prepare(
       `SELECT pin.*, m.name AS map_name FROM map_pins pin JOIN maps m ON m.id = pin.map_id
-       WHERE m.deleted_at IS NULL ORDER BY pin.updated_at DESC, pin.id DESC LIMIT 500`,
+       WHERE m.deleted_at IS NULL ORDER BY pin.updated_at DESC, pin.id DESC LIMIT ? OFFSET ?`,
     )
-    .all() as (PinRow & { map_name: string })[];
-  return rows.map((r) => ({ ...toPin(ctx, r), mapName: r.map_name }));
+    .all(query.limit + 1, offset) as (PinRow & { map_name: string })[];
+  const { items, nextCursor } = pageOf(rows, query.limit, offset);
+  return { items: items.map((r) => ({ ...toPin(ctx, r), mapName: r.map_name })), nextCursor };
 }
