@@ -18,24 +18,22 @@ try {
 } catch (error) {
   result = error instanceof AlreadyRunningError ? 'refused' : 'error: ' + error.message;
 }
-process.stdout.write(result);
-const until = Date.now() + 300;
-while (Date.now() < until) { /* stay alive, so the other one finds a live holder */ }
+process.stdout.write(result + '\\n');
+// stay alive until told to stop, however late the other one starts
+process.stdin.resume();
 `;
 
 const racer = (lockPath: string, startAt: number) =>
-  new Promise<string>((resolve) => {
+  new Promise<{ result: string; stop: () => void }>((resolve) => {
     const child = spawn(
       process.execPath,
       ['--experimental-strip-types', '--input-type=module', '-e', RACER, lockPath, String(startAt)],
-      { stdio: ['ignore', 'pipe', 'ignore'] },
+      { stdio: ['pipe', 'pipe', 'ignore'] },
     );
     let out = '';
     child.stdout.on('data', (chunk: Buffer) => {
       out += chunk.toString();
-    });
-    child.on('close', () => {
-      resolve(out);
+      if (out.endsWith('\n')) resolve({ result: out.trim(), stop: () => child.kill() });
     });
   });
 
@@ -58,7 +56,10 @@ async function race(prepare: (lockPath: string) => void): Promise<string[][]> {
     const pairs = Array.from({ length: PAIRS_PER_BATCH }, (_, i) => {
       const lockPath = path.join(dir, `b${batch}-p${i}.lock`);
       prepare(lockPath);
-      return Promise.all([racer(lockPath, startAt), racer(lockPath, startAt)]);
+      return Promise.all([racer(lockPath, startAt), racer(lockPath, startAt)]).then((both) => {
+        for (const one of both) one.stop();
+        return both.map((one) => one.result);
+      });
     });
     outcomes.push(...(await Promise.all(pairs)).map((pair) => pair.sort()));
   }
