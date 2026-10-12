@@ -8,153 +8,82 @@ marked as a prerelease. Changes made since the last tag go under "Unreleased".
 
 ## Unreleased
 
-### Linux and Windows programs
+## 0.1.0-beta.1
 
-- **The standalone programs are built, run and checked on each system by a new workflow** (`binaries.yml`): Linux x64 and arm64 and Windows x64, each on its own system. The Linux downloads are also run in clean Ubuntu 22.04 and 24.04, Debian 12 and Fedora containers, on both architectures. It runs by hand and on pull requests, needs no tag and publishes nothing. The release workflow calls it and attaches exactly the files it tested, to a draft release created only after every program passed.
-- **Linux arm64 is now built.** The minimum Linux is documented from measurement: glibc 2.34 and the C++ library of GCC 11, set by the SQLite module (the Node.js inside needs only glibc 2.28). The build fails if either number rises. Alpine and older systems are not supported, and the README says how to tell.
-- **Fixed: the Windows program could not be built in the release workflow.** On Windows with Node 22, `npm ci` tried to compile the SQLite module and failed.
-- **Fixed: the program's command line was looser than the npm one.** A typo such as `--prot 4000` was ignored and `--port=4000` did nothing. It now uses the same parser, with the same messages.
-- **The program stops cleanly when its terminal window is closed** (SIGHUP, and Ctrl+Break on Windows), as it does for Ctrl+C. This applies to the npm and Python routes too.
-- **First-run unpacking is sturdier.** On Windows it tries again when an antivirus scanner is still reading the new files, a failure to unpack says why and how to choose another cache, and half-finished unpacks left by a crash are removed.
-- `npm run package:smoke` now unpacks the real tarball, runs the program from a folder with a space in its name with no Node.js on the `PATH`, checks the cache, and runs the same checks as the npm package. `npm run package:checksums` verifies every `.sha256`. The Windows program is not code-signed; the README says what SmartScreen does and how to proceed.
+The first release. Mossnote is a local-first, spoiler-free journal for the games you play: your
+notes stay on your computer (or in your browser), nothing is sent anywhere, and a template holds
+wording and structure only, never game information.
 
-### Fixed
+### Journal
 
-- **Leaving a map right after an edit no longer loses it.** Going to another page now saves with an ordinary request, and if that fails you are told. A drawing too large to send while the page closes is kept in the browser and brought back the next time you open the map.
-- **Search: `-word` works with several words.** `lantern -cave -river` now hides notes that have either word.
-- **Search and pickers ignore case and accents in tags and people.** `#cafe` finds `café`, `@élise` finds Élise, and People sorts accented names with the letters they look like.
-- **A map file or journal file with a drawing that is too large is refused with a clear message** (and the import check says so) instead of failing with "Something went wrong".
-- **Switching phone access off can no longer leave the network open without a pairing.** Until the connection has really moved back to this computer, devices that are not paired are still refused.
-- **⌘/Ctrl+K opens search while you type in the note box,** as the shortcut list says.
-- **Map history is quick to open and to save into,** even for large maps (about 1.5 seconds before, a few milliseconds now).
-- **Creating something with the id of a deleted note, person, farm entry or map is refused** with a clear message instead of answering as if it were still there.
-- **A stray NUL character no longer makes search fail.**
-- **People, farm and field editors tell you when a change could not be saved.** A field typed without a label says why it is not saved.
-- **A lock left from before the computer started no longer stops Mossnote from starting,** and the message names the file to delete if one is left behind by a crash.
-- **Import says what it replaces** (template, calendar, and map version history), a file that names an unknown template is refused, and the troubleshooting guide no longer suggests that importing keeps the new journal's template.
-- **Creating a person from `@` keeps what you typed meanwhile,** and says so if it fails.
-- **Pasting, duplicating or adding a note on a full map says so** instead of failing to save later, and "too many markers" now reads in plain words.
-- **Maps with a lot of non-English text can be saved** (the size limit now allows for several bytes a character).
-- **`npm start` no longer reuses a build made for the browser tests.**
-- **A map no longer silently overwrites another window's drawing.** If the map was changed in another window or on another device, saving now stops and asks: Reload takes the other copy, Keep mine saves yours over it.
-- **Editing a note in place no longer loses your edit when it cannot be saved.** Done, Esc and clicking away now keep the editor open when the save fails or a newer version is waiting, and the message offers "Discard changes". Text typed while a save is running is saved right after it.
-
-### Python package
-
-- **`pip install mossnote` and `pipx install mossnote`, with no Node.js needed.** One wheel (`py3-none-any`, about 12 MB) carries the app exactly as `npm run build` makes it, its production dependencies and the SQLite module for every system. It runs on the Node.js from the `nodejs-wheel-binaries` package. The `mossnote` command is the npm command: it takes the same options, gives the same errors and uses the same data folders. The beta is `0.1.0b1` to pip and `0.1.0-beta.1` everywhere else. It is built and tested but not published yet.
-- `npm run package:python` builds the wheel, and `python/tests/wheel_smoke.py` installs it into an empty environment with no Node.js on the `PATH` and runs it. CI does that on Linux (x64 and arm64), macOS and Windows with Python 3.10, 3.12 and 3.14. `.github/workflows/pypi.yml` publishes with trusted publishing (TestPyPI by hand, PyPI by hand or on a tag when `PUBLISH_TO_PYPI` is set). Nothing is published.
-- Fixed: the standalone program builder ran install scripts, which would try to compile the SQLite module on Windows with Node 22 and fail.
-
-## 0.1.0-beta.1 - 2026-10-11
-
-The first beta, and the first version published to npm (`npx mossnote@beta`). It collects
-everything built so far. Your journals are untouched by any of it.
-
-### Packaging
-
-- **The npm package is checked as a stranger would get it.** `npm run package:npm-smoke` builds the tarball, checks what is in it, installs it into an empty project and into a global prefix, runs `mossnote` five ways, and checks the API, the data folder, a second copy, a busy port, a clean stop, a hard kill and a restart. CI runs it on Windows, macOS and Linux with Node 22.14, 22, 24 and 26, using one tarball built on Linux.
-- **The supported Node is now 22.14 or newer, with no upper limit.** Node 22.13 and older hang or crash when a journal is made, because the SQLite module needs Node-API 10. The earlier limit of 22.12 let those through, and `<25` warned on current Node versions. Node 26 now runs in CI.
-- **The command line is stricter.** An unknown option or word is reported (a typo such as `--prot` no longer starts on the default port), `--port=4000` works, and mistakes name the option instead of an environment variable.
-- **Fixed: an empty `MOSS_DATA_DIR=` kept journals in the current folder.** An empty variable now counts as not set.
-- **Fixed: `NODE_ENV=development` in the shell made an installed copy answer 404.** An installed copy is always a production run.
-- **Fixed: the version came from a number written in the code.** It is now read from the package's own `package.json`, so `--version`, the API, exports and the web version agree.
-- Startup problems say what to do: a data folder that cannot be used names the folder and `--data-dir`, a busy port names `--port`, and a second copy no longer prints an address it cannot know.
-- The release workflow marks a version with a `-` as a prerelease, publishes the tested tarball under the dist-tag named after the `-` (never `latest`), and `CONTRIBUTING.md` lists what the maintainer needs before the first publish.
-
-Two new ways to use Mossnote while you play. Your existing journals are untouched.
-
-### Added
-
-- **Phone access.** Settings → Phone lets a phone or tablet on your home network open the journal that lives on your computer. Turn it on, scan the pairing code with the phone's camera, and write notes without leaving the game. Only devices you pair can use it; you can remove them from the same screen. `mossnote --lan` or `MOSS_LAN=1` turns it on at start.
-- **A web version** that keeps the journal in the browser, for people with no computer to run Mossnote on, such as a console player with a phone. It works offline, can be added to the Home Screen, reminds you to download a backup, and says plainly when a browser cannot keep files (private windows) or another tab already has the journal. Build it with `npm run build:standalone`.
-- **The web version is published to GitHub Pages** by the _Web version_ workflow, on every push to `main` and by hand, together with the documentation at `/docs/`. The workflow works out the base path for a project site, a `<owner>.github.io` site or a custom domain, and publishes only after the finished site passes `npm run verify:pages`: addresses stay under the base path, a refresh on any page opens the app, it opens with no network, and the documentation is served beside it. The web version's first screen now links to how to install the computer version.
-- Export and download buttons work the same in both versions, and the data screens say whether the journal is in a folder or in the browser.
-
-### Changed
-
-- **A third pass on the look and feel.** No data, setting or shortcut changed.
-- **Each game's journal wears its own colour.** A game template names a tint: Default stays moss, Stardew Valley is plum. It replaces the accent (buttons, the current item, the italic word in titles) in light and dark, and never touches the colours that mean something: red is still a warning. The journal switcher shows the dot and the game's name, and each template card previews its colour. Every tint is checked for contrast.
-- Notes in the Journal and on a day: on a wide screen the date, tags and links sit in a right-hand margin, and a note no longer repeats the day that its heading or page already names. On a narrow screen they stay under the text.
-- Today puts the in-game date under the title, above the note box. The note box keeps its options in one row that scrolls sideways on a phone, with Save beside it instead of dropping onto a second row, and keyboard hints such as ⌘↵ are not shown on a touch screen.
-- The current page in the sidebar, rail and settings is a tinted fill with a short marker. The sidebar says "Stays on this computer" (or "in this browser"). Section names in the phone's tab bar are no longer squeezed.
-- People, Farm and Maps start with one "add" row instead of a label, a field and a button. Farm groups show a count; each entry has its dates and counts on a second line. Empty pages use a larger serif sentence and a line drawing in the journal's colour.
-- Secondary buttons have a hairline edge on a raised fill instead of a heavy outline. Text fields keep their strong outline.
-- The map editor has its tools in a vertical strip on the left, one row of controls above, and a much taller canvas. A phone keeps the two scrolling rows.
-- Settings has a side navigation that follows the section in view, from 900px up. Narrower screens keep the row of pills.
-- The first screen puts a short statement and two facts (no spoilers, nothing leaves the device) beside the template cards.
-- The server's code is split so the same app, services and migrations run in Node and in the browser, behind small `Sqlite` and `Storage` interfaces. The server's behaviour is unchanged; `npm run test:wasm` runs its whole test suite on the browser's SQLite.
-- Settings → Data & backup shows the data location as a folder or as browser storage (`GET /api/data/info` now returns a `location` object instead of three path fields).
-
-### Fixed
-
-- **A map reopened as it was first created.** After renaming a map or drawing on it and going back to Maps, opening it again within a few minutes showed "Untitled map" and an empty canvas, because the editor reused a copy fetched before your changes (your work was saved, and the next edit could have overwritten it). The map now keeps what you drew and its new name, and the Maps list and Places refresh as soon as the last change is saved.
-- The dotted canvas in the map editor was drawn behind the canvas and never showed. It is now a quiet dot lattice that moves and scales with the drawing, shown while the grid is off.
-
-## 2026-10-08
-
-A second pass on the look and feel. Nothing was removed and no data changed.
-
-### Changed
-
-- Page titles are large and serif, with one italic word where it reads well and a one-line intro under them. Today opens with the day's name in italic and the note box ready to type in; quick actions are pills under the box and the date controls sit below them.
-- A wide screen has a floating sidebar with a search field, New note, your sections with counts, pinned tags and Settings, and the page is one centred column. A tablet has a slim icon rail. A phone has a floating bottom bar.
-- Lists are quiet hairline rows with serif names; People has monogram avatars. Filters are pills, and an active filter is a pill you press to remove.
-- The first screen shows each template as a large card with a clear selected state.
-- The search palette has tabs for notes, people, farm entries and maps, a blurred backdrop and a row of key hints.
-- The map editor has a dotted canvas and a raised toolbar. Press and hold an icon on a touch screen to see its name. The note box on Today stays in view when the keyboard opens.
-- The interface font is now Inter (the reading font is still Literata). Small details: thin scrollbars, a selection colour, a browser theme colour for both themes, a new icon, print and high-contrast styles.
-- The note box always shows its options (date, flags, tag, link, Save), so the page no longer jumps when you click elsewhere.
-- Empty People, Farm and Maps pages show a small line drawing and a button for the next step. "Dismiss" on the date tip now reads "Hide this tip".
-
-## 2026-10-07
-
-First entry. This is where the project starts.
-
-### Added
-
-**Journal**
-
-- Notes with a composer that saves on Cmd/Ctrl+Enter, keeps drafts through a refresh or an outage, and stamps each note with the current game date.
-- Today, Day and Journal views with filters for discoveries, questions, tags, people, date ranges and undated notes. Notes can be edited in place, and a delete can be undone.
+- Notes with a composer that saves on Cmd/Ctrl+Enter, keeps drafts through a refresh or an outage, and stamps each note with the current game date. Notes can be edited in place; the editor stays open, with a "Discard changes" choice, if a save fails or a newer version is waiting.
+- Today, Day and Journal views with filters for discoveries, questions, tags, people, date ranges and undated notes. On a wide screen the date, tags and links of a note sit in a right-hand margin.
 - Discoveries and questions. A question can be left open, marked solved or ignored, and given an answer.
-- People and farm entries, each page built from the notes that mention it. `@person`, `[[farm entry]]`, `#tag` and `/` pickers create records as you type.
-- A tag manager (rename, pin, merge, delete) and suggestions for field labels.
+- People and farm entries, each page built from the notes that mention it. `@person`, `[[farm entry]]`, `#tag` and `/` pickers create records as you type, and keep what you typed meanwhile if creating one fails. The editors say when a change could not be saved.
+- A tag manager (rename, pin, merge, delete) and suggestions for field labels. Tags and people ignore case and accents (`#cafe` finds `café`).
 - An editable game calendar, with checks when a change would affect existing dates.
 
-**Maps**
+### Maps
 
-- A map editor built on SVG: freehand paths, boxes, circles, areas, connectors, text, cards, callouts, sticky notes and markers, on named layers.
+- A map editor built on SVG: freehand paths, boxes, circles, areas, connectors, text, cards, callouts, sticky notes and markers, on named layers. Tools sit in a vertical strip beside a tall canvas with a dot lattice that moves and scales with the drawing.
 - Smart drawing that turns rough strokes into clean shapes, with an offer to keep the original.
 - Snapping to points, edges, alignment lines, angles and the grid, which Alt pauses. Guides, grid, rulers, minimap, compass and a measure tool.
-- Select, move, resize, rotate, group, lock, hide, rename, align, distribute, copy, paste and duplicate, with a quick bar, a right-click menu and keyboard shortcuts.
-- Markers with an icon, status, tags and fields, and a link to a note, a person or a farm entry. The linked page lists them under "On maps". Marker types are your own to define.
+- Select, move, resize, rotate, group, lock, hide, rename, align, distribute, copy, paste and duplicate, with a quick bar, a right-click menu and keyboard shortcuts. A full map says so instead of failing to save later.
+- Markers with an icon, status, tags and fields, and a link to a note, a person or a farm entry. The linked page lists them under "On maps". Marker types are yours to define.
 - Exploring mode, for switching between the game and the map.
-- Autosave in a single request, undo and redo, and version history with automatic and named versions.
-- Duplicate a map. Export to PNG, SVG, PDF or an editable project file (`.mossmap.json`) that can be opened again.
+- Autosave in a single request, undo and redo, and version history with automatic and named versions. Leaving a map right after an edit does not lose it, and if the map was changed in another window or on another device, saving stops and asks: Reload takes the other copy, Keep mine saves yours over it.
+- Duplicate a map. Export to PNG, SVG, PDF or an editable project file (`.mossmap.json`) that can be opened again. Maps with a lot of non-English text can be saved.
 - A Places list across all maps.
 
-**Game templates**
+### Game templates
 
 - A default template and one for Stardew Valley. A template holds wording and structure only, never game information.
 - Rename, hide and reorder sections, quick actions above the note box, and one-click suggested tags, all under Settings.
+- Each game's journal wears its own colour: Default stays moss, Stardew Valley is plum. It replaces the accent in light and dark, never touches the colours that mean something (red is still a warning), and every tint is checked for contrast.
 
-**Search**
+### Search
 
-- Full-text search on SQLite FTS5 with typo tolerance, `#tag`, `@person` and quoted phrases, a command palette on Cmd/Ctrl+K, a results page, and a shortcuts dialog. Maps and markers match by plain text.
+- Full-text search on SQLite FTS5 with typo tolerance, `#tag`, `@person`, quoted phrases and `-word` exclusion (`lantern -cave -river` hides notes that have either word), a command palette on Cmd/Ctrl+K (also while typing in the note box), a results page, and a shortcuts dialog.
 
-**Safety**
+### Phone access
 
-- JSON and Markdown export. Import that validates the file, runs in one transaction and takes a snapshot first.
+- Settings → Phone lets a phone or tablet on your home network open the journal that lives on your computer. Turn it on, scan the pairing code with the phone's camera, and write notes without leaving the game. Only devices you pair can use it, and you can remove them from the same screen. Switching it off never leaves the network open without a pairing. `mossnote --lan` or `MOSS_LAN=1` turns it on at start.
+
+### Web version
+
+- A version that keeps the journal in the browser, for people with no computer to run Mossnote on, such as a console player with a phone. It works offline, can be added to the Home Screen, reminds you to download a backup, and says plainly when a browser cannot keep files (private windows) or another tab already has the journal. Build it with `npm run build:standalone`.
+- Published to GitHub Pages by the _Web version_ workflow, on every push to `main` and by hand, together with the documentation at `/docs/`. The workflow works out the base path for a project site, a `<owner>.github.io` site or a custom domain, and publishes only after the finished site passes `npm run verify:pages`.
+- Export and download buttons work the same in both versions, and the data screens say whether the journal is in a folder or in the browser.
+
+### Safety
+
+- JSON and Markdown export. Import validates the file, runs in one transaction, takes a snapshot first, says what it replaces (template, calendar, and map version history), and refuses a file that names an unknown template or holds a drawing that is too large.
 - Automatic and manual snapshots, an integrity check on every start, and Recently deleted with a 30-day purge.
+- A lock left from before the computer started no longer stops Mossnote from starting, and the message names the file to delete if a crash left one behind.
+- Creating something with the id of a deleted note, person, farm entry or map is refused with a clear message.
 - Settings for theme, reading size, calendar, game, sections and data.
 
-**Under the hood**
+### Look and feel
+
+- Large serif page titles, hairline list rows, a floating sidebar on wide screens, a search palette with tabs, light, dark and system themes, Inter for the interface and Literata for reading, bundled fonts, empty states with a line drawing, toasts and dialogs.
+- The first screen shows each template as a card, with a short statement and two facts (no spoilers, nothing leaves the device). Settings has a side navigation from 900px up.
+- Touch screens get a bottom tab bar, a note box whose options scroll sideways, and press-and-hold names for map tools.
+
+### Install and run
+
+- **npm:** `npx mossnote@beta`. The supported Node is 22.14 or newer, with no upper limit. The command line is strict: an unknown option or word is reported (a typo such as `--prot` does not start on the default port), `--port=4000` works, and mistakes name the option. An empty `MOSS_DATA_DIR=` counts as not set, an installed copy is always a production run, and the version is read from the package's own `package.json`. Startup problems say what to do: a data folder that cannot be used names the folder and `--data-dir`, and a busy port names `--port`.
+- **Linux and Windows programs:** one self-contained file for Linux x64, Linux arm64 and Windows x64, with no Node.js needed. Each is built, run and checked on its own system by the `binaries.yml` workflow, and the Linux ones are also run in clean Ubuntu 22.04 and 24.04, Debian 12 and Fedora containers on both architectures. The minimum Linux is glibc 2.34 and the C++ library of GCC 11, measured from the SQLite module; the build fails if either number rises. Alpine and older systems are not supported. First-run unpacking tries again on Windows when an antivirus scanner is still reading the new files, says why when it fails, and removes half-finished unpacks. The Windows program is not code-signed; the README says what SmartScreen does and how to proceed.
+- **Python:** `pip install mossnote` and `pipx install mossnote`, with no Node.js needed. One wheel (`py3-none-any`, about 12 MB) carries the app, its production dependencies and the SQLite module for every system, and runs on the Node.js from `nodejs-wheel-binaries`. The beta is `0.1.0b1` to pip and `0.1.0-beta.1` everywhere else.
+- Every route stops cleanly on Ctrl+C and when its terminal window is closed (SIGHUP, and Ctrl+Break on Windows).
+- Checks as a stranger would get it: `npm run package:npm-smoke` installs the real tarball into an empty project and a global prefix; `npm run package:smoke` unpacks the program from a folder with a space in its name with no Node.js on the `PATH`; `python/tests/wheel_smoke.py` installs the wheel into an empty environment; `npm run package:checksums` verifies every `.sha256`.
+- The release workflow marks a version with a `-` as a prerelease, attaches exactly the files it tested to a draft release created after every program passed, and publishes the tested tarball under the dist-tag named after the `-` (never `latest`). `pypi.yml` publishes with trusted publishing. `CONTRIBUTING.md` lists what the maintainer needs before the first publish.
+
+### Under the hood
 
 - One npm package with `shared`, `server` and `web` source folders, and ESLint rules that enforce who may import whom.
 - A Hono server on loopback only, with Host and Origin checks, a required header on writes, strict security headers and a per-response style nonce, and one JSON error shape.
-- SQLite with Drizzle migrations, a hand-written full-text search migration, WAL mode, foreign keys, a PID lock file and snapshot retention.
-- A web app shell with light, dark and system themes, bundled fonts, empty states, toasts and dialogs.
+- SQLite with Drizzle migrations, a hand-written full-text search migration, WAL mode, foreign keys, a PID lock file and snapshot retention. The same app, services and migrations run in Node and in the browser behind small `Sqlite` and `Storage` interfaces; `npm run test:wasm` runs the whole server test suite on the browser's SQLite.
 - No outgoing network connections. A check fails the build if the source or the output contains a non-local URL.
 - Tests: unit, integration and component tests, and Playwright end-to-end tests with axe accessibility scans in both themes and a run under the full Content-Security-Policy.
-- GitHub Actions on Node 22 and 24, a WebKit smoke test on macOS, Dependabot, issue forms and a pull request template.
+- GitHub Actions on Node 22, 24 and 26, a WebKit smoke test on macOS, Dependabot, issue forms and a pull request template.
 - README, CONTRIBUTING, SECURITY and a Code of Conduct.
