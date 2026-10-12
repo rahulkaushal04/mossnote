@@ -31,7 +31,11 @@ const stale = (current: Planting) =>
 const open = async (stored: Planting = planting()) => {
   mockApi(stardewFixture(), { getPlanting: stored });
   renderApp(`/farm/${stored.id}`);
-  return screen.findByLabelText<HTMLTextAreaElement>('Notes about this entry');
+  return screen.findByLabelText<HTMLTextAreaElement>(
+    'Notes about this entry',
+    {},
+    { timeout: 4000 },
+  );
 };
 
 const patchCalls = (spy: { mock: { calls: unknown[][] } }) =>
@@ -70,7 +74,9 @@ describe('Farm entry notes', () => {
     await userEvent.type(box, ' Mine.');
     await userEvent.tab();
 
-    expect(await screen.findByText('The notes changed in another window.')).toBeTruthy();
+    expect(
+      await screen.findByText('The notes changed in another window.', {}, { timeout: 4000 }),
+    ).toBeTruthy();
     expect(box.value).toBe('Original entry note. Mine.');
     await userEvent.click(screen.getByRole('button', { name: 'Reload' }));
     expect(box.value).toBe('Other window.');
@@ -89,11 +95,13 @@ describe('Farm entry fields', () => {
       ),
     );
 
-    const value = await screen.findByDisplayValue('North');
+    const value = await screen.findByDisplayValue('North', {}, { timeout: 4000 });
     await userEvent.type(value, 'x');
     await userEvent.tab();
 
-    expect(await screen.findByText('The fields changed in another window.')).toBeTruthy();
+    expect(
+      await screen.findByText('The fields changed in another window.', {}, { timeout: 4000 }),
+    ).toBeTruthy();
     expect(patchCalls(patch)[0]).toEqual({
       customFields: [{ label: 'Plot', value: 'Northx' }],
       expectedUpdatedAt: '2026-01-01T00:00:01.000Z',

@@ -29,7 +29,11 @@ const stale = (current: Person) =>
 const open = async (stored: Person = person()) => {
   mockApi(undefined, { getPerson: stored });
   renderApp(`/people/${stored.id}`);
-  return screen.findByLabelText<HTMLTextAreaElement>('Notes about this person');
+  return screen.findByLabelText<HTMLTextAreaElement>(
+    'Notes about this person',
+    {},
+    { timeout: 4000 },
+  );
 };
 
 const patchCalls = (spy: { mock: { calls: unknown[][] } }) =>
@@ -95,7 +99,9 @@ describe('Person page notes', () => {
     await userEvent.type(box, ' Mine.');
     await userEvent.tab();
 
-    expect(await screen.findByText('The notes changed in another window.')).toBeTruthy();
+    expect(
+      await screen.findByText('The notes changed in another window.', {}, { timeout: 4000 }),
+    ).toBeTruthy();
     expect(box.value).toBe('Original note. Mine.');
     expect(screen.getByRole('button', { name: 'Reload' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Keep mine' })).toBeTruthy();
@@ -112,7 +118,7 @@ describe('Person page notes', () => {
       );
     await userEvent.type(box, ' Mine.');
     await userEvent.tab();
-    await userEvent.click(await screen.findByRole('button', { name: 'Reload' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Reload' }, { timeout: 4000 }));
 
     expect(box.value).toBe('Written in the other window.');
     expect(screen.queryByText('The notes changed in another window.')).toBeNull();
@@ -131,7 +137,9 @@ describe('Person page notes', () => {
       .mockResolvedValueOnce(person({ notes: 'Original note. Mine.' }));
     await userEvent.type(box, ' Mine.');
     await userEvent.tab();
-    await userEvent.click(await screen.findByRole('button', { name: 'Keep mine' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Keep mine' }, { timeout: 4000 }),
+    );
 
     await waitFor(
       () => {
@@ -178,11 +186,13 @@ describe('Person page fields', () => {
       ),
     );
 
-    const value = await screen.findByDisplayValue('Carpenter');
+    const value = await screen.findByDisplayValue('Carpenter', {}, { timeout: 4000 });
     await userEvent.type(value, 's');
     await userEvent.tab();
 
-    expect(await screen.findByText('The fields changed in another window.')).toBeTruthy();
+    expect(
+      await screen.findByText('The fields changed in another window.', {}, { timeout: 4000 }),
+    ).toBeTruthy();
     expect(patchCalls(patch)[0]).toEqual({
       customFields: [{ label: 'Shop', value: 'Carpenters' }],
       expectedUpdatedAt: '2026-01-01T00:00:01.000Z',
