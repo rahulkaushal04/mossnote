@@ -422,6 +422,38 @@ describe('versions', () => {
     expect(list.some((v) => v.kind === 'restore' && v.shapes === 0)).toBe(true);
   });
 
+  it('a save that leaves out target keeps the link, even while the target is in Recently deleted', async () => {
+    const map = await makeMap();
+    const person = await api.person({ name: 'Someone' });
+    const pin = newId();
+    await changes(map.id, {
+      upsert: [{ id: pin, x: 0, y: 0, target: { type: 'person', id: person.id } }],
+    });
+    await t.call('DELETE', `/api/people/${person.id}`);
+    expect(
+      (await api.json<MapDetail>(await t.call('GET', `/api/maps/${map.id}`))).pins[0]?.target,
+    ).toBeNull();
+
+    await changes(map.id, { upsert: [{ id: pin, x: 5, y: 6, label: 'Moved' }] });
+    await t.call('POST', `/api/people/${person.id}/restore`);
+
+    const back = await api.json<MapDetail>(await t.call('GET', `/api/maps/${map.id}`));
+    expect(back.pins[0]).toMatchObject({ x: 5, y: 6, label: 'Moved' });
+    expect(back.pins[0]?.target).toMatchObject({ type: 'person', id: person.id });
+  });
+
+  it('a save that sends target null unlinks the pin', async () => {
+    const map = await makeMap();
+    const person = await api.person({ name: 'Someone' });
+    const pin = newId();
+    await changes(map.id, {
+      upsert: [{ id: pin, x: 0, y: 0, target: { type: 'person', id: person.id } }],
+    });
+    await changes(map.id, { upsert: [{ id: pin, x: 0, y: 0, target: null }] });
+    const back = await api.json<MapDetail>(await t.call('GET', `/api/maps/${map.id}`));
+    expect(back.pins[0]?.target).toBeNull();
+  });
+
   it('a restored pin loses a link to something deleted since, and keeps the pin', async () => {
     const map = await makeMap();
     const person = await api.person({ name: 'Someone' });

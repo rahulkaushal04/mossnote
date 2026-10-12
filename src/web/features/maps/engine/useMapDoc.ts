@@ -19,7 +19,17 @@ const COALESCE_MS = 900;
 
 export type SaveState = 'saved' | 'saving' | 'dirty' | 'error' | 'conflict';
 
-const pinPayload = (p: MapPin) => ({
+const targetRef = (p: MapPin) => (p.target ? { type: p.target.type, id: p.target.id } : null);
+
+const sameTarget = (a: MapPin | undefined, b: MapPin): boolean =>
+  (a?.target?.type ?? null) === (b.target?.type ?? null) &&
+  (a?.target?.id ?? null) === (b.target?.id ?? null);
+
+/**
+ * A pin as the server takes it. `target` is sent only when the link changed: the server shows a
+ * link to a deleted record as none, so sending back what was shown would erase the stored link.
+ */
+const pinPayload = (p: MapPin, before?: MapPin) => ({
   id: p.id,
   x: p.x,
   y: p.y,
@@ -27,7 +37,7 @@ const pinPayload = (p: MapPin) => ({
   color: p.color,
   note: p.note,
   props: p.props,
-  target: p.target ? { type: p.target.type, id: p.target.id } : null,
+  ...(sameTarget(before, p) ? {} : { target: targetRef(p) }),
 });
 
 /** What differs between what the server has and what is on screen, as one request body. */
@@ -35,16 +45,20 @@ export function diffDoc(saved: Doc, now: Doc): MapChanges | null {
   const changes: MapChanges = {};
   if (saved.scene !== now.scene) changes.scene = now.scene;
   const before = new Map(saved.pins.map((p) => [p.id, p]));
-  const upsert = now.pins.filter((p) => before.get(p.id) !== p).map(pinPayload);
+  const upsert = now.pins
+    .filter((p) => before.get(p.id) !== p)
+    .map((p) => pinPayload(p, before.get(p.id)));
   const remove = saved.pins.filter((p) => !now.pins.some((q) => q.id === p.id)).map((p) => p.id);
   if (upsert.length > 0) changes.upsert = upsert;
   if (remove.length > 0) changes.remove = remove;
   return Object.keys(changes).length > 0 ? changes : null;
 }
 
+const pinState = (p: MapPin) => ({ ...pinPayload(p), target: targetRef(p) });
+
 const sameDoc = (a: Doc, b: Doc): boolean =>
   JSON.stringify(a.scene) === JSON.stringify(b.scene) &&
-  JSON.stringify(a.pins.map(pinPayload)) === JSON.stringify(b.pins.map(pinPayload));
+  JSON.stringify(a.pins.map(pinState)) === JSON.stringify(b.pins.map(pinState));
 
 /** What a drawing kept from an earlier visit means now: save it again, or ask which copy to keep. */
 function recoverUnsaved(map: MapDetail, server: Doc): { doc: Doc; conflict: boolean } | null {

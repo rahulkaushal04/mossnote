@@ -113,7 +113,7 @@ export function applyChanges(ctx: Ctx, mapId: string, changes: MapChanges): { up
         .prepare('SELECT * FROM map_pins WHERE id = ? AND map_id = ?')
         .get(pin.id, mapId) as PinRow | undefined;
       if (existing) {
-        updatePinRow(ctx, existing, { ...pin, target: pin.target ?? null });
+        updatePinRow(ctx, existing, pin);
         continue;
       }
       if (ctx.sqlite.prepare('SELECT 1 FROM map_pins WHERE id = ?').get(pin.id)) {
