@@ -1,55 +1,10 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
-/**
- * End-to-end tests run against the built app served by the real server. Each worker starts its
- * own server with a temporary MOSS_DATA_DIR and a free port (see tests/e2e/fixtures.ts).
- * `npm run test:e2e` builds first, in `--mode e2e`: a production build that also includes the
- * hidden /dev/kit route so the Radix primitives can be exercised under the full CSP.
- */
+// Electron e2e tests; Playwright's Electron support is experimental (see ADR 0001).
 export default defineConfig({
-  fullyParallel: true,
-  forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
-  // Reduced motion keeps animations from running mid-scan: axe would measure a half-faded dialog.
-  // Tests that care about motion turn it back on with page.emulateMedia.
-  use: { trace: 'retain-on-failure', colorScheme: 'light', reducedMotion: 'reduce' },
-  projects: [
-    { name: 'chromium', testDir: 'tests/e2e', use: { ...devices['Desktop Chrome'] } },
-    // WebKit smoke test (macOS CI only): npx playwright test --project=webkit --grep @smoke
-    {
-      name: 'webkit',
-      testDir: 'tests/e2e',
-      use: { ...devices['Desktop Safari'] },
-      grep: /@smoke/,
-    },
-    // The web app that keeps the journal in the browser, served as a static site
-    // (`npm run build:standalone` first). Chromium runs everything; WebKit only the smoke test.
-    {
-      name: 'standalone',
-      testDir: 'tests/standalone',
-      testIgnore: /webkit\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
-    },
-    // The web version served the way GitHub Pages serves a project site (`tests/pages`): under
-    // `/<repository>/`, with a 404.html fallback. `npm run verify:pages` builds it for that.
-    {
-      name: 'pages',
-      testDir: 'tests/pages',
-      testIgnore: /webkit\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'pages-webkit',
-      testDir: 'tests/pages',
-      testMatch: /webkit\.spec\.ts/,
-      use: { ...devices['Desktop Safari'] },
-    },
-    {
-      name: 'standalone-webkit',
-      testDir: 'tests/standalone',
-      testMatch: /webkit\.spec\.ts/,
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
+  testDir: 'tests/e2e',
+  testMatch: '**/*.e2e.ts',
+  timeout: 60_000,
+  workers: 1,
+  reporter: [['list']],
 });

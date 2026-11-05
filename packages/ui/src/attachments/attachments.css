@@ -1,0 +1,64 @@
+/* Tokens only (css-vars.test). */
+.att-panel {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+  padding: var(--sp-2) var(--sp-3);
+  max-height: 40vh;
+  overflow: auto;
+}
+.att-over {
+  outline: 2px dashed var(--focus);
+}
+.att-head {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.att-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.att-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  padding: var(--sp-1) 0;
+}
+.att-name {
+  flex: 1 1 12em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.att-badge {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-sm);
+}
+.att-bad,
+.att-bad-msg {
+  color: var(--danger);
+}
+.att-image {
+  max-width: 100%;
+  max-height: 240px;
+}
+.att-text {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--code-bg);
+  color: var(--fg);
+  padding: var(--sp-2);
+}
+.att-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-2);
+}
+.att-sizes input {
+  width: 8em;
+}

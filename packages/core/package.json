@@ -1,0 +1,19 @@
+{
+  "name": "@mossnote/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./rpc": "./src/rpc/index.ts",
+    "./attachments/pdf": "./src/attachments/pdfExtract.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "pdfjs-dist": "6.5.438",
+    "zod": "4.6.7"
+  }
+}

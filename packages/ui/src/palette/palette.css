@@ -1,0 +1,70 @@
+.mn-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+  background: transparent;
+  z-index: 50;
+}
+.mn-palette {
+  width: min(560px, 92vw);
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.mn-palette input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  font: inherit;
+}
+.mn-palette input:focus-visible,
+.mn-palette button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.mn-palette ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 50vh;
+  overflow: auto;
+}
+.mn-palette li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mn-palette li.mn-pal-active {
+  background: var(--selection);
+  color: var(--fg);
+}
+.mn-palette kbd,
+.mn-palette .mn-pal-kind {
+  font: inherit;
+  font-size: 0.85em;
+  color: var(--fg);
+}
+.mn-pal-status:empty {
+  display: none;
+}
+.mn-pal-status {
+  padding: 6px 8px;
+}
+.mn-palette button {
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}

@@ -5,19 +5,13 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
     "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
-    "composite": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "paths": {
-      "@shared/*": ["./src/shared/*"],
-      "@server/*": ["./src/server/*"],
-      "@web/*": ["./src/web/*"]
-    }
+    "noEmit": true
   }
 }

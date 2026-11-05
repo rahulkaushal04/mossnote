@@ -1,0 +1,144 @@
+/* Token colors come from the theme CSS variables (stage S5); no literal colors here. */
+.cm-editor {
+  font-family: inherit;
+}
+.cm-content {
+  padding: 8px 0;
+}
+.cm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.tok-keyword,
+.tok-operator {
+  color: var(--syn-keyword);
+}
+.tok-string,
+.tok-string2 {
+  color: var(--syn-string);
+}
+.tok-comment {
+  color: var(--syn-comment);
+  font-style: italic;
+}
+.tok-number,
+.tok-bool,
+.tok-atom {
+  color: var(--syn-number);
+}
+.tok-heading {
+  color: var(--syn-heading);
+  font-weight: 600;
+}
+.tok-link,
+.tok-url {
+  color: var(--syn-link);
+}
+.tok-emphasis {
+  font-style: italic;
+}
+.tok-strong {
+  font-weight: 700;
+}
+.tok-meta,
+.tok-punctuation {
+  color: var(--fg-muted);
+}
+
+.cm-lp-h1 {
+  font-size: 1.6em;
+}
+.cm-lp-h2 {
+  font-size: 1.35em;
+}
+.cm-lp-h3 {
+  font-size: 1.15em;
+}
+.cm-lp-em {
+  font-style: italic;
+}
+.cm-lp-strong {
+  font-weight: 700;
+}
+.cm-lp-strike {
+  text-decoration: line-through;
+}
+.cm-lp-code {
+  font-family: monospace;
+  background: var(--code-bg);
+  border-radius: 3px;
+}
+.cm-lp-link,
+.cm-lp-url {
+  color: var(--syn-link);
+}
+.cm-lp-listmark {
+  color: var(--accent);
+}
+.cm-lp-quote {
+  border-left: 3px solid var(--border);
+  padding-left: 8px;
+  color: var(--fg-muted);
+}
+.cm-lp-fence {
+  font-family: monospace;
+  background: var(--code-bg);
+}
+.cm-lp-table-header,
+.cm-lp-table-delim,
+.cm-lp-table-row {
+  font-family: monospace;
+  border-bottom: 1px solid var(--border);
+}
+.cm-lp-table-header {
+  font-weight: 600;
+}
+.cm-lp-table-delim {
+  color: var(--fg-muted);
+}
+
+.cm-task-box {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.cm-task-box[aria-checked='true'] {
+  background: var(--accent);
+}
+.cm-image {
+  max-width: 100%;
+  display: block;
+}
+.cm-image-inert {
+  color: var(--fg-muted);
+  border: 1px dashed var(--border);
+  padding: 0 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cm-editor * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.cm-large-note {
+  padding: var(--sp-1) var(--sp-3);
+  background: var(--bg-elev);
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+
+.cm-image-remote button {
+  margin-inline-start: var(--sp-2);
+}

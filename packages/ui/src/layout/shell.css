@@ -1,0 +1,204 @@
+.shell {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+}
+.shell > nav {
+  grid-column: 1;
+  overflow: auto;
+  padding: var(--sp-3);
+  background: var(--bg-elev);
+}
+.shell > #pane-list {
+  grid-column: 3;
+  overflow: auto;
+  min-width: 0;
+}
+.shell > main {
+  grid-column: 5;
+  overflow: auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.shell > footer {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3);
+  border-top: 1px solid var(--border);
+  background: var(--bg-elev);
+  font-size: var(--fs-sm);
+}
+.splitter {
+  cursor: col-resize;
+  background: var(--border);
+  width: 6px;
+}
+.splitter:hover {
+  background: var(--accent);
+}
+.muted {
+  color: var(--fg-muted);
+}
+.brand {
+  font-size: var(--fs-md);
+  margin: 0 0 var(--sp-3);
+}
+.notelist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notelist [role='option'] {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notelist [aria-selected='true'] {
+  background: var(--selection);
+}
+.pane-msg {
+  padding: var(--sp-4);
+}
+.banner {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.editor-host {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Focus mode and other `hidden` panes must win over the display rules above. */
+.shell [hidden] {
+  display: none !important;
+}
+
+/* Toasts, dialogs and messages: tokens only. */
+.toasts {
+  position: fixed;
+  inset-block-end: var(--sp-4);
+  inset-inline-end: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-width: min(420px, 92vw);
+  z-index: 60;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 70;
+}
+.modal {
+  width: min(440px, 92vw);
+  padding: var(--sp-4);
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.modal h2 {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-md);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+button,
+select,
+input:not([type='checkbox']) {
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-1) var(--sp-2);
+}
+button:disabled {
+  color: var(--fg-muted);
+}
+button.danger {
+  background: var(--danger);
+  color: var(--danger-fg);
+  border-color: var(--danger);
+}
+.capture {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+}
+.capture textarea {
+  flex: 1;
+  resize: none;
+  padding: var(--sp-2);
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+[role='alert'] {
+  color: var(--danger);
+}
+.shell nav ul,
+#pane-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+[role='treeitem'] {
+  cursor: pointer;
+}
+[role='treeitem'][aria-selected='true'] {
+  background: var(--selection);
+}
+[role='menu'] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: var(--sp-1) 0;
+  padding: var(--sp-1);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}

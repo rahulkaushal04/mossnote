@@ -1,0 +1,88 @@
+/* Search pane. Tokens only. */
+.search-box {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.search-box input[type='search'] {
+  width: 100%;
+  box-sizing: border-box;
+}
+.search-scope,
+.search-hint {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-sm);
+}
+.search-status {
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--fg-muted);
+  min-height: 1em;
+}
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+.search-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.search-filters label.inline {
+  flex-direction: row;
+  align-items: center;
+}
+.search-messages {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  color: var(--fg-muted);
+}
+.search-list [role='option'] {
+  display: flex;
+  flex-direction: column;
+  white-space: normal;
+}
+.hit-title {
+  font-weight: 600;
+}
+.hit-snippet {
+  color: var(--fg-muted);
+  font-size: var(--fs-sm);
+  overflow-wrap: anywhere;
+}
+.search-list [aria-selected='true'] .hit-snippet {
+  color: var(--fg-muted);
+}
+.search-list mark {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: 2px;
+}
+.saved-searches h2 {
+  font-size: var(--fs-base);
+  margin: var(--sp-3) 0 var(--sp-1);
+}
+.search-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.search-chips li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 var(--sp-2);
+}
+.search-index-error {
+  overflow-wrap: anywhere;
+  color: var(--fg-muted);
+}
