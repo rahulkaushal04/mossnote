@@ -37,6 +37,17 @@ describe('AS-6 desktop menu', () => {
     (item?.click as () => void)();
     expect(sent).toEqual(['note.new']);
   });
+  it('lists the portability commands under File and sends their ids (those the manifest has so far)', () => {
+    const ids = ['portability.export', 'portability.import', 'portability.backup', 'portability.restore'];
+    const file = flat(build().find((x) => x.label === 'File')?.submenu as MenuItemConstructorOptions[]);
+    for (const id of ids.filter((i) => commands.some((c) => c.id === i))) {
+      expect(commands.find((c) => c.id === id)?.menu, id).toBe('File');
+      const item = file.find((i) => i.id === id);
+      sent.length = 0;
+      (item?.click as () => void)();
+      expect(sent, id).toEqual([id]);
+    }
+  });
   it('does not register accelerators that the renderer keymap owns', () => {
     for (const i of flat(build()).filter((i) => i.id)) {
       const spec = commands.find((c) => c.id === i.id);

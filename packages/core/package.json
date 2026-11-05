@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./rpc": "./src/rpc/index.ts",
-    "./attachments/pdf": "./src/attachments/pdfExtract.ts"
+    "./attachments/pdf": "./src/attachments/pdfExtract.ts",
+    "./markdown": "./src/markdown/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"

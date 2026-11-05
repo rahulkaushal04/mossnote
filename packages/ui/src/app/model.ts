@@ -14,6 +14,9 @@ import { applyTheme, type ThemeMode } from '../theme/applyTheme';
 import { createToastStore, type ToastStore } from '../toast/toastStore';
 import { createTrashActions, type TrashActions } from '../trash/trashActions';
 import { createSearchStore, type SearchStore } from '../search/searchStore';
+import { createBulkActions, type BulkActions } from '../portability/bulkActions';
+import { createJobStore, type JobStore } from '../portability/jobStore';
+import { createSelection, type SelectionStore } from '../portability/selection';
 import { createStore, type Store } from './store';
 
 export const PAGE = 500;
@@ -25,6 +28,8 @@ export interface Recovered {
 export interface ModelState {
   boot: 'loading' | 'ready' | 'fatal';
   fatal?: string;
+  /** The error code behind `fatal` (`corrupt` shows the recovery screen). */
+  fatalCode?: string;
   prefs?: Prefs;
   notes: NoteSummary[];
   list: 'loading' | 'ready' | 'error';
@@ -55,6 +60,11 @@ export interface AppModel {
   toasts: ToastStore;
   /** Delete = move to Trash + Undo toast. */
   actions: TrashActions;
+  /** Export / import / backup / restore progress (the `job` events). */
+  jobs: JobStore;
+  /** Multi-select state of the note list and search results. */
+  selection: SelectionStore;
+  bulk: BulkActions;
   /** Set by the mounted EditorPane. */
   hooks: {
     flush?: () => Promise<void>;
@@ -124,6 +134,19 @@ export function createModel({ bridge, timers = systemTimers }: AppDeps): AppMode
     },
   });
 
+  const jobs = createJobStore(toasts);
+  const selection = createSelection();
+  const bulk = createBulkActions({
+    client,
+    toasts,
+    selection,
+    beforeTrash: () => hooks.flush?.(),
+    onTrashed: (ids) => {
+      const open = store.get().openId;
+      if (open && ids.includes(open)) model.openNote(null);
+    },
+  });
+
   async function fetchPage(
     limit: number,
     cursor?: { updatedAt: number; id: string },
@@ -144,6 +167,9 @@ export function createModel({ bridge, timers = systemTimers }: AppDeps): AppMode
     search,
     toasts,
     actions,
+    jobs,
+    selection,
+    bulk,
     hooks,
 
     async start() {
@@ -153,7 +179,8 @@ export function createModel({ bridge, timers = systemTimers }: AppDeps): AppMode
         const msg = st.ok
           ? (st.value.message ?? 'The workspace could not be opened.')
           : st.error.message;
-        return store.set({ boot: 'fatal', fatal: msg });
+        const code = st.ok ? st.value.code : undefined;
+        return store.set({ boot: 'fatal', fatal: msg, ...(code ? { fatalCode: code } : {}) });
       }
       const p = await client.call('prefs.get');
       // Theme first, so the shell's very first paint already has the saved colors.
@@ -316,6 +343,7 @@ export function createModel({ bridge, timers = systemTimers }: AppDeps): AppMode
 export function attachEvents(model: AppModel, onCommand?: (id: string) => void): () => void {
   return model.client.onEvent((e: RpcEvent) => {
     model.search.onEvent(e);
+    model.jobs.onEvent(e);
     if (e.type === 'changed') {
       // An own autosave (content) is handled by patchRow; tags do not change the list.
       if (e.content || e.entity === 'tag' || e.entity === 'attachment') return;

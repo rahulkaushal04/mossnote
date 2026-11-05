@@ -1,0 +1,87 @@
+/* Tokens only (css-vars.test). */
+.modal.wide {
+  width: min(640px, 94vw);
+  max-height: 90vh;
+  overflow: auto;
+}
+.modal h3 {
+  margin: var(--sp-4) 0 var(--sp-1);
+  font-size: var(--fs-md);
+}
+.pt-job {
+  margin: var(--sp-2) 0;
+}
+.pt-bar {
+  height: var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.pt-bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+.pt-lines {
+  max-height: 160px;
+  overflow: auto;
+  margin: var(--sp-1) 0;
+  padding-inline-start: var(--sp-4);
+  overflow-wrap: anywhere;
+}
+.pt-backups {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pt-backups > li {
+  border-bottom: 1px solid var(--border);
+  padding: var(--sp-2) 0;
+}
+.pt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  margin: var(--sp-1) 0;
+}
+.pt-when {
+  font-weight: 600;
+}
+.pt-badge {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-sm);
+}
+.pt-bad,
+.pt-warn {
+  color: var(--danger);
+}
+.pt-fields {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: var(--sp-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.pt-recovery {
+  max-width: 720px;
+}
+.bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.bulkbar-count {
+  flex: 1 1 100%;
+}
+.sel-mark {
+  display: inline-block;
+  min-width: 1.5em;
+}

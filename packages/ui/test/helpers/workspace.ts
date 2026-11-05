@@ -4,7 +4,20 @@ import { join } from 'node:path';
 import { createDispatcher, openWorkspace, type Dispatcher, type Workspace } from '@mossnote/core';
 import { createLoopback, type Loopback } from './loopback';
 
+/** What the main-process dialogs answer (absolute path, or null = the user cancelled). Mutate between steps. */
+export interface Picks {
+  exportDir: string | null;
+  importDir: string | null;
+  save: string | null;
+  open: string | null;
+}
+
 export interface Env {
+  picks: Picks;
+  /** Names the dialogs were asked for, in order ("export", "import", "save:<name>", "open"). */
+  asked: string[];
+  /** How many times the restore asked the desktop to relaunch. */
+  restarts: number[];
   dir: string;
   ws: Workspace;
   dispatcher: Dispatcher;
@@ -18,14 +31,29 @@ export interface Env {
 
 /** A REAL temp-dir workspace behind the real dispatcher and the structuredClone loopback. */
 export function makeEnv(dir = mkdtempSync(join(tmpdir(), 'mossnote-ui-'))): Env {
-  const r = openWorkspace(join(dir, 'w.db'));
+  // Cheap scrypt and tiny chunks so encrypted backups stay fast in tests.
+  const r = openWorkspace(join(dir, 'w.db'), {
+    portability: { crypto: { logN: 14, chunkSize: 1024 } },
+  });
   if (!r.ok) throw new Error(r.error.message);
   const uploads = new Map<string, string>();
+  const picks: Picks = { exportDir: null, importDir: null, save: null, open: null };
+  const asked: string[] = [];
+  const restarts: number[] = [];
   const dispatcher = createDispatcher(r, {
     platform: 'test',
+    dbPath: join(dir, 'w.db'),
+    pickExportDir: async () => (asked.push('export'), picks.exportDir),
+    pickImportDir: async () => (asked.push('import'), picks.importDir),
+    pickBackupSavePath: async (name) => (asked.push(`save:${name}`), picks.save),
+    pickBackupOpenPath: async () => (asked.push('open'), picks.open),
+    restartForRestore: () => void restarts.push(1),
     resolveUploadPath: (t) => uploads.get(t),
   });
   const env: Env = {
+    picks,
+    asked,
+    restarts,
     dir,
     ws: r.value,
     dispatcher,

@@ -13,7 +13,7 @@ import {
   utilityProcess,
 } from 'electron';
 import Database from 'better-sqlite3';
-import { ATTACHMENT_SCHEME, openWorkspace } from '@mossnote/core';
+import { applyPendingRestore, ATTACHMENT_SCHEME, openWorkspace } from '@mossnote/core';
 import { CAPTURE_METHODS, createDispatcher } from '@mossnote/core/rpc';
 import { commands } from '@mossnote/ui/commands';
 import { randomUUID } from 'node:crypto';
@@ -25,6 +25,13 @@ import { copyOut } from './copyOut.ts';
 import { CHANNELS, forwardEvents, isOurPage, registerRpc } from './ipc.ts';
 import { createLifecycle } from './lifecycle.ts';
 import { buildMenuTemplate } from './menu.ts';
+import {
+  createDialogGate,
+  createPickers,
+  createRestart,
+  createWarnSink,
+  runPendingRestore,
+} from './portability.ts';
 import { registerNative } from './native.ts';
 import { createUtilityExtractor } from './pdfUtility.ts';
 import { loadRemoteImage, nodeRemoteDeps } from './remoteImage.ts';
@@ -69,7 +76,24 @@ async function start(): Promise<void> {
   const live = () => (mainWin && !mainWin.isDestroyed() ? mainWin : null);
 
   const dbDir = path.join(app.getPath('userData'), 'workspace');
+  const dbPath = path.join(dbDir, 'mossnote.db');
   fs.mkdirSync(dbDir, { recursive: true });
+  // Native error boxes need a ready app. Everything below registered before `ready` is not needed earlier.
+  await app.whenReady();
+  // PT-7 / C1: a staged restore is swapped in BEFORE the workspace opens (core takes workspace.lock itself).
+  // On error the workspace is never opened (so no fresh database appears): show the message and quit.
+  const warns = createWarnSink();
+  if (
+    !runPendingRestore({
+      dbPath,
+      apply: (p) => applyPendingRestore(p),
+      showError: (title, message) => dialog.showErrorBox(title, message),
+      warn: warns.warn,
+    })
+  ) {
+    app.exit(1);
+    return;
+  }
 
   const lifecycle = createLifecycle({
     platform: process.platform,
@@ -82,15 +106,35 @@ async function start(): Promise<void> {
     closeWindow: () => live()?.close(),
     quit: () => app.quit(),
     closeDispatcher: () => void dispatcher.close(),
-    // M11: let a running cleanup or verify finish (bounded) before the workspace closes.
-    drain: () => (wsr.ok ? wsr.value.attachments.idle() : Promise.resolve()),
+    // M11: stops the backup scheduler and waits for a running backup/import/verify/cleanup. Lifecycle bounds
+    // the wait (5 s); after that the workspace closes anyway and the process exits. That is safe: jobs write to
+    // temp files / a staging folder and publish by rename, imports commit per batch and resume, and core sweeps
+    // leftovers at the next start (createPortability).
+    drain: () => dispatcher.drain(),
     setTimer: (fn, ms) => setTimeout(fn, ms),
     clearTimer: (t) => clearTimeout(t as NodeJS.Timeout),
   });
+  // One gate for every native dialog (pickers here and the attachment channels). The pickers attach to the main
+  // window; they are only reachable through RPC methods that the capture window may not call (registerRpc).
+  const gate = createDialogGate();
+  const pickers = createPickers(
+    {
+      open: (o) => {
+        const w = live();
+        return w ? dialog.showOpenDialog(w, o) : dialog.showOpenDialog(o);
+      },
+      save: (o) => {
+        const w = live();
+        return w ? dialog.showSaveDialog(w, o) : dialog.showSaveDialog(o);
+      },
+    },
+    gate,
+  );
   // The lock is taken at open; a locked or corrupt workspace is reported to the renderer by app.status.
   const tokens = createUploadTokens({ newToken: randomUUID });
   // The core opens the attachments root and sweeps leftover temp files of interrupted adds.
-  const wsr = openWorkspace(path.join(dbDir, 'mossnote.db'), {
+  const wsr = openWorkspace(dbPath, {
+    portability: { onWarn: warns.warn },
     attachments: {
       pdf: createUtilityExtractor({
         fork: (entry, args, o) => utilityProcess.fork(entry, args, o),
@@ -104,7 +148,13 @@ async function start(): Promise<void> {
     onFlushed: (token) => void lifecycle.ack(token),
     onQuit: () => app.quit(), // before-quit runs the lifecycle flush handshake
     onOpenCapture: () => capture.open(),
+    dbPath, // recovery mode (corrupt workspace) still lists backups and restores
+    ...pickers,
+    // Relaunch first, then the normal quit (flush handshake, drain, close); the new process applies the restore.
+    restartForRestore: createRestart({ relaunch: () => app.relaunch(), quit: () => app.quit() }),
   });
+  warns.bind((message) => dispatcher.emit({ type: 'status', message, level: 'warn' }));
+  if (wsr.ok) wsr.value.portability.scheduler.start();
 
   const winOpts = () => ({
     preload,
@@ -155,7 +205,6 @@ async function start(): Promise<void> {
     if (!live()) createMain();
   });
 
-  await app.whenReady();
   installSessionGuards(session.defaultSession, uiDist, e2e);
   const attachmentHandler = createAttachmentHandler(() => (wsr.ok ? wsr.value.attachments : undefined));
   session.defaultSession.protocol.handle(ATTACHMENT_SCHEME, (req) => attachmentHandler(req));
@@ -207,7 +256,12 @@ async function start(): Promise<void> {
     showInFolder: (p) => shell.showItemInFolder(p),
     writeCopy: copyOut,
     loadRemote: (url) => loadRemoteImage(url, nodeRemoteDeps),
-    emit: (ev) => dispatcher.emit(ev),
+    gate,
+    // Same effects as an RPC attachment mutation: `changed` for the UI, and 'search.' calls kick the index pump.
+    onMutated: (entity, ids) => {
+      dispatcher.emit({ type: 'changed', entity, ids });
+      void dispatcher.handle('search.status', {});
+    },
   });
   const trusted = (e: { senderFrame?: { url: string } | null }) =>
     isOurPage(e.senderFrame?.url, uiIndex);

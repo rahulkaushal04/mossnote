@@ -1,7 +1,9 @@
-import { memo, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { memo, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useApp } from '../app/context';
 import { useStore } from '../app/store';
 import { useLoad } from '../nav/useLoad';
+import { BulkBar } from '../portability/BulkBar';
+import { selectionClick, selectionKey } from '../portability/selection';
 import { FilterBar } from './FilterBar';
 import { Highlighted } from './Highlighted';
 import { SaveSearchDialog } from './SavedSearches';
@@ -14,19 +16,28 @@ const Row = memo(function Row({
   hit,
   selected,
   active,
+  selecting,
+  checked,
 }: {
   hit: SearchHit;
   selected: boolean;
   active: boolean;
+  selecting: boolean;
+  checked: boolean;
 }) {
   return (
     <li
       role="option"
       id={hitId(hit.noteId)}
       data-id={hit.noteId}
-      aria-selected={selected}
+      aria-selected={selecting ? checked : selected}
       tabIndex={active ? 0 : -1}
     >
+      {selecting && (
+        <span className="sel-mark" aria-hidden="true">
+          {checked ? '☑' : '☐'}
+        </span>
+      )}
       <span className="hit-title">
         {hit.title.text ? <Highlighted value={hit.title} /> : 'Untitled'}
       </span>
@@ -41,7 +52,7 @@ const Row = memo(function Row({
 
 /** The search box on top of the notes pane. While the query is non-empty, results replace `children` (the note list). */
 export function SearchPane({ children }: { children: ReactNode }) {
-  const { model } = useApp();
+  const { model, registry } = useApp();
   const search = model.search;
   const s = useStore(search, (x) => x);
   const navKind = useStore(model.nav, (x) => x.kind);
@@ -79,6 +90,9 @@ export function SearchPane({ children }: { children: ReactNode }) {
             : `Tag “${tags.data?.find((t) => t.id === navId)?.name ?? '…'}”`;
 
   const hits = s.hits;
+  const selecting = useStore(model.selection, (x) => x.on);
+  const picked = useStore(model.selection, (x) => x.ids);
+  const order = useMemo(() => hits.map((h) => h.noteId), [hits]);
   const active =
     (activeId && hits.some((h) => h.noteId === activeId) && activeId) ||
     (openId && hits.some((h) => h.noteId === openId) && openId) ||
@@ -106,7 +120,11 @@ export function SearchPane({ children }: { children: ReactNode }) {
   const onListKey = (e: React.KeyboardEvent) => {
     const i = hits.findIndex((h) => h.noteId === active);
     const row = (e.target as HTMLElement).closest('[data-id]')?.getAttribute('data-id') ?? active;
-    if (e.key === 'ArrowDown') move(hits[Math.min(hits.length - 1, i + 1)]?.noteId);
+    const sk = selectionKey(model.selection, order, active, row ?? null, e);
+    if (sk) {
+      if (sk.moveTo) move(sk.moveTo);
+    } else if (selecting && e.key === 'Delete' && picked.size > 0) registry.run('bulk.trash');
+    else if (e.key === 'ArrowDown') move(hits[Math.min(hits.length - 1, i + 1)]?.noteId);
     else if (e.key === 'ArrowUp') {
       if (i <= 0) input.current?.focus();
       else move(hits[i - 1]?.noteId);
@@ -219,31 +237,37 @@ export function SearchPane({ children }: { children: ReactNode }) {
                   </ul>
                 )}
                 {hits.length > 0 && (
-                  <ul
-                    id={listId}
-                    role="listbox"
-                    aria-label="Search results"
-                    className="notelist search-list"
-                    onKeyDown={onListKey}
-                    onClick={(e) => {
-                      const id = (e.target as HTMLElement)
-                        .closest('[data-id]')
-                        ?.getAttribute('data-id');
-                      if (id) {
-                        setActiveId(id);
-                        model.openNote(id);
-                      }
-                    }}
-                  >
-                    {hits.map((h) => (
-                      <Row
-                        key={h.noteId}
-                        hit={h}
-                        selected={h.noteId === openId}
-                        active={h.noteId === active}
-                      />
-                    ))}
-                  </ul>
+                  <>
+                    <BulkBar order={order} />
+                    <ul
+                      id={listId}
+                      role="listbox"
+                      aria-label="Search results"
+                      className="notelist search-list"
+                      {...(selecting ? { 'aria-multiselectable': true } : {})}
+                      onKeyDown={onListKey}
+                      onClick={(e) => {
+                        const id = (e.target as HTMLElement)
+                          .closest('[data-id]')
+                          ?.getAttribute('data-id');
+                        if (id) {
+                          setActiveId(id);
+                          if (!selectionClick(model.selection, order, id, e)) model.openNote(id);
+                        }
+                      }}
+                    >
+                      {hits.map((h) => (
+                        <Row
+                          key={h.noteId}
+                          hit={h}
+                          selected={h.noteId === openId}
+                          active={h.noteId === active}
+                          selecting={selecting}
+                          checked={picked.has(h.noteId)}
+                        />
+                      ))}
+                    </ul>
+                  </>
                 )}
                 {s.hasMore && (
                   <button type="button" onClick={() => void search.loadMore()}>

@@ -6,6 +6,7 @@ import { Shell } from '../layout/Shell';
 import { Toasts } from '../toast/Toasts';
 import { getBridge } from '../rpc/bridge';
 import type { Timers } from '../editor/autosave';
+import { RecoveryView } from '../portability/RecoveryView';
 import { AppContext } from './context';
 import { attachEvents, createModel, type AppModel } from './model';
 import { useStore } from './store';
@@ -29,6 +30,7 @@ export function App({ bridge, timers, createEditor, onQuit, onReady }: AppProps)
   const registry = useMemo(() => createRegistry(), []);
   const boot = useStore(model.store, (s) => s.boot);
   const fatal = useStore(model.store, (s) => s.fatal);
+  const fatalCode = useStore(model.store, (s) => s.fatalCode);
 
   useEffect(() => {
     // Menu clicks from main arrive as `command` events and run the same handlers as the keys.
@@ -45,12 +47,15 @@ export function App({ bridge, timers, createEditor, onQuit, onReady }: AppProps)
     };
   }, [model, registry]);
 
+  const quit = onQuit ?? (() => void model.client.call('app.quit'));
+  if (boot === 'fatal' && fatalCode === 'corrupt')
+    return <RecoveryView client={model.client} jobs={model.jobs} message={fatal} onQuit={quit} />;
   if (boot === 'fatal')
     return (
       <main aria-label="Mossnote cannot start" className="pane-msg">
         <h1>Mossnote can’t open your notes</h1>
         <p role="alert">{fatal}</p>
-        <button type="button" onClick={onQuit ?? (() => void model.client.call('app.quit'))}>
+        <button type="button" onClick={quit}>
           Quit
         </button>
       </main>

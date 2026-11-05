@@ -4,6 +4,8 @@ import { useApp } from '../app/context';
 import { useStore } from '../app/store';
 import { useGlobalShortcuts } from '../commands/registry';
 import { CleanupDialog } from '../attachments/CleanupDialog';
+import { BulkMoveDialog, BulkTagDialog } from '../portability/BulkBar';
+import { DataDialog, type DataIntent } from '../portability/DataDialog';
 import { EditorPane } from '../editor/EditorPane';
 import { NoteList } from '../list/NoteList';
 import { SavedSearches } from '../search/SavedSearches';
@@ -30,7 +32,8 @@ function useWindowWidth(): number {
   return w;
 }
 
-type Overlay = 'none' | 'palette' | 'shortcuts' | 'cleanup';
+type Overlay =
+  'none' | 'palette' | 'shortcuts' | 'cleanup' | 'data' | 'bulkMove' | 'bulkTag' | 'bulkUntag';
 type PaletteNotes = { notes?: { id: string; title: string }[]; error?: string };
 
 /** Every note title for the palette, whatever the nav selection shows. Loaded when it opens. */
@@ -58,6 +61,8 @@ export function Shell() {
   const navKind = useStore(model.nav, (s) => s.kind);
   const [overlay, setOverlay] = useState<Overlay>('none');
   const [tries, setTries] = useState(0);
+  const [intent, setIntent] = useState<DataIntent>('open');
+  const [bulkIds, setBulkIds] = useState<string[]>([]);
   const tree = useRef<FolderTreeHandle>(null);
   const palette = usePaletteNotes(overlay === 'palette', tries);
   useGlobalShortcuts(registry);
@@ -103,6 +108,14 @@ export function Shell() {
         toggleShortcuts: () => setOverlay((o) => (o === 'shortcuts' ? 'none' : 'shortcuts')),
         toggleNav: () => toggleNav.current(),
         openCleanup: () => setOverlay('cleanup'),
+        openData: (i) => {
+          setIntent(i);
+          setOverlay('data');
+        },
+        openBulk: (k, ids) => {
+          setBulkIds(ids);
+          setOverlay(k === 'move' ? 'bulkMove' : k === 'tag' ? 'bulkTag' : 'bulkUntag');
+        },
       }),
     [registry, model],
   );
@@ -199,6 +212,38 @@ export function Shell() {
           prefs={prefs}
           onPrefs={(p) => model.store.set({ prefs: p })}
           onClose={() => setOverlay('none')}
+        />
+      )}
+      {overlay === 'data' && (
+        <DataDialog
+          client={model.client}
+          jobs={model.jobs}
+          intent={intent}
+          onClose={() => setOverlay('none')}
+        />
+      )}
+      {overlay === 'bulkMove' && (
+        <BulkMoveDialog
+          client={model.client}
+          count={bulkIds.length}
+          onCancel={() => setOverlay('none')}
+          onSubmit={async (folderId, label) => {
+            // Close first: focus the bar after the dialog (and its focus trap) is gone.
+            setOverlay('none');
+            await model.bulk.move(bulkIds, folderId, label);
+          }}
+        />
+      )}
+      {(overlay === 'bulkTag' || overlay === 'bulkUntag') && (
+        <BulkTagDialog
+          client={model.client}
+          count={bulkIds.length}
+          on={overlay === 'bulkTag'}
+          onCancel={() => setOverlay('none')}
+          onSubmit={async (tagId, name) => {
+            setOverlay('none');
+            await model.bulk.tag(bulkIds, tagId, overlay === 'bulkTag', name);
+          }}
         />
       )}
       {overlay === 'shortcuts' && <ShortcutsView onClose={() => setOverlay('none')} />}

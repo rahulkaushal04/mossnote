@@ -1,6 +1,7 @@
 import type { FolderTreeHandle } from '../nav/FolderTree';
 import type { Registry } from '../commands/registry';
 import { verifySummary } from '../attachments/types';
+import type { DataIntent } from '../portability/DataDialog';
 import type { AppModel } from './model';
 
 export interface UiActions {
@@ -9,6 +10,9 @@ export interface UiActions {
   toggleShortcuts(): void;
   toggleNav(): void;
   openCleanup(): void;
+  /** Optional so older callers (tests) still type-check. */
+  openData?(intent: DataIntent): void;
+  openBulk?(kind: 'move' | 'tag' | 'untag', ids: string[]): void;
 }
 
 const FORMATS = [
@@ -29,6 +33,9 @@ export function bindCommands(r: Registry, model: AppModel, ui: UiActions): () =>
   const { client, nav, toasts, hooks, store } = model;
   const open = () => store.get().openId;
   const hasOpen = { enabled: () => open() !== null };
+  const { selection } = model;
+  const picked = () => [...selection.get().ids];
+  const hasPicked = () => selection.get().on && selection.get().ids.size > 0;
   const offs = [
     r.bind('note.new', () => void model.createNote()),
     r.bind('folder.new', () => void ui.tree()?.newFolder(), { enabled: () => !!ui.tree() }),
@@ -82,6 +89,23 @@ export function bindCommands(r: Registry, model: AppModel, ui: UiActions): () =>
         toasts.push({ message: verifySummary(v.value), lifetimeMs: bad ? 15_000 : 6000 });
       })();
     }),
+    ...(['open', 'export', 'import', 'backup', 'restore'] as const).map((k) =>
+      r.bind(`portability.${k}`, () => ui.openData?.(k), { enabled: () => !!ui.openData }),
+    ),
+    r.bind('bulk.select', () => {
+      if (model.selection.get().on) model.selection.exit();
+      else model.selection.enter();
+    }),
+    r.bind('bulk.selectAll', () => model.selection.selectAll(selection.hooks.visible?.() ?? []), {
+      enabled: () => !!selection.hooks.visible,
+    }),
+    ...(['move', 'tag', 'untag'] as const).map((k) =>
+      r.bind(`bulk.${k}`, () => ui.openBulk?.(k, picked()), {
+        enabled: () => hasPicked() && !!ui.openBulk,
+      }),
+    ),
+    r.bind('bulk.trash', () => void model.bulk.trash(picked()), { enabled: hasPicked }),
+    r.bind('bulk.export', () => void model.bulk.exportNotes(picked()), { enabled: hasPicked }),
     r.bind('view.palette', ui.togglePalette),
     r.bind('view.shortcuts', ui.toggleShortcuts),
     r.bind('view.toggleNav', ui.toggleNav),
